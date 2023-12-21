@@ -1,0 +1,199 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = ""
+version = "0.1.0"
+description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
+license = "GPL-3.0-only"
+authors = ["AJ Slater <aj@slater.net>"]
+readme = "README.md"
+homepage = "https://github.com/ajslater/comicfn2dict"
+repository = "https://github.com/ajslater/comicfn2dict"
+documentation = "https://github.com/ajslater/comicfn2dict"
+keywords = []
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+]
+packages = [{ include = "" }, { include = "tests", format = "sdist" }]
+exclude = ["*/**/*~"]
+include = []
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.group.dev.dependencies]
+neovim = "^0.3.1"
+djlint = "^1.19.17"
+wheel = "^0.42.0"
+
+[tool.poetry.group.test.dependencies]
+coverage = { extras = ["toml"], version = "^7.0" }
+deepdiff = "^6.3.1"
+pytest-cov = "^4.1.0"
+pytest-gitignore = "^1.3"
+
+[tool.poetry.group.lint.dependencies]
+codespell = "^2.1.0"
+pyright = "^1.1.232"
+radon = { version = "^6.0.1", extras = ["toml"] }
+ruff = "^0.1.2"
+types-python-dateutil = "^2.8.19"
+vulture = "^2.3"
+
+[tool.poetry.scripts]
+#prog = "prog.run:main"
+
+[tool.poetry.urls]
+"News" = "https://github.com/ajslater/comicfn2dict/NEWS.md"
+"Report Issues" = "https://github.com/ajslater/comicfn2dict/issues"
+
+[tool.codespell]
+skip = './cache,./dist,./test-results,.git,.mypy_cache,.pytest_cache,.venv*,node_modules,package-lock.json,poetry.lock,run.spec'
+builtin = 'clear,rare,code'
+check-hidden = true
+# Remove 'coverd' when this issue is resolved
+# https://github.com/codespell-project/codespell/issues/1212
+ignore-words-list = 'thead,ro,jupyter,coverd,searched,ws'
+
+[tool.coverage.html]
+directory = "test-results/coverage"
+
+[tool.coverage.run]
+source = ["comicfn2dict"]
+branch = true
+concurrency = ["multiprocessing"]
+omit = [
+  ".git/*",
+  ".mypy_cache/*",
+  ".pytest_cache/*",
+  ".venv*/*",
+  "*__pycache__*",
+  "dist/*",
+  "node_modules/*",
+  "test-results/*",
+  "typings/*"
+]
+
+[tool.pyright]
+exclude = [
+  "**/__pycache__",
+  "**/node_modules",
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".venv*",
+  "cache",
+  "dist",
+  "package-lock.json",
+  "poetry.lock",
+  "test-results",
+  "typings",
+]
+useLibraryCodeForTypes = true
+reportMissingImports = true
+reportImportCycles = true
+pythonVersion = "3.9"
+pythonPlatform = "All"
+
+[tool.pytest.ini_options]
+junit_family = "xunit2"
+# --black
+addopts = """
+    --junit-xml=test-results/pytest/results.xml
+    -ra
+    --strict-config
+    --strict-markers
+    --cov
+    --cov-append
+    --cov-report=html
+    --cov-report=term
+    --ignore=.git
+    --ignore=cache
+    --ignore=frontend
+    --ignore=typings
+"""
+
+[tool.radon]
+exclude = "*~,.git/*,.mypy_cache/*,.pytest_cache/*,.venv*,__pycache__/*,cache/*,dist/*,node_modules/*,test-results/*,typings/*"
+
+[tool.ruff]
+extend-exclude = ["typings"]
+extend-ignore = ["S101", "D203", "D213",
+  # Format ignores
+  "W191", "E501", "E111", "E114", "E117", "D206", "D300", "Q000", "Q001",
+  "Q002", "Q003", "COM812", "COM819", "ISC001", "ISC002"
+]
+extend-select = [
+  "A",
+  "ARG",
+  "B",
+  "B9",
+  "C",
+  "C4",
+  "C90",
+  "D",
+  "DJ",
+  "DTZ",
+  "E",
+  "EM",
+  "EXE",
+  "F",
+  "I",
+  "ICN",
+  "INP",
+  "ISC",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "PYI",
+  "Q",
+  "N",
+  "RET",
+  "RSE",
+  "RUF",
+  "S",
+  "SIM",
+  "SLF",
+  "T10",
+  "T20",
+  "TCH",
+  "TID",
+  "TRY",
+  "UP",
+  "W",
+  "YTT"
+  # "ANN", "ERA", "COM"
+]
+external = ["V101"]
+# format = "grouped"
+# show-source = true
+target-version = "py39"
+task-tags = ["TODO", "FIXME", "XXX", "http", "HACK"]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["SLF001", "T201", "T203"]
+
+[tool.ruff.pycodestyle]
+ignore-overlong-task-comments = true
+
+[tool.vulture]
+exclude = [
+  ".git/",
+  ".mypy_cache/",
+  ".pytest_cache/",
+  "*.venv*",
+  "*/__pycache__",
+  "dist/",
+  "node_modules/",
+  "test_results/",
+  "typings/",
+]
+min_confidence = 61
+sort_by_size = true

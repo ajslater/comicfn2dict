@@ -1,0 +1,1 @@
+"""comicfn2dict tests."""
