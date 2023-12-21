@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = ""
+name = "comicfn2dict"
 version = "0.1.0"
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 license = "GPL-3.0-only"
@@ -20,7 +20,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3 :: Only",
 ]
-packages = [{ include = "" }, { include = "tests", format = "sdist" }]
+packages = [{ include = "comicfn2dict" }, { include = "tests", format = "sdist" }]
 exclude = ["*/**/*~"]
 include = []
 
