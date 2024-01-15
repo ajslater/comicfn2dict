@@ -19,6 +19,7 @@ ORIGINAL_FORMAT_PATTERNS = (
     r"Director[’']?s\sCut",  # noqa: RUF001
     r"Giant([-\s]Size(d)?)?",
     r"Graphic\sNovel",
+    r"GN",
     r"Hard[-\s]?Cover",
     r"HC",
     r"HD-Upscaled",
