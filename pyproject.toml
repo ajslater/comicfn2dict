@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "comicfn2dict"
-version = "0.1.1"
+version = "0.1.2"
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 license = "GPL-3.0-only"
 authors = ["AJ Slater <aj@slater.net>"]

@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+## v0.1.2
+
+- Add GN to format types.
+
 ## v0.1.1
 
 - Fix cli script installation.
