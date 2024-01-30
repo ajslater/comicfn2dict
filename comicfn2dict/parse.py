@@ -1,7 +1,7 @@
 """Parse comic book archive names using the simple 'parse' parser."""
-import re
 from pathlib import Path
-from typing import Union
+from re import Match, Pattern
+from typing import Any
 
 from comicfn2dict.regex import (
     DASH_SPLIT_RE,
@@ -26,7 +26,7 @@ from comicfn2dict.regex import (
 _REMAINING_GROUP_KEYS = ("series", "title")
 
 
-def _parse_ext(name, suffix, metadata):
+def _parse_ext(name: str, suffix: str, metadata: dict) -> str:
     """Pop the extension from the pathname."""
     data = name.removesuffix(suffix)
     ext = suffix.lstrip(".")
@@ -35,13 +35,13 @@ def _parse_ext(name, suffix, metadata):
     return data
 
 
-def _clean_dividers(data):
+def _clean_dividers(data: str) -> str:
     """Replace non space dividers and clean extra spaces out of string."""
     data = NON_SPACE_DIVIDER_RE.sub(" ", data)
     return EXTRA_SPACES_RE.sub(" ", data)
 
 
-def _get_data_list(path, metadata):
+def _get_data_list(path: str | Path, metadata: dict) -> list[str]:
     """Prepare data list from a path or string."""
     if isinstance(path, str):
         path = path.strip()
@@ -51,12 +51,14 @@ def _get_data_list(path, metadata):
     return DASH_SPLIT_RE.split(data)
 
 
-def _paren_strip(value: str):
+def _paren_strip(value: str) -> str:
     """Strip spaces and parens."""
     return value.strip().strip("()").strip()
 
 
-def _splicey_dicey(data_list, index, match, match_group: Union[int, str] = 0):
+def _splicey_dicey(
+    data_list: list[str], index: int, match: Match, match_group: int | str = 0
+) -> str:
     """Replace a string token from a list with two strings and the value removed.
 
     And return the value.
@@ -72,29 +74,33 @@ def _splicey_dicey(data_list, index, match, match_group: Union[int, str] = 0):
     return _paren_strip(value)
 
 
-def _parse_original_format_and_scan_info(data_list, metadata):
+def _match_original_format_and_scan_info(
+    match: Match, metadata: dict[str, Any], data_list: list[str], index: int
+) -> None:
+    """Match (ORIGINAL_FORMAT-SCAN_INFO)."""
+    original_format = match.group("original_format")
+    try:
+        scan_info = match.group("scan_info")
+    except IndexError:
+        scan_info = None
+    metadata["original_format"] = _paren_strip(original_format)
+    match_group = 1
+    if scan_info:
+        metadata["scan_info"] = _paren_strip(scan_info)
+        match_group = 0
+    _splicey_dicey(data_list, index, match, match_group=match_group)
+
+
+def _parse_original_format_and_scan_info(data_list: list[str], metadata: dict) -> int:
     """Parse (ORIGINAL_FORMAT-SCAN_INFO)."""
-    original_format = None
-    scan_info = None
     index = 0
     match = None
     for data in data_list:
         match = ORIGINAL_FORMAT_SCAN_INFO_RE.search(data)
         if match:
-            original_format = match.group("original_format")
-            try:
-                scan_info = match.group("scan_info")
-            except IndexError:
-                scan_info = None
+            _match_original_format_and_scan_info(match, metadata, data_list, index)
             break
         index += 1
-    if original_format:
-        metadata["original_format"] = _paren_strip(original_format)
-        match_group = 1
-        if scan_info:
-            metadata["scan_info"] = _paren_strip(scan_info)
-            match_group = 0
-        _splicey_dicey(data_list, index, match, match_group=match_group)
     else:
         index = 0
     return index
@@ -103,10 +109,10 @@ def _parse_original_format_and_scan_info(data_list, metadata):
 def _pop_value_from_token(
     data_list: list,
     metadata: dict,
-    regex: re.Pattern,
+    regex: Pattern,
     key: str,
     index: int = 0,
-):
+) -> Match:
     """Search token for value, splice and assign to metadata."""
     data = data_list[index]
     match = regex.search(data)
@@ -117,12 +123,12 @@ def _pop_value_from_token(
 
 
 def _parse_item(
-    data_list,
-    metadata,
-    regex,
-    key,
+    data_list: list[str],
+    metadata: dict,
+    regex: Pattern,
+    key: str,
     start_index: int = 0,
-):
+) -> int:
     """Parse a value from the data list into metadata and alter the data list."""
     index = start_index
     dl_len = end_index = len(data_list)
@@ -139,7 +145,9 @@ def _parse_item(
     return index
 
 
-def _pop_issue_from_text_fields(data_list, metadata, index):
+def _pop_issue_from_text_fields(
+    data_list: list[str], metadata: dict, index: int
+) -> str:
     """Search issue from ends of text fields."""
     if "issue" not in metadata:
         _pop_value_from_token(data_list, metadata, ISSUE_END_RE, "issue", index=index)
@@ -148,7 +156,7 @@ def _pop_issue_from_text_fields(data_list, metadata, index):
     return data_list.pop(index)
 
 
-def _assign_remaining_groups(data_list, metadata):
+def _assign_remaining_groups(data_list: list[str], metadata: dict):
     """Assign series and title."""
     index = 0
     for key in _REMAINING_GROUP_KEYS:
@@ -166,7 +174,7 @@ def _assign_remaining_groups(data_list, metadata):
             index += 1
 
 
-def _pickup_issue(remainders, metadata):
+def _pickup_issue(remainders: list[str], metadata: dict) -> None:
     """Get issue from remaining tokens or anywhere in a pinch."""
     if "issue" in metadata:
         return
@@ -176,7 +184,7 @@ def _pickup_issue(remainders, metadata):
     _parse_item(remainders, metadata, ISSUE_ANYWHERE_RE, "issue")
 
 
-def comicfn2dict(path):
+def comicfn2dict(path: str | Path) -> dict[str, Any]:
     """Parse the filename with a hierarchy of regexes."""
     metadata = {}
     data_list = _get_data_list(path, metadata)

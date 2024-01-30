@@ -1,8 +1,8 @@
 """Unparse comic filenames."""
-from typing import Callable
+from collections.abc import Callable, Mapping
 
 
-def issue_formatter(issue):
+def issue_formatter(issue: str) -> str:
     """Formatter to zero pad issues."""
     i = 0
     issue = issue.lstrip("0")
@@ -14,8 +14,8 @@ def issue_formatter(issue):
     return "#{:0>" + str(pad) + "}"
 
 
-_PAREN_FMT = "({})"
-_FILENAME_FORMAT_TAGS = (
+_PAREN_FMT: str = "({})"
+_FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
     ("series", "{}"),
     ("volume", "v{}"),
     ("issue", issue_formatter),
@@ -25,10 +25,10 @@ _FILENAME_FORMAT_TAGS = (
     ("original_format", _PAREN_FMT),
     ("scan_info", _PAREN_FMT),
 )
-_EMPTY_VALUES = (None, "")
+_EMPTY_VALUES: tuple[None, str] = (None, "")
 
 
-def dict2comicfn(md, ext=True):
+def dict2comicfn(md: Mapping, ext: bool = True) -> str | None:
     """Get our preferred basename from a metadata dict."""
     if not md:
         return None

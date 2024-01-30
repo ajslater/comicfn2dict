@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+## v0.1.4
+
+- Require Python 3.10
+
 ## v0.1.3
 
 - Fix README
