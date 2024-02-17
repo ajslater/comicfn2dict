@@ -4,6 +4,8 @@ An API and CLI for extracting structured comic metadata from filenames.
 
 ## Install
 
+<!-- eslint-skip -->
+
 ```sh
 pip install comicfn2dict
 ```
@@ -13,6 +15,8 @@ pip install comicfn2dict
 look at `comicfn2dict/comicfn2dict.py`
 
 ## CLI
+
+<!-- eslint-skip -->
 
 ```sh
 comicfn2dict "Series Name #01 - Title (2023).cbz"
