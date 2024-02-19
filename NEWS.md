@@ -1,5 +1,10 @@
 # 📰 comicfn2dict News
 
+## v0.2.0
+
+- Titles are now parsed only if they occur after the series token AND after
+  either issue, year or volume.
+
 ## v0.1.4
 
 - Require Python 3.10

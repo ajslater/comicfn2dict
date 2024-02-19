@@ -1,10 +1,10 @@
 """Parse comic book archive names using the simple 'parse' parser."""
+from pprint import pprint
 from pathlib import Path
 from re import Match, Pattern
 from typing import Any
 
 from comicfn2dict.regex import (
-    DASH_SPLIT_RE,
     EXTRA_SPACES_RE,
     ISSUE_ANYWHERE_RE,
     ISSUE_BEGIN_RE,
@@ -26,9 +26,13 @@ from comicfn2dict.regex import (
 _REMAINING_GROUP_KEYS = ("series", "title")
 
 
-def _parse_ext(name: str, suffix: str, metadata: dict) -> str:
+def _parse_ext(name: str | Path, metadata: dict) -> str:
     """Pop the extension from the pathname."""
-    data = name.removesuffix(suffix)
+    if isinstance(name, str):
+        name = name.strip()
+    path = Path(name)
+    suffix = path.suffix
+    data = path.name.removesuffix(suffix)
     ext = suffix.lstrip(".")
     if ext:
         metadata["ext"] = ext
@@ -43,17 +47,18 @@ def _clean_dividers(data: str) -> str:
 
 def _get_data_list(path: str | Path, metadata: dict) -> list[str]:
     """Prepare data list from a path or string."""
-    if isinstance(path, str):
-        path = path.strip()
-    path = Path(path)
-    data = _parse_ext(path.name, path.suffix, metadata)
+    data = _parse_ext(path, metadata)
     data = _clean_dividers(data)
-    return DASH_SPLIT_RE.split(data)
+    return [data]
 
 
-def _paren_strip(value: str) -> str:
+def _grouping_operators_strip(value: str) -> str:
     """Strip spaces and parens."""
-    return value.strip().strip("()").strip()
+    value = value.strip()
+    value = value.strip("()").strip()
+    value = value.strip("-").strip()
+    value = value.strip("'").strip('"').strip()
+    return value
 
 
 def _splicey_dicey(
@@ -71,7 +76,7 @@ def _splicey_dicey(
     if data_after := data[match.end() :].strip():
         data_ends.append(data_after)
     data_list[index:index] = data_ends
-    return _paren_strip(value)
+    return _grouping_operators_strip(value)
 
 
 def _match_original_format_and_scan_info(
@@ -83,10 +88,10 @@ def _match_original_format_and_scan_info(
         scan_info = match.group("scan_info")
     except IndexError:
         scan_info = None
-    metadata["original_format"] = _paren_strip(original_format)
+    metadata["original_format"] = _grouping_operators_strip(original_format)
     match_group = 1
     if scan_info:
-        metadata["scan_info"] = _paren_strip(scan_info)
+        metadata["scan_info"] = _grouping_operators_strip(scan_info)
         match_group = 0
     _splicey_dicey(data_list, index, match, match_group=match_group)
 
@@ -112,14 +117,16 @@ def _pop_value_from_token(
     regex: Pattern,
     key: str,
     index: int = 0,
-) -> Match:
+) -> str:
     """Search token for value, splice and assign to metadata."""
     data = data_list[index]
     match = regex.search(data)
     if match:
         value = _splicey_dicey(data_list, index, match, key)
         metadata[key] = value
-    return match
+    else:
+        value = ""
+    return value
 
 
 def _parse_item(
@@ -128,21 +135,25 @@ def _parse_item(
     regex: Pattern,
     key: str,
     start_index: int = 0,
+    path: str = "",
 ) -> int:
     """Parse a value from the data list into metadata and alter the data list."""
+    path_index = -1
     index = start_index
     dl_len = end_index = len(data_list)
     if index >= end_index:
         index = 0
     while index < end_index:
-        match = _pop_value_from_token(data_list, metadata, regex, key, index)
-        if match:
+        value = _pop_value_from_token(data_list, metadata, regex, key, index)
+        if value:
+            if "key" == "issue":
+                path_index = path.find(value)
             break
         index += 1
         if index > dl_len and start_index > 0:
             index = 0
             end_index = start_index
-    return index
+    return path_index
 
 
 def _pop_issue_from_text_fields(
@@ -156,7 +167,39 @@ def _pop_issue_from_text_fields(
     return data_list.pop(index)
 
 
-def _assign_remaining_groups(data_list: list[str], metadata: dict):
+TITLE_PRECEDING_KEYS = ("issue", "year", "volume")
+
+
+def _is_title_in_position(path, value, metadata):
+    """Does the title come after series and one other token if they exist."""
+    # TODO this could be faster if indexes could be grabbed for these tokens
+    #      when they are extracted.
+    title_index = path.find(value)
+
+    # Does a series come first.
+    series = metadata.get("series")
+    if not series:
+        return False
+    series_index = path.find(series)
+    if title_index < series_index:
+        return False
+
+    # If other tokens exist then they much precede the title.
+    title_ok = False
+    other_tokens_exist = False
+    for preceding_key in TITLE_PRECEDING_KEYS:
+        preceding_value = metadata.get(preceding_key)
+        if not preceding_value:
+            continue
+        other_tokens_exist = True
+        preceding_index = path.find(preceding_value)
+        if title_index > preceding_index:
+            title_ok = True
+            break
+    return title_ok or not other_tokens_exist
+
+
+def _assign_remaining_groups(data_list: list[str], metadata: dict, path: str):
     """Assign series and title."""
     index = 0
     for key in _REMAINING_GROUP_KEYS:
@@ -167,7 +210,9 @@ def _assign_remaining_groups(data_list: list[str], metadata: dict):
         match = REMAINING_GROUP_RE.search(data) if data else None
         if match:
             value = _pop_issue_from_text_fields(data_list, metadata, index)
-            value = _paren_strip(value)
+            if key == "title" and not _is_title_in_position(path, value, metadata):
+                continue
+            value = _grouping_operators_strip(value)
             if value:
                 metadata[key] = value
         else:
@@ -184,10 +229,17 @@ def _pickup_issue(remainders: list[str], metadata: dict) -> None:
     _parse_item(remainders, metadata, ISSUE_ANYWHERE_RE, "issue")
 
 
+def _log_progress(label, metadata, data_list):
+    print(label + ":")
+    pprint(metadata)
+    pprint(data_list)
+
+
 def comicfn2dict(path: str | Path) -> dict[str, Any]:
     """Parse the filename with a hierarchy of regexes."""
     metadata = {}
     data_list = _get_data_list(path, metadata)
+    _log_progress("INITIAL", metadata, data_list)
 
     # Parse paren tokens
     _parse_item(data_list, metadata, ISSUE_COUNT_RE, "issue_count")
@@ -206,26 +258,33 @@ def comicfn2dict(path: str | Path) -> dict[str, Any]:
             "scan_info",
             start_index=of_index + 1,
         )
+    _log_progress("AFTER PAREN TOKENS", metadata, data_list)
 
     # Parse regular tokens
     _parse_item(data_list, metadata, VOLUME_RE, "volume")
-    _parse_item(data_list, metadata, ISSUE_NUMBER_RE, "issue")
+    _parse_item(data_list, metadata, ISSUE_NUMBER_RE, "issue", path=str(path))
+    _log_progress("AFTER REGULAR TOKENS", metadata, data_list)
 
     # Pickup year if not gotten.
     if "year" not in metadata:
         _parse_item(data_list, metadata, YEAR_BEGIN_RE, "year")
     if "year" not in metadata:
         _parse_item(data_list, metadata, YEAR_END_RE, "year")
+    _log_progress("AFTER YEAR PICKUP", metadata, data_list)
 
     # Pickup issue if it's a standalone token
     if "issue" not in metadata:
         _parse_item(data_list, metadata, ISSUE_TOKEN_RE, "issue")
 
+    _log_progress("AFTER ISSUE PICKUP", metadata, data_list)
+
     # Series and Title. Also looks for issue.
-    _assign_remaining_groups(data_list, metadata)
+    _assign_remaining_groups(data_list, metadata, str(path))
+    _log_progress("AFTER SERIES AND TITLE", metadata, data_list)
 
     # Final try for issue number.
     _pickup_issue(data_list, metadata)
+    _log_progress("AFTER ISSUE PICKUP", metadata, data_list)
 
     # Add Remainders
     if data_list:
