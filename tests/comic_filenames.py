@@ -251,18 +251,20 @@ FNS.update(  # Newly fixed.
             "series": "Batman - Superman - World's Finest",
             "year": "2024",
         },
-    }
-)
-
-FNS.update(
-    {
         # Issue number starting with a letter requested in https://github.com/comictagger/comictagger/issues/543
         "batman #B01 title.cbz": {
             "ext": "cbz",
             "issue": "B01",
             "series": "batman",
             "title": "title",
-        },  # Leading issue number is usually an alternate sequence number
+        },
+    }
+)
+
+
+FNS.update(
+    {
+        # Leading issue number is usually an alternate sequence number
         "52 action comics #2024.cbz": {
             "ext": "cbz",
             "issue": "2024",

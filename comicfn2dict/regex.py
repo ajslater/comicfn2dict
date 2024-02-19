@@ -41,7 +41,6 @@ ORIGINAL_FORMAT_PATTERNS = (
 
 # CLEAN
 NON_SPACE_DIVIDER_RE = re_compile(r"[_\+]")
-DASH_SPLIT_RE = re_compile(r"\s-\s")
 EXTRA_SPACES_RE = re_compile(r"\s\s+")
 
 # PAREN GROUPS
@@ -64,8 +63,9 @@ ORIGINAL_FORMAT_SCAN_INFO_RE = re_compile(
 
 # REGULAR TOKENS
 VOLUME_RE = re_compile(r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+))")
+_ISSUE_NUMBER_RE_EXP = r"(?P<issue>[\w½]+\.?\d*\w*)"
+ISSUE_NUMBER_RE = re_compile(r"(#" + _ISSUE_NUMBER_RE_EXP + r")")
 _ISSUE_RE_EXP = r"(?P<issue>[\d½]+\.?\d*\w*)"
-ISSUE_NUMBER_RE = re_compile(r"(#" + _ISSUE_RE_EXP + r")")
 ISSUE_TOKEN_RE = re_compile(r"^(" + _ISSUE_RE_EXP + r")$")
 ISSUE_END_RE = re_compile(r"\b(" + _ISSUE_RE_EXP + r")$")
 ISSUE_BEGIN_RE = re_compile(r"^(" + _ISSUE_RE_EXP + r")\b")

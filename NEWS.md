@@ -4,6 +4,8 @@
 
 - Titles are now parsed only if they occur after the series token AND after
   either issue, year or volume.
+- Issue numbers that start with a '#' character may contain alphabetical
+  characters.
 
 ## v0.1.4
 
