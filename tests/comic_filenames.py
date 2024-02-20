@@ -29,6 +29,7 @@ TEST_COMIC_VOL_ONLY = {
     "ext": "cbr",
 }
 
+# Working with 0.1.0
 FNS = {
     "Night of 1000 Wolves 001 (2013).cbz": {
         "series": "Night of 1000 Wolves",
@@ -78,15 +79,6 @@ FNS = {
         "scan_info": "My-brother",
         "title": "The Smell of Burnt Toast",
         "original_format": "digital",
-    },
-    "Bardude - The Last Thing I Remember.cbz": {
-        "series": "Bardude - The Last Thing I Remember",
-        "ext": "cbz",
-    },
-    "Drunkguy - The Man Without Fear - 01.cbz": {
-        "series": "Drunkguy - The Man Without Fear",
-        "issue": "01",
-        "ext": "cbz",
     },
     "The_Arkenstone_v03_(2002)_(Digital)_(DR_&amp;_Quenya-Elves).cbr": {
         "series": "The Arkenstone",
@@ -240,8 +232,19 @@ FNS = {
     },
 }
 
-FNS.update(  # Newly fixed.
+# Fixed with 0.2.0
+FNS.update(
     {
+        # Philosopy change regarding dashes.
+        "Bardude - The Last Thing I Remember.cbz": {
+            "series": "Bardude - The Last Thing I Remember",
+            "ext": "cbz",
+        },
+        "Drunkguy - The Man Without Fear - 01.cbz": {
+            "series": "Drunkguy - The Man Without Fear",
+            "issue": "01",
+            "ext": "cbz",
+        },
         # BIG Change. title after token. more stripping.
         "'Batman - Superman - World's Finest 022 (2024) (Webrip) (The Last Kryptonian-DCP).cbz": {
             "ext": "cbz",
@@ -308,25 +311,6 @@ FNS.update(  # Newly fixed.
         },
     }
 )
-
-WONFIX = {
-    # Leading issue number is usually an alternate sequence number
-    #   WONTFIX: Series names may begin with numerals.
-    "52 action comics #2024.cbz": {
-        "ext": "cbz",
-        "issue": "2024",
-        "series": "action comics",
-        "alternate": "52",
-    },
-    # Only the issue number. CT ensures that the series always has a value if possible
-    #   I don't think making the series the same as the number is valuable.
-    "#52.cbz": {
-        "ext": "cbz",
-        "issue": "52",
-        "series": "52",
-    },
-}
-
 LATER = {
     # 4 digit issue number
     #   should this be an issue number if year DONE?.
@@ -429,3 +413,21 @@ FNS.update(
         },
     }
 )
+
+WONFIX = {
+    # Leading issue number is usually an alternate sequence number
+    #   WONTFIX: Series names may begin with numerals.
+    "52 action comics #2024.cbz": {
+        "ext": "cbz",
+        "issue": "2024",
+        "series": "action comics",
+        "alternate": "52",
+    },
+    # Only the issue number. CT ensures that the series always has a value if possible
+    #   I don't think making the series the same as the number is valuable.
+    "#52.cbz": {
+        "ext": "cbz",
+        "issue": "52",
+        "series": "52",
+    },
+}
