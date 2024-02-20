@@ -246,9 +246,9 @@ FNS.update(  # Newly fixed.
         "'Batman - Superman - World's Finest 022 (2024) (Webrip) (The Last Kryptonian-DCP).cbz": {
             "ext": "cbz",
             "issue": "022",
-            "remainders": ("(The Last Kryptonian-DCP)",),
-            "scan_info": "Webrip",
+            "original_format": "Webrip",
             "series": "Batman - Superman - World's Finest",
+            "scan_info": "The Last Kryptonian-DCP",
             "year": "2024",
         },
         # Issue number starting with a letter requested in https://github.com/comictagger/comictagger/issues/543
@@ -258,6 +258,13 @@ FNS.update(  # Newly fixed.
             "issue": "B01",
             "series": "batman",
             "title": "title",
+        },
+        "Monster_Island_v1_#2__repaired__c2c.cbz": {
+            "ext": "cbz",
+            "issue": "2",
+            "series": "Monster Island",
+            "volume": "1",
+            "remainders": ("repaired c2c",),
         },
     }
 )
@@ -292,16 +299,6 @@ LATER = {
 
 FNS.update(
     {
-        # CT treats double-underscore the same as double-dash
-        #    BUG: should be title right now.
-        #    FEATURE: double dash should be a token delimiter?
-        "Monster_Island_v1_#2__repaired__c2c.cbz": {
-            "ext": "cbz",
-            "issue": "2",
-            "series": "Monster Island",
-            "volume": "1",
-            "remainders": ("repaired c2c",),
-        },
         # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
         "Super Strange Yarns (1957) #92 (1969).cbz": {
             "ext": "cbz",
