@@ -53,3 +53,8 @@ def serialize(md: Mapping, ext: bool = True) -> str:
     if ext:
         fn += "." + md.get("ext", "cbz")
     return fn
+
+
+def dict2comicfn(md: Mapping, ext: bool = True) -> str:
+    """Simple API."""
+    return serialize(md, ext=ext)

@@ -34,13 +34,27 @@ class ComicFilenameParser:
         data = NON_SPACE_DIVIDER_RE.sub(" ", data)
         return EXTRA_SPACES_RE.sub(" ", data).strip()
 
+    def path_index(self, key: str):
+        """Retrieve and memoize the key's location in the path."""
+        if key == "remainders":
+            return -1
+        value: str = self.metadata.get(key, "")  # type: ignore
+        if not value:
+            return -1
+        if value not in self._path_indexes:
+            if key == "ext":
+                index = self.path.rfind(value)
+            else:
+                index = self.path.find(value)
+            self._path_indexes[value] = index
+        return self._path_indexes[value]
+
     def _parse_ext(self):
         """Pop the extension from the pathname."""
         path = Path(self._unparsed_path)
         suffix = path.suffix
         if not suffix:
             return
-        self.path_indexes["ext"] = self.path.rfind(suffix)
 
         data = path.name.removesuffix(suffix)
         ext = suffix.lstrip(".")
@@ -65,17 +79,14 @@ class ComicFilenameParser:
         if not matches:
             return
         matched_metadata = {}
-        matched_path_indexes = {}
         for key, value in matches.groupdict().items():
             if not value:
                 if require_all:
                     return
                 continue
-            matched_path_indexes[key] = self.path.find(value)
-            # TODO idk if strip is necceesary here
+            # TODO idk if strip is necessary here
             matched_metadata[key] = self._grouping_operators_strip(value)
         self.metadata.update(matched_metadata)
-        self.path_indexes.update(matched_path_indexes)
 
         marked_str = regex.sub(_TOKEN_DELIMETER, self._unparsed_path)
         parts = []
@@ -89,7 +100,7 @@ class ComicFilenameParser:
         title_index = self.path.find(value)
 
         # Does a series come first.
-        if title_index < self.path_indexes.get("series", -1):
+        if title_index < self.path_index("series"):
             return False
 
         # If other tokens exist then they much precede the title.
@@ -97,7 +108,7 @@ class ComicFilenameParser:
         other_tokens_exist = False
         for preceding_key in _TITLE_PRECEDING_KEYS:
             other_tokens_exist = True
-            if title_index > self.path_indexes.get(preceding_key, -1):
+            if title_index > self.path_index(preceding_key):
                 title_ok = True
                 break
         return title_ok or not other_tokens_exist
@@ -124,7 +135,6 @@ class ComicFilenameParser:
                     continue
                 value = self._grouping_operators_strip(value)
                 self.metadata[key] = value
-                self.path_indexes[key] = self.path.find(value)
                 remaining_key_index += 1
             else:
                 unused_tokens.append(token)
@@ -147,7 +157,7 @@ class ComicFilenameParser:
         print(label + ":")
         combined = {}
         for key in self.metadata:
-            combined[key] = (self.metadata.get(key), self.path_indexes.get(key))
+            combined[key] = (self.metadata.get(key), self.path_index(key))
         pprint(combined)
         print(self._unparsed_path)
 
@@ -207,11 +217,16 @@ class ComicFilenameParser:
     def __init__(self, path: str | Path, verbose: int = 0):
         """Initialize."""
         self._debug: bool = verbose > 0
-        self.metadata: dict[str, str | tuple[str, ...]] = {}
-        self.path_indexes: dict[str, int] = {}
         # munge path
         if isinstance(path, str):
             path = path.strip()
         p_path = Path(path)
         self.path = str(p_path.name).strip()
+        self.metadata: dict[str, str | tuple[str, ...]] = {}
         self._unparsed_path = copy(self.path)
+        self._path_indexes: dict[str, int] = {}
+
+
+def comicfn2dict(path: str | Path):
+    """Simple API."""
+    return ComicFilenameParser(path).parse()
