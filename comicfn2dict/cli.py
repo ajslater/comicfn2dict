@@ -3,8 +3,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 from pprint import pprint
-
-from comicfn2dict.parse import comicfn2dict
+from comicfn2dict.parse import ComicFilenameParser
 
 
 def main():
@@ -12,9 +11,16 @@ def main():
     description = "Comic book archive read/write tool."
     parser = ArgumentParser(description=description)
     parser.add_argument("path", help="Path of comic filename to parse", type=Path)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        default=0,
+        action="count",
+        help="Display intermediate parsing steps. Good for debugging.",
+    )
     args = parser.parse_args()
     name = args.path.name
-    metadata = comicfn2dict(name)
+    metadata = ComicFilenameParser(name, verbose=args.verbose).parse()
     pprint(metadata)  # noqa:T203
 
 

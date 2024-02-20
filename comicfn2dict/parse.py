@@ -1,22 +1,21 @@
 """Parse comic book archive names using the simple 'parse' parser."""
 from pprint import pprint
+from copy import copy
 from pathlib import Path
-from re import Match, Pattern
+from re import Pattern
 from typing import Any
 
 from comicfn2dict.regex import (
     EXTRA_SPACES_RE,
     ISSUE_ANYWHERE_RE,
-    ISSUE_BEGIN_RE,
     ISSUE_COUNT_RE,
-    ISSUE_END_RE,
     ISSUE_NUMBER_RE,
-    ISSUE_TOKEN_RE,
+    ISSUE_BEGIN_RE,
+    ISSUE_END_RE,
     NON_SPACE_DIVIDER_RE,
-    ORIGINAL_FORMAT_RE,
+    ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     REMAINING_GROUP_RE,
-    SCAN_INFO_RE,
     VOLUME_RE,
     YEAR_BEGIN_RE,
     YEAR_END_RE,
@@ -24,270 +23,195 @@ from comicfn2dict.regex import (
 )
 
 _REMAINING_GROUP_KEYS = ("series", "title")
+_TITLE_PRECEDING_KEYS = ("issue", "year", "volume")
+_TOKEN_DELIMETER = "/"
 
 
-def _parse_ext(name: str | Path, metadata: dict) -> str:
-    """Pop the extension from the pathname."""
-    if isinstance(name, str):
-        name = name.strip()
-    path = Path(name)
-    suffix = path.suffix
-    data = path.name.removesuffix(suffix)
-    ext = suffix.lstrip(".")
-    if ext:
-        metadata["ext"] = ext
-    return data
+class ComicFilenameParser:
+    @staticmethod
+    def _clean_dividers(data: str) -> str:
+        """Replace non space dividers and clean extra spaces out of string."""
+        data = NON_SPACE_DIVIDER_RE.sub(" ", data)
+        return EXTRA_SPACES_RE.sub(" ", data).strip()
 
+    def _parse_ext(self):
+        """Pop the extension from the pathname."""
+        path = Path(self._unparsed_path)
+        suffix = path.suffix
+        if not suffix:
+            return
+        self.path_indexes["ext"] = self.path.rfind(suffix)
 
-def _clean_dividers(data: str) -> str:
-    """Replace non space dividers and clean extra spaces out of string."""
-    data = NON_SPACE_DIVIDER_RE.sub(" ", data)
-    return EXTRA_SPACES_RE.sub(" ", data)
+        data = path.name.removesuffix(suffix)
+        ext = suffix.lstrip(".")
+        self.metadata["ext"] = ext
+        self._unparsed_path = data
 
+    def _grouping_operators_strip(self, value: str) -> str:
+        """Strip spaces and parens."""
+        value = value.strip()
+        value = value.strip("()").strip()
+        value = value.strip("-").strip()
+        value = value.strip("'").strip('"').strip()
+        return value
 
-def _get_data_list(path: str | Path, metadata: dict) -> list[str]:
-    """Prepare data list from a path or string."""
-    data = _parse_ext(path, metadata)
-    data = _clean_dividers(data)
-    return [data]
-
-
-def _grouping_operators_strip(value: str) -> str:
-    """Strip spaces and parens."""
-    value = value.strip()
-    value = value.strip("()").strip()
-    value = value.strip("-").strip()
-    value = value.strip("'").strip('"').strip()
-    return value
-
-
-def _splicey_dicey(
-    data_list: list[str], index: int, match: Match, match_group: int | str = 0
-) -> str:
-    """Replace a string token from a list with two strings and the value removed.
-
-    And return the value.
-    """
-    value = match.group(match_group)
-    data = data_list.pop(index)
-    data_ends = []
-    if data_before := data[: match.start()].strip():
-        data_ends.append(data_before)
-    if data_after := data[match.end() :].strip():
-        data_ends.append(data_after)
-    data_list[index:index] = data_ends
-    return _grouping_operators_strip(value)
-
-
-def _match_original_format_and_scan_info(
-    match: Match, metadata: dict[str, Any], data_list: list[str], index: int
-) -> None:
-    """Match (ORIGINAL_FORMAT-SCAN_INFO)."""
-    original_format = match.group("original_format")
-    try:
-        scan_info = match.group("scan_info")
-    except IndexError:
-        scan_info = None
-    metadata["original_format"] = _grouping_operators_strip(original_format)
-    match_group = 1
-    if scan_info:
-        metadata["scan_info"] = _grouping_operators_strip(scan_info)
-        match_group = 0
-    _splicey_dicey(data_list, index, match, match_group=match_group)
-
-
-def _parse_original_format_and_scan_info(data_list: list[str], metadata: dict) -> int:
-    """Parse (ORIGINAL_FORMAT-SCAN_INFO)."""
-    index = 0
-    match = None
-    for data in data_list:
-        match = ORIGINAL_FORMAT_SCAN_INFO_RE.search(data)
-        if match:
-            _match_original_format_and_scan_info(match, metadata, data_list, index)
-            break
-        index += 1
-    else:
-        index = 0
-    return index
-
-
-def _pop_value_from_token(
-    data_list: list,
-    metadata: dict,
-    regex: Pattern,
-    key: str,
-    index: int = 0,
-) -> str:
-    """Search token for value, splice and assign to metadata."""
-    data = data_list[index]
-    match = regex.search(data)
-    if match:
-        value = _splicey_dicey(data_list, index, match, key)
-        metadata[key] = value
-    else:
-        value = ""
-    return value
-
-
-def _parse_item(
-    data_list: list[str],
-    metadata: dict,
-    regex: Pattern,
-    key: str,
-    start_index: int = 0,
-    path: str = "",
-) -> int:
-    """Parse a value from the data list into metadata and alter the data list."""
-    path_index = -1
-    index = start_index
-    dl_len = end_index = len(data_list)
-    if index >= end_index:
-        index = 0
-    while index < end_index:
-        value = _pop_value_from_token(data_list, metadata, regex, key, index)
-        if value:
-            if "key" == "issue":
-                path_index = path.find(value)
-            break
-        index += 1
-        if index > dl_len and start_index > 0:
-            index = 0
-            end_index = start_index
-    return path_index
-
-
-def _pop_issue_from_text_fields(
-    data_list: list[str], metadata: dict, index: int
-) -> str:
-    """Search issue from ends of text fields."""
-    if "issue" not in metadata:
-        _pop_value_from_token(data_list, metadata, ISSUE_END_RE, "issue", index=index)
-    if "issue" not in metadata:
-        _pop_value_from_token(data_list, metadata, ISSUE_BEGIN_RE, "issue", index=index)
-    return data_list.pop(index)
-
-
-TITLE_PRECEDING_KEYS = ("issue", "year", "volume")
-
-
-def _is_title_in_position(path, value, metadata):
-    """Does the title come after series and one other token if they exist."""
-    # TODO this could be faster if indexes could be grabbed for these tokens
-    #      when they are extracted.
-    title_index = path.find(value)
-
-    # Does a series come first.
-    series = metadata.get("series")
-    if not series:
-        return False
-    series_index = path.find(series)
-    if title_index < series_index:
-        return False
-
-    # If other tokens exist then they much precede the title.
-    title_ok = False
-    other_tokens_exist = False
-    for preceding_key in TITLE_PRECEDING_KEYS:
-        preceding_value = metadata.get(preceding_key)
-        if not preceding_value:
-            continue
-        other_tokens_exist = True
-        preceding_index = path.find(preceding_value)
-        if title_index > preceding_index:
-            title_ok = True
-            break
-    return title_ok or not other_tokens_exist
-
-
-def _assign_remaining_groups(data_list: list[str], metadata: dict, path: str):
-    """Assign series and title."""
-    index = 0
-    for key in _REMAINING_GROUP_KEYS:
-        try:
-            data = data_list[index]
-        except (IndexError, TypeError):
-            break
-        match = REMAINING_GROUP_RE.search(data) if data else None
-        if match:
-            value = _pop_issue_from_text_fields(data_list, metadata, index)
-            if key == "title" and not _is_title_in_position(path, value, metadata):
+    def _parse_item(
+        self,
+        regex: Pattern,
+        require_all: bool = False,
+    ) -> None:
+        """Parse a value from the data list into metadata and alter the data list."""
+        matches = regex.search(self._unparsed_path)
+        if not matches:
+            return
+        matched_metadata = {}
+        matched_path_indexes = {}
+        for key, value in matches.groupdict().items():
+            if not value:
+                if require_all:
+                    return
                 continue
-            value = _grouping_operators_strip(value)
-            if value:
-                metadata[key] = value
-        else:
-            index += 1
+            matched_path_indexes[key] = self.path.find(value)
+            # TODO idk if strip is necceesary here
+            matched_metadata[key] = self._grouping_operators_strip(value)
+        self.metadata.update(matched_metadata)
+        self.path_indexes.update(matched_path_indexes)
 
+        marked_str = regex.sub(_TOKEN_DELIMETER, self._unparsed_path)
+        parts = []
+        for part in marked_str.split(_TOKEN_DELIMETER):
+            if token := part.strip():
+                parts.append(token)
+        self._unparsed_path = _TOKEN_DELIMETER.join(parts)
 
-def _pickup_issue(remainders: list[str], metadata: dict) -> None:
-    """Get issue from remaining tokens or anywhere in a pinch."""
-    if "issue" in metadata:
-        return
-    _parse_item(remainders, metadata, ISSUE_TOKEN_RE, "issue")
-    if "issue" in metadata:
-        return
-    _parse_item(remainders, metadata, ISSUE_ANYWHERE_RE, "issue")
+    def _is_title_in_position(self, value):
+        """Does the title come after series and one other token if they exist."""
+        title_index = self.path.find(value)
 
+        # Does a series come first.
+        if title_index < self.path_indexes.get("series", -1):
+            return False
 
-def _log_progress(label, metadata, data_list):
-    print(label + ":")
-    pprint(metadata)
-    pprint(data_list)
+        # If other tokens exist then they much precede the title.
+        title_ok = False
+        other_tokens_exist = False
+        for preceding_key in _TITLE_PRECEDING_KEYS:
+            other_tokens_exist = True
+            if title_index > self.path_indexes.get(preceding_key, -1):
+                title_ok = True
+                break
+        return title_ok or not other_tokens_exist
 
+    def _assign_remaining_groups(self):
+        """Assign series and title."""
+        if not self._unparsed_path:
+            return
 
-def comicfn2dict(path: str | Path) -> dict[str, Any]:
-    """Parse the filename with a hierarchy of regexes."""
-    metadata = {}
-    data_list = _get_data_list(path, metadata)
-    _log_progress("INITIAL", metadata, data_list)
+        # TODO fix REMAINING GROUP_RE to use token delim
+        tokens = self._unparsed_path.split(_TOKEN_DELIMETER)
 
-    # Parse paren tokens
-    _parse_item(data_list, metadata, ISSUE_COUNT_RE, "issue_count")
-    _parse_item(data_list, metadata, YEAR_TOKEN_RE, "year")
-    of_index = _parse_original_format_and_scan_info(data_list, metadata)
-    if "original_format" not in metadata:
-        of_index = _parse_item(
-            data_list, metadata, ORIGINAL_FORMAT_RE, "original_format"
+        # ASSIGN GROUPS
+        remaining_key_index = 0
+        unused_tokens = []
+        while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
+            key = _REMAINING_GROUP_KEYS[remaining_key_index]
+            token = tokens.pop(0)
+            match = REMAINING_GROUP_RE.search(token)
+            if match:
+                value = match.group()
+                if key == "title" and not self._is_title_in_position(value):
+                    unused_tokens.append(token)
+                    continue
+                value = self._grouping_operators_strip(value)
+                self.metadata[key] = value
+                self.path_indexes[key] = self.path.find(value)
+                remaining_key_index += 1
+            else:
+                unused_tokens.append(token)
+
+        self._unparsed_path = " ".join(unused_tokens) if unused_tokens else ""
+
+    def _add_remainders(self):
+        """Add Remainders."""
+        remainders = []
+        for token in self._unparsed_path.split(_TOKEN_DELIMETER):
+            if remainder := token.strip():
+                remainders.append(remainder)
+
+        if remainders:
+            self.metadata["remainders"] = tuple(remainders)
+
+    def _log_progress(self, label):
+        if not self._debug:
+            return
+        print(label + ":")
+        combined = {}
+        for key in self.metadata:
+            combined[key] = (self.metadata.get(key), self.path_indexes.get(key))
+        pprint(combined)
+        print(self._unparsed_path)
+
+    def parse(self) -> dict[str, Any]:
+        """Parse the filename with a hierarchy of regexes."""
+        self._unparsed_path = self._clean_dividers(self._unparsed_path)
+        self._log_progress("INITIAL")
+        self._parse_ext()
+
+        # Parse paren tokens
+        self._parse_item(ISSUE_COUNT_RE)
+        self._parse_item(YEAR_TOKEN_RE)
+        self._parse_item(
+            ORIGINAL_FORMAT_SCAN_INFO_RE,
+            require_all=True,
         )
-    if "scan_info" not in metadata:
-        # Start searching for scan_info after original format.
-        _parse_item(
-            data_list,
-            metadata,
-            SCAN_INFO_RE,
-            "scan_info",
-            start_index=of_index + 1,
-        )
-    _log_progress("AFTER PAREN TOKENS", metadata, data_list)
+        if "original_format" not in self.metadata:
+            self._parse_item(
+                ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+            )
+        self._log_progress("AFTER PAREN TOKENS")
 
-    # Parse regular tokens
-    _parse_item(data_list, metadata, VOLUME_RE, "volume")
-    _parse_item(data_list, metadata, ISSUE_NUMBER_RE, "issue", path=str(path))
-    _log_progress("AFTER REGULAR TOKENS", metadata, data_list)
+        # Parse regular tokens
+        self._parse_item(VOLUME_RE)
+        self._parse_item(ISSUE_NUMBER_RE)
+        self._log_progress("AFTER REGULAR TOKENS")
 
-    # Pickup year if not gotten.
-    if "year" not in metadata:
-        _parse_item(data_list, metadata, YEAR_BEGIN_RE, "year")
-    if "year" not in metadata:
-        _parse_item(data_list, metadata, YEAR_END_RE, "year")
-    _log_progress("AFTER YEAR PICKUP", metadata, data_list)
+        # Pickup year if not gotten.
+        if "year" not in self.metadata:
+            self._parse_item(YEAR_BEGIN_RE)
+        if "year" not in self.metadata:
+            self._parse_item(YEAR_END_RE)
+        self._log_progress("AFTER YEAR PICKUP")
 
-    # Pickup issue if it's a standalone token
-    if "issue" not in metadata:
-        _parse_item(data_list, metadata, ISSUE_TOKEN_RE, "issue")
+        # Pickup issue if it's a standalone token
+        if "issue" not in self.metadata:
+            self._parse_item(ISSUE_END_RE)
+        if "issue" not in self.metadata:
+            self._parse_item(ISSUE_BEGIN_RE)
 
-    _log_progress("AFTER ISSUE PICKUP", metadata, data_list)
+        self._log_progress("AFTER ISSUE PICKUP")
 
-    # Series and Title. Also looks for issue.
-    _assign_remaining_groups(data_list, metadata, str(path))
-    _log_progress("AFTER SERIES AND TITLE", metadata, data_list)
+        # Series and Title. Also looks for issue.
+        self._assign_remaining_groups()
+        self._log_progress("AFTER SERIES AND TITLE")
 
-    # Final try for issue number.
-    _pickup_issue(data_list, metadata)
-    _log_progress("AFTER ISSUE PICKUP", metadata, data_list)
+        # Final try for issue number.
+        if "issue" not in self.metadata:
+            # TODO is this useful?
+            self._parse_item(ISSUE_ANYWHERE_RE)
+        self._log_progress("AFTER ISSUE PICKUP")
 
-    # Add Remainders
-    if data_list:
-        metadata["remainders"] = tuple(data_list)
+        self._add_remainders()
 
-    return metadata
+        return self.metadata
+
+    def __init__(self, path: str | Path, verbose: int = 0):
+        """Initialize."""
+        self._debug: bool = verbose > 0
+        self.metadata: dict[str, str | tuple[str, ...]] = {}
+        self.path_indexes: dict[str, int] = {}
+        # munge path
+        if isinstance(path, str):
+            path = path.strip()
+        p_path = Path(path)
+        self.path = str(p_path.name).strip()
+        self._unparsed_path = copy(self.path)

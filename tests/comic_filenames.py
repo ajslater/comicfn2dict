@@ -136,8 +136,7 @@ FNS = {
         "year": "2006",
         "ext": "cbz",
         "scan_info": "Minutemen-Faessla",
-        # "original_format": "digital",
-        "remainders": ("(digital",),
+        "original_format": "digital",
     },
     "Jeremy John 003 (2007) (4 covers) (digital) (Minutemen-Faessla).cbz": {
         "series": "Jeremy John",
@@ -243,6 +242,7 @@ FNS = {
 
 FNS.update(  # Newly fixed.
     {
+        # BIG Change. title after token. more stripping.
         "'Batman - Superman - World's Finest 022 (2024) (Webrip) (The Last Kryptonian-DCP).cbz": {
             "ext": "cbz",
             "issue": "022",
@@ -252,6 +252,7 @@ FNS.update(  # Newly fixed.
             "year": "2024",
         },
         # Issue number starting with a letter requested in https://github.com/comictagger/comictagger/issues/543
+        #   word characters now allowed to lead issue numbers only if preceded by a # marker
         "batman #B01 title.cbz": {
             "ext": "cbz",
             "issue": "B01",
@@ -261,32 +262,47 @@ FNS.update(  # Newly fixed.
     }
 )
 
+WONFIX = {
+    # Leading issue number is usually an alternate sequence number
+    #   WONTFIX: Series names may begin with numerals.
+    "52 action comics #2024.cbz": {
+        "ext": "cbz",
+        "issue": "2024",
+        "series": "action comics",
+        "alternate": "52",
+    },
+    # Only the issue number. CT ensures that the series always has a value if possible
+    #   I don't think making the series the same as the number is valuable.
+    "#52.cbz": {
+        "ext": "cbz",
+        "issue": "52",
+        "series": "52",
+    },
+}
+
+LATER = {
+    # 4 digit issue number
+    #   should this be an issue number if year DONE?.
+    "action comics 1024.cbz": {
+        "ext": "cbz",
+        "issue": "1024",
+        "series": "action comics",
+    },
+}
 
 FNS.update(
     {
-        # Leading issue number is usually an alternate sequence number
-        "52 action comics #2024.cbz": {
-            "ext": "cbz",
-            "issue": "2024",
-            "series": "action comics",
-            "alternate": "52",
-        },  # 4 digit issue number
-        "action comics 1024.cbz": {
-            "ext": "cbz",
-            "issue": "1024",
-            "series": "action comics",
-        },  # Only the issue number. CT ensures that the series always has a value if possible
-        "#52.cbz": {
-            "ext": "cbz",
-            "issue": "52",
-            "series": "52",
-        },  # CT treats double-underscore the same as double-dash
+        # CT treats double-underscore the same as double-dash
+        #    BUG: should be title right now.
+        #    FEATURE: double dash should be a token delimiter?
         "Monster_Island_v1_#2__repaired__c2c.cbz": {
             "ext": "cbz",
             "issue": "2",
             "series": "Monster Island",
             "volume": "1",
-        },  # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
+            "remainders": ("repaired c2c",),
+        },
+        # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
         "Super Strange Yarns (1957) #92 (1969).cbz": {
             "ext": "cbz",
             "issue": "92",

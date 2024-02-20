@@ -28,22 +28,27 @@ _FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
 _EMPTY_VALUES: tuple[None, str] = (None, "")
 
 
-def dict2comicfn(md: Mapping, ext: bool = True) -> str | None:
+def _tokenize_tag(md: Mapping, tag: str, fmt: str | Callable) -> str:
+    val = md.get(tag)
+    if val in _EMPTY_VALUES:
+        return ""
+    final_fmt = fmt(val) if isinstance(fmt, Callable) else fmt
+    token = final_fmt.format(val).strip()
+    return token
+
+
+def serialize(md: Mapping, ext: bool = True) -> str:
     """Get our preferred basename from a metadata dict."""
     if not md:
-        return None
+        return ""
     tokens = []
     for tag, fmt in _FILENAME_FORMAT_TAGS:
-        val = md.get(tag)
-        if val in _EMPTY_VALUES:
-            continue
-        final_fmt = fmt(val) if isinstance(fmt, Callable) else fmt
-        token = final_fmt.format(val).strip()
-        if token:
+        if token := _tokenize_tag(md, tag, fmt):
             tokens.append(token)
     fn = " ".join(tokens)
     if remainders := md.get("remainders"):
         remainder = " ".join(remainders)
+        # TODO oh this is the - delineated remainder :(
         fn += f" - {remainder}"
     if ext:
         fn += "." + md.get("ext", "cbz")
