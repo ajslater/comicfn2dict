@@ -38,7 +38,6 @@ ORIGINAL_FORMAT_PATTERNS = (
     r"Web([-\s]?(Comic|Rip))?",
 )
 
-
 # CLEAN
 NON_SPACE_DIVIDER_RE = re_compile(r"[_\+]")
 EXTRA_SPACES_RE = re_compile(r"\s\s+")
