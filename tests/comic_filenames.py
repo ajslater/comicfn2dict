@@ -22,6 +22,7 @@ TEST_COMIC_FIELDS_VOL = {
 TEST_COMIC_VOL_ONLY = {
     "series": "Long Series Name",
     "volume": "1",
+    "issue": "1",
     "title": "Title",
     "original_format": "TPB",
     "year": "2000",
@@ -74,6 +75,7 @@ FNS = {
     "Arkenstone Vol. 01 - The Smell of Burnt Toast (2020) (digital) (My-brother).cbr": {
         "series": "Arkenstone",
         "volume": "01",
+        "issue": "01",
         "year": "2020",
         "ext": "cbr",
         "scan_info": "My-brother",
@@ -83,6 +85,7 @@ FNS = {
     "The_Arkenstone_v03_(2002)_(Digital)_(DR_&amp;_Quenya-Elves).cbr": {
         "series": "The Arkenstone",
         "volume": "03",
+        "issue": "03",
         "year": "2002",
         "ext": "cbr",
         "scan_info": "DR &amp; Quenya-Elves",
@@ -101,6 +104,7 @@ FNS = {
     "Kartalk Library Edition v01 (1992) (digital) (Son of Ultron-Empire).cbr": {
         "series": "Kartalk Library Edition",
         "volume": "01",
+        "issue": "01",
         "year": "1992",
         "ext": "cbr",
         "original_format": "digital",
@@ -109,6 +113,7 @@ FNS = {
     "Kind of Deadly v02 - Last Bullet (2006) (Digital) (Zone-Empire).cbr": {
         "series": "Kind of Deadly",
         "volume": "02",
+        "issue": "02",
         "year": "2006",
         "ext": "cbr",
         "original_format": "Digital",
@@ -142,6 +147,7 @@ FNS = {
     "Jeremy John v01 - Uninterested! (2007) (Digital) (Asgard-Empire).cbr": {
         "series": "Jeremy John",
         "volume": "01",
+        "issue": "01",
         "year": "2007",
         "ext": "cbr",
         "original_format": "Digital",
@@ -168,6 +174,7 @@ FNS = {
     "Darkwad by Carlos Zemo v01 - Knuckle Fight (2009) (Digital) (Zone-Empire).cbr": {
         "series": "Darkwad by Carlos Zemo",
         "volume": "01",
+        "issue": "01",
         "year": "2009",
         "ext": "cbr",
         "title": "Knuckle Fight",
@@ -314,6 +321,14 @@ FNS.update(
             "series": "Free Comic Book Day - Avengers Hulk",
             "year": "2021",
         },
+        # CT assumes the volume is also the issue number if it can't find an issue number
+        "Avengers By Brian Michael Bendis volume 03 (2013).cbz": {
+            "ext": "cbz",
+            "issue": "03",
+            "series": "Avengers By Brian Michael Bendis",
+            "volume": "03",
+            "year": "2013",
+        },
     }
 )
 LATER = {
@@ -338,14 +353,6 @@ LATER = {
 # Not examined yet.
 FNS.update(
     {
-        # CT assumes the volume is also the issue number if it can't find an issue number
-        "Avengers By Brian Michael Bendis volume 03 (2013).cbz": {
-            "ext": "cbz",
-            "issue": "3",
-            "series": "Avengers By Brian Michael Bendis",
-            "volume": "03",
-            "year": "2013",
-        },
         # CT has extra processing to re-attach the year in this case
         "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
             "ext": "cbr",

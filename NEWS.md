@@ -6,6 +6,8 @@
   either issue, year or volume.
 - Issue numbers that lead with a '#' character may start with alphabetical
   characters.
+- If volume is parsed, but issue number is not, the issue number is copied from
+  the volume number.
 - ComicFilenameParser and ComicFilenameSerializer classes are available as well
   as the old function API.
 

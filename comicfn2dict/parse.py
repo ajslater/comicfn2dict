@@ -213,6 +213,10 @@ class ComicFilenameParser:
             self._parse_item(ISSUE_ANYWHERE_RE)
         self._log_progress("AFTER ISSUE PICKUP")
 
+        # Copy volume into issue if it's all we have.
+        if "issue" not in self.metadata and "volume" in self.metadata:
+            self.metadata["issue"] = self.metadata["volume"]
+
         self._add_remainders()
 
         return self.metadata
