@@ -20,7 +20,8 @@ def main():
     )
     args = parser.parse_args()
     name = args.path.name
-    metadata = ComicFilenameParser(name, verbose=args.verbose).parse()
+    cfnparser = ComicFilenameParser(name, verbose=args.verbose)
+    metadata = cfnparser.parse()
     pprint(metadata)  # noqa:T203
 
 
