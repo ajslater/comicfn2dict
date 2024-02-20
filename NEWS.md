@@ -4,8 +4,10 @@
 
 - Titles are now parsed only if they occur after the series token AND after
   either issue, year or volume.
-- Issue numbers that start with a '#' character may contain alphabetical
+- Issue numbers that lead with a '#' character may start with alphabetical
   characters.
+- ComicFilenameParser and ComicFilenameSerializer classes are available as well
+  as the old function API.
 
 ## v0.1.4
 
