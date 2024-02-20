@@ -309,6 +309,11 @@ FNS.update(
             "series": "Star Wars - War of the Bounty Hunters - IG-88",
             "year": "2021",
         },
+        "Free Comic Book Day - Avengers.Hulk (2021).cbz": {
+            "ext": "cbz",
+            "series": "Free Comic Book Day - Avengers Hulk",
+            "year": "2021",
+        },
     }
 )
 LATER = {
@@ -333,11 +338,6 @@ LATER = {
 # Not examined yet.
 FNS.update(
     {
-        "Free Comic Book Day - Avengers.Hulk (2021).cbz": {
-            "ext": "cbz",
-            "series": "Free Comic Book Day - Avengers Hulk",
-            "year": "2021",
-        },
         # CT assumes the volume is also the issue number if it can't find an issue number
         "Avengers By Brian Michael Bendis volume 03 (2013).cbz": {
             "ext": "cbz",

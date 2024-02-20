@@ -6,6 +6,7 @@ from re import Pattern
 from typing import Any
 
 from comicfn2dict.regex import (
+    NON_NUMBER_DOT_RE,
     EXTRA_SPACES_RE,
     ISSUE_ANYWHERE_RE,
     ISSUE_COUNT_RE,
@@ -133,6 +134,8 @@ class ComicFilenameParser:
                     unused_tokens.append(token)
                     continue
                 value = self._grouping_operators_strip(value)
+                value = NON_NUMBER_DOT_RE.sub(r"\1 \2", value)
+
                 self.metadata[key] = value
                 remaining_key_index += 1
             else:
@@ -165,6 +168,7 @@ class ComicFilenameParser:
         self._log_progress("INITIAL")
         self._parse_ext()
         self._clean_dividers()
+        self._log_progress("CLEANED")
 
         # Parse paren tokens
         self._parse_item(ISSUE_COUNT_RE)

@@ -73,3 +73,5 @@ ISSUE_ANYWHERE_RE = re_compile(r"\b(" + _ISSUE_RE_EXP + r")\b")
 
 # LONG STRINGS
 REMAINING_GROUP_RE = re_compile(r"^[^\()].*[^\)]")
+
+NON_NUMBER_DOT_RE = re_compile(r"(\D)\.(\D)")
