@@ -28,14 +28,8 @@ _TOKEN_DELIMETER = "/"
 
 
 class ComicFilenameParser:
-    @staticmethod
-    def _clean_dividers(data: str) -> str:
-        """Replace non space dividers and clean extra spaces out of string."""
-        data = NON_SPACE_DIVIDER_RE.sub(" ", data)
-        return EXTRA_SPACES_RE.sub(" ", data).strip()
-
     def path_index(self, key: str):
-        """Retrieve and memoize the key's location in the path."""
+        """Lazily retrieve and memoize the key's location in the path."""
         if key == "remainders":
             return -1
         value: str = self.metadata.get(key, "")  # type: ignore
@@ -60,6 +54,11 @@ class ComicFilenameParser:
         ext = suffix.lstrip(".")
         self.metadata["ext"] = ext
         self._unparsed_path = data
+
+    def _clean_dividers(self):
+        """Replace non space dividers and clean extra spaces out of string."""
+        data = NON_SPACE_DIVIDER_RE.sub(" ", self._unparsed_path)
+        self._unparsed_path = EXTRA_SPACES_RE.sub(" ", data).strip()
 
     def _grouping_operators_strip(self, value: str) -> str:
         """Strip spaces and parens."""
@@ -163,9 +162,9 @@ class ComicFilenameParser:
 
     def parse(self) -> dict[str, Any]:
         """Parse the filename with a hierarchy of regexes."""
-        self._unparsed_path = self._clean_dividers(self._unparsed_path)
         self._log_progress("INITIAL")
         self._parse_ext()
+        self._clean_dividers()
 
         # Parse paren tokens
         self._parse_item(ISSUE_COUNT_RE)
