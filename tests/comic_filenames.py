@@ -266,6 +266,46 @@ FNS.update(  # Newly fixed.
             "volume": "1",
             "remainders": ("repaired c2c",),
         },
+        # Extra - in the series
+        " X-Men-V1-#067.cbr": {
+            "ext": "cbr",
+            "issue": "067",
+            "series": "X-Men",
+            "volume": "1",
+            "remainders": ("-",),
+        },
+        "Aquaman - Green Arrow - Deep Target #01 (of 07) (2021).cbr": {
+            "ext": "cbr",
+            "issue": "01",
+            "series": "Aquaman - Green Arrow - Deep Target",
+            "year": "2021",
+            "issue_count": "07",
+        },
+        # CT only separates this into a title if the '-' is attached to the previous word eg 'aquaman- Green Arrow'. @bpepple opened a ticket for this https://github.com/ajslater/comicfn2dict/issues/1 already
+        "Batman_-_Superman_#020_(2021).cbr": {
+            "ext": "cbr",
+            "issue": "020",
+            "series": "Batman - Superman",
+            "year": "2021",
+        },
+        # Publishers like to re-print some of their annuals using this format for the year
+        "Batman '89 (2021) .cbr": {
+            "ext": "cbr",
+            "series": "Batman '89",
+            "year": "2021",
+        },
+        # This made the parser in CT much more complicated. It's understandable that this isn't parsed on the first few iterations of this project
+        "Star Wars - War of the Bounty Hunters - IG-88 (2021).cbz": {
+            "ext": "cbz",
+            "series": "Star Wars - War of the Bounty Hunters - IG-88",
+            "year": "2021",
+        },  # The addition of the '#1' turns this into the same as 'Aquaman - Green Arrow - Deep Target' above
+        "Star Wars - War of the Bounty Hunters - IG-88 #1 (2021).cbz": {
+            "ext": "cbz",
+            "issue": "1",
+            "series": "Star Wars - War of the Bounty Hunters - IG-88",
+            "year": "2021",
+        },
     }
 )
 
@@ -295,54 +335,34 @@ LATER = {
         "issue": "1024",
         "series": "action comics",
     },
+    # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
+    #    if a year occurs after another year,  and no volume, do volume / year
+    "Super Strange Yarns (1957) #92 (1969).cbz": {
+        "ext": "cbz",
+        "issue": "92",
+        "series": "Super Strange Yarns",
+        "volume": "1957",
+        "year": "1969",
+    },
 }
 
+# Not examined yet.
 FNS.update(
     {
-        # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
-        "Super Strange Yarns (1957) #92 (1969).cbz": {
-            "ext": "cbz",
-            "issue": "92",
-            "series": "Super Strange Yarns",
-            "volume": "1957",
-            "year": "1969",
-        },  # Extra - in the series
-        " X-Men-V1-#067.cbr": {
-            "ext": "cbr",
-            "issue": "067",
-            "series": "X-Men",
-            "volume": "1",
-        },  # CT only separates this into a title if the '-' is attached to the previous word eg 'aquaman- Green Arrow'. @bpepple opened a ticket for this https://github.com/ajslater/comicfn2dict/issues/1 already
-        "Aquaman - Green Arrow - Deep Target #01 (of 07) (2021).cbr": {
-            "ext": "cbr",
-            "issue": "01",
-            "series": "Aquaman - Green Arrow - Deep Target",
-            "year": "2021",
-            "issue_count": "7",
-        },
-        "Batman_-_Superman_#020_(2021).cbr": {
-            "ext": "cbr",
-            "issue": "020",
-            "series": "Batman - Superman",
-            "year": "2021",
-        },
         "Free Comic Book Day - Avengers.Hulk (2021).cbz": {
             "ext": "cbz",
             "series": "Free Comic Book Day - Avengers Hulk",
             "year": "2021",
-        },  # CT assumes the volume is also the issue number if it can't find an issue number
+        },
+        # CT assumes the volume is also the issue number if it can't find an issue number
         "Avengers By Brian Michael Bendis volume 03 (2013).cbz": {
             "ext": "cbz",
             "issue": "3",
             "series": "Avengers By Brian Michael Bendis",
             "volume": "03",
             "year": "2013",
-        },  # Publishers like to re-print some of their annuals using this format for the year
-        "Batman '89 (2021) .cbr": {
-            "ext": "cbr",
-            "series": "Batman '89",
-            "year": "2021",
-        },  # CT has extra processing to re-attach the year in this case
+        },
+        # CT has extra processing to re-attach the year in this case
         "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
             "ext": "cbr",
             "series": "Blade Runner Free Comic Book Day 2021",
@@ -377,18 +397,8 @@ FNS.update(
             "series": "Marvel Two In One",
             "publisher": "Marvel",
             "volume": "1",
-        },  # This made the parser in CT much more complicated. It's understandable that this isn't parsed on the first few iterations of this project
-        "Star Wars - War of the Bounty Hunters - IG-88 (2021).cbz": {
-            "ext": "cbz",
-            "series": "Star Wars - War of the Bounty Hunters - IG-88",
-            "year": "2021",
-        },  # The addition of the '#1' turns this into the same as 'Aquaman - Green Arrow - Deep Target' above
-        "Star Wars - War of the Bounty Hunters - IG-88 #1 (2021).cbz": {
-            "ext": "cbz",
-            "issue": "1",
-            "series": "Star Wars - War of the Bounty Hunters - IG-88",
-            "year": "2021",
-        },  # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
+        },
+        # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
         "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
             "ext": "cbz",
             "issue": "49",
