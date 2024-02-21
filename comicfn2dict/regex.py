@@ -113,9 +113,8 @@ ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE = re_compile(
 VOLUME_RE = re_compile(r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+))")
 
 # ISSUE
-_ISSUE_NUMBER_RE_EXP = r"(?P<issue>[\w½]+\.?\d*\w*)"
-ISSUE_NUMBER_RE = re_compile(r"(\(?#" + _ISSUE_NUMBER_RE_EXP + r"\)?)")
-_ISSUE_RE_EXP = r"(?P<issue>[\d½]+\.?\d*\w*)"
+_ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
+ISSUE_NUMBER_RE = re_compile(r"(\(?#" + _ISSUE_RE_EXP + r"\)?)")
 ISSUE_END_RE = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
 ISSUE_ANYWHERE_RE = re_compile(r"\b(\(?" + _ISSUE_RE_EXP + r"\)?)\b")

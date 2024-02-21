@@ -368,6 +368,13 @@ FNS.update(
             "issue": "1024",
             "series": "action comics",
         },
+        # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
+        "Cory Doctorow's Futuristic Tales of the Here and Now #0.0.1 (2007).cbz": {
+            "ext": "cbz",
+            "issue": "0.0.1",
+            "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
+            "year": "2007",
+        },
     }
 )
 DIFFICULT = {
@@ -431,18 +438,10 @@ DIFFICULT = {
         "title": "Anda's Game",
         "year": "2007",
     },
-    # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
-    "Cory Doctorow's Futuristic Tales of the Here and Now #0.0.1 (2007).cbz": {
-        "ext": "cbz",
-        "issue": "0.1",
-        "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
-        "year": "2007",
-        "issue_count": "",
-    },
 }
 
-# FNS.update(LATER)
-
+# first_key, first_val = DIFFICULT.popitem()
+# FNS[first_key] = first_val
 
 WONFIX = {
     # Leading issue number is usually an alternate sequence number
