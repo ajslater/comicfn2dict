@@ -1,5 +1,6 @@
 """Parse comic book archive names using the simple 'parse' parser."""
 from pprint import pprint
+from calendar import month_abbr
 from copy import copy
 from pathlib import Path
 from re import Pattern
@@ -7,6 +8,7 @@ from typing import Any
 
 from comicfn2dict.regex import (
     NON_NUMBER_DOT_RE,
+    YEAR_FIRST_DATE_RE,
     EXTRA_SPACES_RE,
     ISSUE_ANYWHERE_RE,
     ISSUE_COUNT_RE,
@@ -18,14 +20,14 @@ from comicfn2dict.regex import (
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     REMAINING_GROUP_RE,
     VOLUME_RE,
-    YEAR_BEGIN_RE,
-    YEAR_END_RE,
+    MONTH_FIRST_DATE_RE,
     YEAR_TOKEN_RE,
 )
 
 _REMAINING_GROUP_KEYS = ("series", "title")
 _TITLE_PRECEDING_KEYS = ("issue", "year", "volume")
 _TOKEN_DELIMETER = "/"
+_DATE_KEYS = frozenset({"year", "month", "day"})
 
 
 class ComicFilenameParser:
@@ -69,7 +71,7 @@ class ComicFilenameParser:
         value = value.strip("'").strip('"').strip()
         return value
 
-    def _parse_item(
+    def _parse_items(
         self,
         regex: Pattern,
         require_all: bool = False,
@@ -94,6 +96,30 @@ class ComicFilenameParser:
             if token := part.strip():
                 parts.append(token)
         self._unparsed_path = _TOKEN_DELIMETER.join(parts)
+
+    def _alpha_month_to_numeric(self):
+        """Translate alpha_month to numeric month."""
+        if alpha_month := self.metadata.get("alpha_month", ""):
+            alpha_month = alpha_month.capitalize()  # type: ignore
+            for index, abbr in enumerate(month_abbr):
+                if abbr and alpha_month.startswith(abbr):
+                    month = f"{index:02d}"
+                    self.metadata["month"] = month
+                    break
+
+    def _parse_dates(self):
+        """Parse date schemes."""
+        # Month first date
+        self._parse_items(MONTH_FIRST_DATE_RE)
+        self._alpha_month_to_numeric()
+
+        # Year first date
+        if _DATE_KEYS - self.metadata.keys():
+            self._parse_items(YEAR_FIRST_DATE_RE)
+            self._alpha_month_to_numeric()
+
+        if "year" not in self.metadata:
+            self._parse_items(YEAR_TOKEN_RE)
 
     def _is_title_in_position(self, value):
         """Does the title come after series and one other token if they exist."""
@@ -171,35 +197,28 @@ class ComicFilenameParser:
         self._log_progress("CLEANED")
 
         # Parse paren tokens
-        self._parse_item(ISSUE_COUNT_RE)
-        self._parse_item(YEAR_TOKEN_RE)
-        self._parse_item(
+        self._parse_items(ISSUE_COUNT_RE)
+        self._parse_dates()
+        self._parse_items(
             ORIGINAL_FORMAT_SCAN_INFO_RE,
             require_all=True,
         )
         if "original_format" not in self.metadata:
-            self._parse_item(
+            self._parse_items(
                 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
             )
         self._log_progress("AFTER PAREN TOKENS")
 
         # Parse regular tokens
-        self._parse_item(VOLUME_RE)
-        self._parse_item(ISSUE_NUMBER_RE)
+        self._parse_items(VOLUME_RE)
+        self._parse_items(ISSUE_NUMBER_RE)
         self._log_progress("AFTER REGULAR TOKENS")
-
-        # Pickup year if not gotten.
-        if "year" not in self.metadata:
-            self._parse_item(YEAR_BEGIN_RE)
-        if "year" not in self.metadata:
-            self._parse_item(YEAR_END_RE)
-        self._log_progress("AFTER YEAR PICKUP")
 
         # Pickup issue if it's a standalone token
         if "issue" not in self.metadata:
-            self._parse_item(ISSUE_END_RE)
+            self._parse_items(ISSUE_END_RE)
         if "issue" not in self.metadata:
-            self._parse_item(ISSUE_BEGIN_RE)
+            self._parse_items(ISSUE_BEGIN_RE)
 
         self._log_progress("AFTER ISSUE PICKUP")
 
@@ -210,7 +229,7 @@ class ComicFilenameParser:
         # Final try for issue number.
         if "issue" not in self.metadata:
             # TODO is this useful?
-            self._parse_item(ISSUE_ANYWHERE_RE)
+            self._parse_items(ISSUE_ANYWHERE_RE)
         self._log_progress("AFTER ISSUE PICKUP")
 
         # Copy volume into issue if it's all we have.

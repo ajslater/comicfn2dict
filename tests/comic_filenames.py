@@ -329,6 +329,30 @@ FNS.update(
             "volume": "03",
             "year": "2013",
         },
+        # CT catches the year
+        "Marvel Previews #002 (January 2022).cbr": {
+            "ext": "cbr",
+            "issue": "002",
+            "series": "Marvel Previews",
+            "alpha_month": "January",
+            "month": "01",
+            "year": "2022",
+        },
+        "Test Numeric Year #2 2001-02-24.cbz": {
+            "ext": "cbz",
+            "issue": "2",
+            "series": "Test Numeric Year",
+            "year": "2002",
+            "month": "02",
+            "day": "24",
+        },
+        "Test Month First Date 02-24-2001.cbz": {
+            "ext": "cbz",
+            "series": "Test Month First Date",
+            "year": "2002",
+            "month": "02",
+            "day": "24",
+        },
     }
 )
 LATER = {
@@ -348,40 +372,37 @@ LATER = {
         "volume": "1957",
         "year": "1969",
     },
+    # CT has extra processing to re-attach the year in this case
+    "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
+        "ext": "cbr",
+        "series": "Blade Runner Free Comic Book Day 2021",
+        "year": "2021",
+    },
+    # CT treats book like 'v' but also adds it as the title (matches ComicVine for this particular series)
+    "Bloodshot Book 03 (2020).cbr": {
+        "ext": "cbr",
+        "issue": "03",
+        "series": "Bloodshot",
+        "title": "Book 03",
+        "volume": "03",
+        "year": "2020",
+    },
+    # CT checks for the following '(of 06)' after the '03' and marks it as the volume
+    "Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr": {
+        "ext": "cbr",
+        "issue": "008",
+        "series": "Elephantmen 2259",
+        "title": "Simple Truth",
+        "volume": "03",
+        "year": "2021",
+        "volume_count": "06",
+    },
 }
 
 # Not examined yet.
 FNS.update(
     {
-        # CT has extra processing to re-attach the year in this case
-        "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
-            "ext": "cbr",
-            "series": "Blade Runner Free Comic Book Day 2021",
-            "year": "2021",
-        },  # CT treats book like 'v' but also adds it as the title (matches ComicVine for this particular series)
-        "Bloodshot Book 03 (2020).cbr": {
-            "ext": "cbr",
-            "issue": "03",
-            "series": "Bloodshot",
-            "title": "Book 03",
-            "volume": "03",
-            "year": "2020",
-        },  # CT checks for the following '(of 06)' after the '03' and marks it as the volume
-        "Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr": {
-            "ext": "cbr",
-            "issue": "008",
-            "series": "Elephantmen 2259",
-            "title": "Simple Truth",
-            "volume": "03",
-            "year": "2021",
-            "volume_count": "06",
-        },  # CT catches the year
-        "Marvel Previews #002 (January 2022).cbr": {
-            "ext": "cbr",
-            "issue": "002",
-            "series": "Marvel Previews",
-            "year": "2022",
-        },  # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
+        # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
         "Marvel Two In One V1 #090  c2c.cbr": {
             "ext": "cbr",
             "issue": "090",
@@ -397,20 +418,23 @@ FNS.update(
             "title": "digital",
             "publisher": "DC",
             "year": "1951",
-        },  # CT notices that this is a full date, CT doesn't actually return the month or day though just removes it
+        },
+        # CT notices that this is a full date, CT doesn't actually return the month or day though just removes it
         "X-Men, 2021-08-04 (#02).cbz": {
             "ext": "cbz",
             "issue": "02",
             "series": "X-Men",
             "year": "2021",
-        },  # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
+        },
+        # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
         "Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz": {
             "ext": "cbz",
             "issue": "001",
             "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
             "title": "Anda's Game",
             "year": "2007",
-        },  # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
+        },
+        # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
         "Cory Doctorow's Futuristic Tales of the Here and Now #0.0.1 (2007).cbz": {
             "ext": "cbz",
             "issue": "0.1",

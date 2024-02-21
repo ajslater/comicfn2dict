@@ -38,16 +38,64 @@ ORIGINAL_FORMAT_PATTERNS = (
     r"Web([-\s]?(Comic|Rip))?",
 )
 
+MONTHS = (
+    r"Jan(uary)?",
+    r"Feb(ruary)?",
+    r"Mar(ch)?",
+    r"Apr(il)?",
+    r"May",
+    r"Jun(e)?",
+    r"Jul(y)?",
+    r"Aug(ust)?",
+    r"Sept(ember)?",
+    r"Oct(ober)?",
+    r"Nov(ember)?",
+    r"Dec(ember)?",
+)
+
 # CLEAN
 NON_SPACE_DIVIDER_RE = re_compile(r"[_\+]")
 EXTRA_SPACES_RE = re_compile(r"\s\s+")
 
+### DATES
+_YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
+_MONTH_ALPHA_RE_EXP = r"(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?"
+_MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
+_MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
+
+_DAY_RE_EXP = r"(?P<day>([0-2]?\d|(3)[0-1]))"
+_DATE_DELIM = r"[-\s]+"
+_MONTH_FIRST_DATE_RE_EXP = (
+    r"((\b|\(?)"
+    # Month
+    + _MONTH_RE_EXP
+    # Day
+    + r"("
+    + _DATE_DELIM
+    + _DAY_RE_EXP
+    + r")?"
+    # Year
+    + r"[,]?"
+    + _DATE_DELIM
+    + _YEAR_RE_EXP
+    + r"(\)?|\b))"
+)
+_YEAR_FIRST_DATE_RE_EXP = (
+    r"(\b\(?"
+    + _YEAR_RE_EXP
+    + _DATE_DELIM
+    + _MONTH_RE_EXP
+    + _DATE_DELIM
+    + _DAY_RE_EXP
+    + r"\b\)?)"
+)
+
+MONTH_FIRST_DATE_RE = re_compile(_MONTH_FIRST_DATE_RE_EXP)
+YEAR_FIRST_DATE_RE = re_compile(_YEAR_FIRST_DATE_RE_EXP)
+YEAR_TOKEN_RE = re_compile(_YEAR_RE_EXP, parenthify=True)
+
 # PAREN GROUPS
 ISSUE_COUNT_RE = re_compile(r"of\s*(?P<issue_count>\d+)", parenthify=True)
-_YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
-YEAR_TOKEN_RE = re_compile(_YEAR_RE_EXP, parenthify=True)
-YEAR_BEGIN_RE = re_compile(r"^" + _YEAR_RE_EXP + r"\b")
-YEAR_END_RE = re_compile(r"\b" + _YEAR_RE_EXP + r"$")
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)
 _ORIGINAL_FORMAT_RE_EXP = r"(?P<original_format>" + _OF_PATTERNS + r")"
 _SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()]*)"
