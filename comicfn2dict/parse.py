@@ -68,6 +68,7 @@ class ComicFilenameParser:
         value = value.strip()
         value = value.strip("()").strip()
         value = value.strip("-").strip()
+        value = value.strip(",").strip()
         value = value.strip("'").strip('"').strip()
         return value
 
@@ -99,7 +100,7 @@ class ComicFilenameParser:
 
     def _alpha_month_to_numeric(self):
         """Translate alpha_month to numeric month."""
-        if alpha_month := self.metadata.get("alpha_month", ""):
+        if alpha_month := self.metadata.pop("alpha_month", ""):
             alpha_month = alpha_month.capitalize()  # type: ignore
             for index, abbr in enumerate(month_abbr):
                 if abbr and alpha_month.startswith(abbr):
@@ -197,6 +198,7 @@ class ComicFilenameParser:
         self._log_progress("CLEANED")
 
         # Parse paren tokens
+        self._parse_items(ISSUE_NUMBER_RE)
         self._parse_items(ISSUE_COUNT_RE)
         self._parse_dates()
         self._parse_items(
@@ -211,7 +213,6 @@ class ComicFilenameParser:
 
         # Parse regular tokens
         self._parse_items(VOLUME_RE)
-        self._parse_items(ISSUE_NUMBER_RE)
         self._log_progress("AFTER REGULAR TOKENS")
 
         # Pickup issue if it's a standalone token
