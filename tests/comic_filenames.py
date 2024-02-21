@@ -349,7 +349,7 @@ FNS.update(
         "Test Month First Date 02-24-2001.cbz": {
             "ext": "cbz",
             "series": "Test Month First Date",
-            "year": "2002",
+            "year": "2001",
             "month": "02",
             "day": "24",
         },
