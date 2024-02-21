@@ -145,12 +145,9 @@ class ComicFilenameParser:
         if not self._unparsed_path:
             return
 
-        # TODO fix REMAINING GROUP_RE to use token delim
-        tokens = self._unparsed_path.split(_TOKEN_DELIMETER)
-
-        # ASSIGN GROUPS
         remaining_key_index = 0
         unused_tokens = []
+        tokens = self._unparsed_path.split(_TOKEN_DELIMETER)
         while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
             key = _REMAINING_GROUP_KEYS[remaining_key_index]
             token = tokens.pop(0)
