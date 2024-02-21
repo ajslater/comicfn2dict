@@ -16,6 +16,7 @@ from comicfn2dict.regex import (
     ISSUE_NUMBER_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
+    YEAR_END_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     REMAINING_GROUP_RE,
@@ -78,6 +79,9 @@ class ComicFilenameParser:
         self,
         regex: Pattern,
         require_all: bool = False,
+        exclude: str = "",
+        first_only: bool = False,
+        pop: bool = True,
     ) -> None:
         """Parse a value from the data list into metadata and alter the data list."""
         matches = regex.search(self._unparsed_path)
@@ -85,15 +89,23 @@ class ComicFilenameParser:
             return
         matched_metadata = {}
         for key, value in matches.groupdict().items():
+            print(f"{value=} == {exclude=}")
+            if value == exclude:
+                continue
             if not value:
                 if require_all:
                     return
                 continue
             # TODO idk if strip is necessary here
             matched_metadata[key] = self._grouping_operators_strip(value)
+            if first_only:
+                break
         self.metadata.update(matched_metadata)
 
-        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path)
+        if not matched_metadata or not pop:
+            return
+        count = 1 if first_only else 0
+        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
         parts = []
         for part in marked_str.split(TOKEN_DELIMETER):
             if token := part.strip():
@@ -122,7 +134,15 @@ class ComicFilenameParser:
             self._alpha_month_to_numeric()
 
         if "year" not in self.metadata:
-            self._parse_items(YEAR_TOKEN_RE)
+            self._parse_items(YEAR_TOKEN_RE, first_only=True)
+            if "volume" in self.metadata:
+                return
+            # A second year will be the real year.
+            # Move the first year to volume
+            if volume := self.metadata.get("year", ""):
+                self._parse_items(YEAR_TOKEN_RE)
+                if self.metadata.get("year", "") != volume:
+                    self.metadata["volume"] = volume
 
     def _is_title_in_position(self, value):
         """Does the title come after series and one other token if they exist."""
@@ -191,15 +211,27 @@ class ComicFilenameParser:
 
     def parse(self) -> dict[str, Any]:
         """Parse the filename with a hierarchy of regexes."""
+        # Init
+        #
         self._log_progress("INITIAL")
         self._parse_ext()
         self._clean_dividers()
         self._log_progress("CLEANED")
 
-        # Parse paren tokens
+        # Main issue parsing
+        #
         self._parse_items(ISSUE_NUMBER_RE)
         self._parse_items(ISSUE_COUNT_RE)
+        self._log_progress("AFTER ISSUE")
+
+        # Volume and date
+        #
+        self._parse_items(VOLUME_RE)
         self._parse_dates()
+        self._log_progress("AFTER VOLUME & DATE")
+
+        # Format & Scan Info
+        #
         self._parse_items(
             ORIGINAL_FORMAT_SCAN_INFO_RE,
             require_all=True,
@@ -210,19 +242,21 @@ class ComicFilenameParser:
             )
         self._log_progress("AFTER PAREN TOKENS")
 
-        # Parse regular tokens
-        self._parse_items(VOLUME_RE)
-        self._log_progress("AFTER REGULAR TOKENS")
+        # Series and Title
+        #
+        # Match years on the end of series and title tokens
+        year_end_matched = False
+        if "year" not in self.metadata:
+            self._parse_items(YEAR_END_RE, pop=False)
+            year_end_matched = "year" in self.metadata
 
-        # Pickup issue if it's a standalone token
-        if "issue" not in self.metadata:
-            self._parse_items(ISSUE_END_RE)
+        # Pickup issue if it's out on the end of a token
+        if "issue" not in self.metadata and not year_end_matched:
+            exclude: str = self.metadata.get("year", "")  # type: ignore
+            self._parse_items(ISSUE_END_RE, exclude=exclude)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
-
         self._log_progress("AFTER ISSUE PICKUP")
-
-        # Series and Title. Also looks for issue.
         self._assign_remaining_groups()
         self._log_progress("AFTER SERIES AND TITLE")
 
@@ -233,6 +267,7 @@ class ComicFilenameParser:
         self._log_progress("AFTER ISSUE PICKUP")
 
         # Copy volume into issue if it's all we have.
+        #
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
 

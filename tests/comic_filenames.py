@@ -383,25 +383,26 @@ FNS.update(
             "title": "Anda's Game",
             "year": "2007",
         },
+        # If a title ends in a year, it's not an issue (and is a year if no year)
+        "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
+            "ext": "cbr",
+            "series": "Blade Runner Free Comic Book Day 2021",
+            "year": "2021",
+        },
+        # If a year occurs after another year,  and no volume, do volume / year
+        "Super Strange Yarns (1957) #92 (1969).cbz": {
+            "ext": "cbz",
+            "issue": "92",
+            "series": "Super Strange Yarns",
+            "volume": "1957",
+            "year": "1969",
+        },
     }
 )
-DIFFICULT = {
-    # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
-    #    if a year occurs after another year,  and no volume, do volume / year
-    "Super Strange Yarns (1957) #92 (1969).cbz": {
-        "ext": "cbz",
-        "issue": "92",
-        "series": "Super Strange Yarns",
-        "volume": "1957",
-        "year": "1969",
-    },
-    # CT has extra processing to re-attach the year in this case
-    "Blade Runner Free Comic Book Day 2021 (2021).cbr": {
-        "ext": "cbr",
-        "series": "Blade Runner Free Comic Book Day 2021",
-        "year": "2021",
-    },
+VOLUME = {
     # CT treats book like 'v' but also adds it as the title (matches ComicVine for this particular series)
+    #
+    # Book \d  is a non-popped volume not an issue
     "Bloodshot Book 03 (2020).cbr": {
         "ext": "cbr",
         "issue": "03",
@@ -411,6 +412,9 @@ DIFFICULT = {
         "year": "2020",
     },
     # CT checks for the following '(of 06)' after the '03' and marks it as the volume
+    #
+    # issue count is not popped if does not occur near issue
+    # \d (of \d) is volume & volume count if not issue
     "Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr": {
         "ext": "cbr",
         "issue": "008",
@@ -420,7 +424,12 @@ DIFFICULT = {
         "year": "2021",
         "volume_count": "06",
     },
+}
+PUBLISHER = {
     # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
+    #
+    # 1. c2c is not a title and is an original_format
+    # Leading common publisher may be a publisher? Do not pop
     "Marvel Two In One V1 #090  c2c.cbr": {
         "ext": "cbr",
         "issue": "090",
@@ -429,6 +438,9 @@ DIFFICULT = {
         "volume": "1",
     },
     # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
+    #
+    # 1. Month-Month should be handled
+    # 2. DC is a common publisher, no pop?
     "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
         "ext": "cbz",
         "issue": "49",
@@ -440,7 +452,7 @@ DIFFICULT = {
     },
 }
 
-# first_key, first_val = DIFFICULT.popitem()
+# first_key, first_val = YEAR.popitem()
 # FNS[first_key] = first_val
 
 WONFIX = {

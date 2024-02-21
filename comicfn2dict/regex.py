@@ -60,11 +60,15 @@ TOKEN_DELIMETER = r"/"
 _TOKEN_DIVIDERS_RE = re_compile(r":")
 _SPACE_EQUIVALENT_RE = re_compile(r"_")
 _EXTRA_SPACES_RE = re_compile(r"\s\s+")
+_LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
+_RIGHT_PAREN_EQUIVALENT_RE = re_compile(r"\]")
 REGEX_SUBS: MappingProxyType[re.Pattern, tuple[str, int]] = MappingProxyType(
     {
         _TOKEN_DIVIDERS_RE: (TOKEN_DELIMETER, 1),
         _SPACE_EQUIVALENT_RE: (r" ", 0),
         _EXTRA_SPACES_RE: (r" ", 0),
+        _LEFT_PAREN_EQUIVALENT_RE: (r"(", 0),
+        _RIGHT_PAREN_EQUIVALENT_RE: (r")", 0),
     }
 )
 
@@ -104,6 +108,7 @@ _YEAR_FIRST_DATE_RE_EXP = (
 MONTH_FIRST_DATE_RE = re_compile(_MONTH_FIRST_DATE_RE_EXP)
 YEAR_FIRST_DATE_RE = re_compile(_YEAR_FIRST_DATE_RE_EXP)
 YEAR_TOKEN_RE = re_compile(_YEAR_RE_EXP, parenthify=True)
+YEAR_END_RE = re_compile(_YEAR_RE_EXP + r"\/|$")
 
 # PAREN GROUPS
 ISSUE_COUNT_RE = re_compile(r"of\s*(?P<issue_count>\d+)", parenthify=True)
