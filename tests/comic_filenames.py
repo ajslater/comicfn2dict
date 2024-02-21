@@ -334,7 +334,6 @@ FNS.update(
             "ext": "cbr",
             "issue": "002",
             "series": "Marvel Previews",
-            "alpha_month": "January",
             "month": "01",
             "year": "2022",
         },
@@ -353,16 +352,25 @@ FNS.update(
             "month": "02",
             "day": "24",
         },
+        # CT notices that this is a full date, CT doesn't actually return the month or day though just removes it
+        "X-Men, 2021-08-04 (#02).cbz": {
+            "ext": "cbz",
+            "issue": "02",
+            "series": "X-Men",
+            "year": "2021",
+            "month": "08",
+            "day": "04",
+        },
+        # 4 digit issue number
+        #   should this be an issue number if year DONE?.
+        "action comics 1024.cbz": {
+            "ext": "cbz",
+            "issue": "1024",
+            "series": "action comics",
+        },
     }
 )
-LATER = {
-    # 4 digit issue number
-    #   should this be an issue number if year DONE?.
-    "action comics 1024.cbz": {
-        "ext": "cbz",
-        "issue": "1024",
-        "series": "action comics",
-    },
+DIFFICULT = {
     # I'm not sure there's a right way to parse this. This might also be a madeup filename I don't remember
     #    if a year occurs after another year,  and no volume, do volume / year
     "Super Strange Yarns (1957) #92 (1969).cbz": {
@@ -397,53 +405,44 @@ LATER = {
         "year": "2021",
         "volume_count": "06",
     },
+    # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
+    "Marvel Two In One V1 #090  c2c.cbr": {
+        "ext": "cbr",
+        "issue": "090",
+        "series": "Marvel Two In One",
+        "publisher": "Marvel",
+        "volume": "1",
+    },
+    # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
+    "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
+        "ext": "cbz",
+        "issue": "49",
+        "series": "Wonder Woman",
+        "title": "digital",
+        "publisher": "DC",
+        "year": "1951",
+        "month": "10",
+    },
+    # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
+    "Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz": {
+        "ext": "cbz",
+        "issue": "001",
+        "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
+        "title": "Anda's Game",
+        "year": "2007",
+    },
+    # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
+    "Cory Doctorow's Futuristic Tales of the Here and Now #0.0.1 (2007).cbz": {
+        "ext": "cbz",
+        "issue": "0.1",
+        "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
+        "year": "2007",
+        "issue_count": "",
+    },
 }
 
-# Not examined yet.
-FNS.update(
-    {
-        # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
-        "Marvel Two In One V1 #090  c2c.cbr": {
-            "ext": "cbr",
-            "issue": "090",
-            "series": "Marvel Two In One",
-            "publisher": "Marvel",
-            "volume": "1",
-        },
-        # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
-        "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
-            "ext": "cbz",
-            "issue": "49",
-            "series": "Wonder Woman",
-            "title": "digital",
-            "publisher": "DC",
-            "year": "1951",
-        },
-        # CT notices that this is a full date, CT doesn't actually return the month or day though just removes it
-        "X-Men, 2021-08-04 (#02).cbz": {
-            "ext": "cbz",
-            "issue": "02",
-            "series": "X-Men",
-            "year": "2021",
-        },
-        # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
-        "Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz": {
-            "ext": "cbz",
-            "issue": "001",
-            "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
-            "title": "Anda's Game",
-            "year": "2007",
-        },
-        # This is a contrived test case. I've never seen this I just wanted to handle it with my parser
-        "Cory Doctorow's Futuristic Tales of the Here and Now #0.0.1 (2007).cbz": {
-            "ext": "cbz",
-            "issue": "0.1",
-            "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
-            "year": "2007",
-            "issue_count": "",
-        },
-    }
-)
+# FNS.update(LATER)
+
 
 WONFIX = {
     # Leading issue number is usually an alternate sequence number
