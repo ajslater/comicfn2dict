@@ -375,6 +375,14 @@ FNS.update(
             "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
             "year": "2007",
         },
+        # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
+        "Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
+            "title": "Anda's Game",
+            "year": "2007",
+        },
     }
 )
 DIFFICULT = {
@@ -429,14 +437,6 @@ DIFFICULT = {
         "publisher": "DC",
         "year": "1951",
         "month": "10",
-    },
-    # CT treats ':' the same as '-' but here the ':' is attached to 'Now' which CT sees as a title separation
-    "Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz": {
-        "ext": "cbz",
-        "issue": "001",
-        "series": "Cory Doctorow's Futuristic Tales of the Here and Now",
-        "title": "Anda's Game",
-        "year": "2007",
     },
 }
 

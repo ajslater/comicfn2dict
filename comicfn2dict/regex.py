@@ -1,5 +1,6 @@
 """Parsing regexes."""
 import re
+from types import MappingProxyType
 
 
 def re_compile(exp, parenthify=False):
@@ -53,9 +54,19 @@ MONTHS = (
     r"Dec(ember)?",
 )
 
+TOKEN_DELIMETER = r"/"
+
 # CLEAN
-NON_SPACE_DIVIDER_RE = re_compile(r"[_\+]")
-EXTRA_SPACES_RE = re_compile(r"\s\s+")
+_TOKEN_DIVIDERS_RE = re_compile(r":")
+_SPACE_EQUIVALENT_RE = re_compile(r"_")
+_EXTRA_SPACES_RE = re_compile(r"\s\s+")
+REGEX_SUBS: MappingProxyType[re.Pattern, tuple[str, int]] = MappingProxyType(
+    {
+        _TOKEN_DIVIDERS_RE: (TOKEN_DELIMETER, 1),
+        _SPACE_EQUIVALENT_RE: (r" ", 0),
+        _EXTRA_SPACES_RE: (r" ", 0),
+    }
+)
 
 ### DATES
 _YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
@@ -117,6 +128,8 @@ _ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
 ISSUE_NUMBER_RE = re_compile(r"(\(?#" + _ISSUE_RE_EXP + r"\)?)")
 ISSUE_END_RE = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
+
+# TODO unused
 ISSUE_ANYWHERE_RE = re_compile(r"\b(\(?" + _ISSUE_RE_EXP + r"\)?)\b")
 
 # LONG STRINGS

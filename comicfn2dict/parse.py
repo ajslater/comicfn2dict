@@ -9,13 +9,13 @@ from typing import Any
 from comicfn2dict.regex import (
     NON_NUMBER_DOT_RE,
     YEAR_FIRST_DATE_RE,
-    EXTRA_SPACES_RE,
     ISSUE_ANYWHERE_RE,
+    REGEX_SUBS,
+    TOKEN_DELIMETER,
     ISSUE_COUNT_RE,
     ISSUE_NUMBER_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
-    NON_SPACE_DIVIDER_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     REMAINING_GROUP_RE,
@@ -26,7 +26,6 @@ from comicfn2dict.regex import (
 
 _REMAINING_GROUP_KEYS = ("series", "title")
 _TITLE_PRECEDING_KEYS = ("issue", "year", "volume")
-_TOKEN_DELIMETER = "/"
 _DATE_KEYS = frozenset({"year", "month", "day"})
 
 
@@ -58,19 +57,22 @@ class ComicFilenameParser:
         self.metadata["ext"] = ext
         self._unparsed_path = data
 
-    def _clean_dividers(self):
-        """Replace non space dividers and clean extra spaces out of string."""
-        data = NON_SPACE_DIVIDER_RE.sub(" ", self._unparsed_path)
-        self._unparsed_path = EXTRA_SPACES_RE.sub(" ", data).strip()
-
     def _grouping_operators_strip(self, value: str) -> str:
         """Strip spaces and parens."""
         value = value.strip()
         value = value.strip("()").strip()
         value = value.strip("-").strip()
         value = value.strip(",").strip()
-        value = value.strip("'").strip('"').strip()
-        return value
+        value = value.strip("'").strip()
+        return value.strip('"').strip()
+
+    def _clean_dividers(self):
+        """Replace non space dividers and clean extra spaces out of string."""
+        data = self._unparsed_path
+        for regex, pair in REGEX_SUBS.items():
+            replacement, count = pair
+            data = regex.sub(replacement, data, count=count)
+        self._unparsed_path = data.strip()
 
     def _parse_items(
         self,
@@ -91,12 +93,12 @@ class ComicFilenameParser:
             matched_metadata[key] = self._grouping_operators_strip(value)
         self.metadata.update(matched_metadata)
 
-        marked_str = regex.sub(_TOKEN_DELIMETER, self._unparsed_path)
+        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path)
         parts = []
-        for part in marked_str.split(_TOKEN_DELIMETER):
+        for part in marked_str.split(TOKEN_DELIMETER):
             if token := part.strip():
                 parts.append(token)
-        self._unparsed_path = _TOKEN_DELIMETER.join(parts)
+        self._unparsed_path = TOKEN_DELIMETER.join(parts)
 
     def _alpha_month_to_numeric(self):
         """Translate alpha_month to numeric month."""
@@ -147,7 +149,7 @@ class ComicFilenameParser:
 
         remaining_key_index = 0
         unused_tokens = []
-        tokens = self._unparsed_path.split(_TOKEN_DELIMETER)
+        tokens = self._unparsed_path.split(TOKEN_DELIMETER)
         while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
             key = _REMAINING_GROUP_KEYS[remaining_key_index]
             token = tokens.pop(0)
@@ -170,7 +172,7 @@ class ComicFilenameParser:
     def _add_remainders(self):
         """Add Remainders."""
         remainders = []
-        for token in self._unparsed_path.split(_TOKEN_DELIMETER):
+        for token in self._unparsed_path.split(TOKEN_DELIMETER):
             if remainder := token.strip():
                 remainders.append(remainder)
 
@@ -225,8 +227,8 @@ class ComicFilenameParser:
         self._log_progress("AFTER SERIES AND TITLE")
 
         # Final try for issue number.
+        # TODO unused
         if "issue" not in self.metadata:
-            # TODO is this useful?
             self._parse_items(ISSUE_ANYWHERE_RE)
         self._log_progress("AFTER ISSUE PICKUP")
 
