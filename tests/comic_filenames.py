@@ -342,7 +342,7 @@ FNS.update(
             "ext": "cbz",
             "issue": "2",
             "series": "Test Numeric Year",
-            "year": "2002",
+            "year": "2001",
             "month": "02",
             "day": "24",
         },
