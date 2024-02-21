@@ -397,34 +397,27 @@ FNS.update(
             "volume": "1957",
             "year": "1969",
         },
+        # CT checks for the following '(of 06)' after the '03' and marks it as the volume
+        "Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr": {
+            "ext": "cbr",
+            "issue": "008",
+            "series": "Elephantmen 2259",
+            "title": "Simple Truth",
+            "volume": "03",
+            "year": "2021",
+            "volume_count": "06",
+        },
+        # CT treats book like 'v' but also adds it as the title (matches ComicVine for this particular series)
+        "Bloodshot Book 03 (2020).cbr": {
+            "ext": "cbr",
+            "issue": "03",
+            "series": "Bloodshot",
+            "title": "Book 03",
+            "volume": "03",
+            "year": "2020",
+        },
     }
 )
-VOLUME = {
-    # CT treats book like 'v' but also adds it as the title (matches ComicVine for this particular series)
-    #
-    # Book \d  is a non-popped volume not an issue
-    "Bloodshot Book 03 (2020).cbr": {
-        "ext": "cbr",
-        "issue": "03",
-        "series": "Bloodshot",
-        "title": "Book 03",
-        "volume": "03",
-        "year": "2020",
-    },
-    # CT checks for the following '(of 06)' after the '03' and marks it as the volume
-    #
-    # issue count is not popped if does not occur near issue
-    # \d (of \d) is volume & volume count if not issue
-    "Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr": {
-        "ext": "cbr",
-        "issue": "008",
-        "series": "Elephantmen 2259",
-        "title": "Simple Truth",
-        "volume": "03",
-        "year": "2021",
-        "volume_count": "06",
-    },
-}
 PUBLISHER = {
     # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
     #
@@ -452,7 +445,7 @@ PUBLISHER = {
     },
 }
 
-# first_key, first_val = YEAR.popitem()
+# first_key, first_val = VOLUME.popitem()
 # FNS[first_key] = first_val
 
 WONFIX = {

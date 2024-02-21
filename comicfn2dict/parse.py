@@ -7,21 +7,23 @@ from re import Pattern
 from typing import Any
 
 from comicfn2dict.regex import (
-    NON_NUMBER_DOT_RE,
-    YEAR_FIRST_DATE_RE,
+    BOOK_VOLUME_RE,
     ISSUE_ANYWHERE_RE,
-    REGEX_SUBS,
-    TOKEN_DELIMETER,
-    ISSUE_COUNT_RE,
-    ISSUE_NUMBER_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
-    YEAR_END_RE,
-    ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
-    ORIGINAL_FORMAT_SCAN_INFO_RE,
-    REMAINING_GROUP_RE,
-    VOLUME_RE,
+    ISSUE_NUMBER_RE,
+    ISSUE_WITH_COUNT_RE,
     MONTH_FIRST_DATE_RE,
+    NON_NUMBER_DOT_RE,
+    ORIGINAL_FORMAT_SCAN_INFO_RE,
+    ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+    REGEX_SUBS,
+    REMAINING_GROUP_RE,
+    TOKEN_DELIMETER,
+    VOLUME_RE,
+    VOLUME_WITH_COUNT_RE,
+    YEAR_END_RE,
+    YEAR_FIRST_DATE_RE,
     YEAR_TOKEN_RE,
 )
 
@@ -172,6 +174,8 @@ class ComicFilenameParser:
         tokens = self._unparsed_path.split(TOKEN_DELIMETER)
         while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
             key = _REMAINING_GROUP_KEYS[remaining_key_index]
+            if key in self.metadata:
+                continue
             token = tokens.pop(0)
             match = REMAINING_GROUP_RE.search(token)
             if match:
@@ -218,15 +222,19 @@ class ComicFilenameParser:
         self._clean_dividers()
         self._log_progress("CLEANED")
 
-        # Main issue parsing
+        # Issue
         #
         self._parse_items(ISSUE_NUMBER_RE)
-        self._parse_items(ISSUE_COUNT_RE)
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_WITH_COUNT_RE)
+        # self._parse_items(ISSUE_COUNT_RE)
         self._log_progress("AFTER ISSUE")
 
-        # Volume and date
+        # Volume and Date
         #
         self._parse_items(VOLUME_RE)
+        if "volume" not in self.metadata:
+            self._parse_items(VOLUME_WITH_COUNT_RE)
         self._parse_dates()
         self._log_progress("AFTER VOLUME & DATE")
 
@@ -244,13 +252,17 @@ class ComicFilenameParser:
 
         # Series and Title
         #
-        # Match years on the end of series and title tokens
+        # Volume left on the end of string tokens
+        if "volume" not in self.metadata:
+            self._parse_items(BOOK_VOLUME_RE)
+
+        # Years left on the end of string tokens
         year_end_matched = False
         if "year" not in self.metadata:
             self._parse_items(YEAR_END_RE, pop=False)
             year_end_matched = "year" in self.metadata
 
-        # Pickup issue if it's out on the end of a token
+        # Issue left on the end of string tokens
         if "issue" not in self.metadata and not year_end_matched:
             exclude: str = self.metadata.get("year", "")  # type: ignore
             self._parse_items(ISSUE_END_RE, exclude=exclude)

@@ -111,7 +111,6 @@ YEAR_TOKEN_RE = re_compile(_YEAR_RE_EXP, parenthify=True)
 YEAR_END_RE = re_compile(_YEAR_RE_EXP + r"\/|$")
 
 # PAREN GROUPS
-ISSUE_COUNT_RE = re_compile(r"of\s*(?P<issue_count>\d+)", parenthify=True)
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)
 _ORIGINAL_FORMAT_RE_EXP = r"(?P<original_format>" + _OF_PATTERNS + r")"
 _SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()]*)"
@@ -125,17 +124,33 @@ ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE = re_compile(
     r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\).*\(" + _SCAN_INFO_RE_EXP + r"\)"
 )
 
-# REGULAR TOKENS
-VOLUME_RE = re_compile(r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+))")
-
 # ISSUE
 _ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
-ISSUE_NUMBER_RE = re_compile(r"(\(?#" + _ISSUE_RE_EXP + r"\)?)")
+_ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
+ISSUE_NUMBER_RE = re_compile(
+    r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"
+)
+ISSUE_WITH_COUNT_RE = re_compile(
+    r"(\(?" + _ISSUE_RE_EXP + r"\)?" + r"\W*" + _ISSUE_COUNT_RE_EXP + r")"
+)
+
 ISSUE_END_RE = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
 
 # TODO unused
 ISSUE_ANYWHERE_RE = re_compile(r"\b(\(?" + _ISSUE_RE_EXP + r"\)?)\b")
+
+# Volume
+_VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
+VOLUME_RE = re_compile(
+    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"
+    r"(\W*" + _VOLUME_COUNT_RE_EXP + r")?" + r")"
+)
+VOLUME_WITH_COUNT_RE = re_compile(
+    r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
+)
+BOOK_VOLUME_RE = re_compile(r"(?P<title>" + r"book\s*(?P<volume>\d+)" + r")")
+
 
 # LONG STRINGS
 REMAINING_GROUP_RE = re_compile(r"^[^\()].*[^\)]")
