@@ -115,7 +115,6 @@ _ALPHA_MONTH_RANGE = (
     + r")"
     + r")\b"
 )
-print(_ALPHA_MONTH_RANGE)
 ALPHA_MONTH_RANGE_RE = re_compile(_ALPHA_MONTH_RANGE)
 
 _DAY_RE_EXP = r"(?P<day>([0-2]?\d|(3)[0-1]))"
