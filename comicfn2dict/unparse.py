@@ -112,6 +112,7 @@ class ComicFilenameSerializer:
         self._debug: bool = bool(verbose)
 
 
-def dict2comicfn(md: Mapping, ext: bool = True) -> str:
+def dict2comicfn(md: Mapping, ext: bool = True, verbose: int = 0) -> str:
     """Simple API."""
-    return ComicFilenameSerializer(md, ext=ext).serialize()
+    serializer = ComicFilenameSerializer(md, ext=ext, verbose=verbose)
+    return serializer.serialize()

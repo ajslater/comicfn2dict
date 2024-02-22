@@ -337,6 +337,7 @@ class ComicFilenameParser:
         self._path_indexes: dict[str, int] = {}
 
 
-def comicfn2dict(path: str | Path):
+def comicfn2dict(path: str | Path, verbose: int = 0):
     """Simple API."""
-    return ComicFilenameParser(path).parse()
+    parser = ComicFilenameParser(path, verbose=verbose)
+    return parser.parse()
