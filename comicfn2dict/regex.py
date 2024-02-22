@@ -86,8 +86,10 @@ _SPACE_EQUIVALENT_RE = re_compile(r"_")
 _EXTRA_SPACES_RE = re_compile(r"\s\s+")
 _LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
 _RIGHT_PAREN_EQUIVALENT_RE = re_compile(r"\]")
+_DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
 REGEX_SUBS: MappingProxyType[re.Pattern, tuple[str, int]] = MappingProxyType(
     {
+        _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
         _TOKEN_DIVIDERS_RE: (TOKEN_DELIMETER, 1),
         _SPACE_EQUIVALENT_RE: (r" ", 0),
         _EXTRA_SPACES_RE: (r" ", 0),

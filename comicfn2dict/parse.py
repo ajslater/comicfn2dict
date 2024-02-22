@@ -77,27 +77,9 @@ class ComicFilenameParser:
         value = value.strip("'").strip()
         return value.strip('"').strip()
 
-    def _parenthify_double_underscores(self) -> str:
-        """Replace double underscores with parens."""
-        parts = self._unparsed_path.split("__")
-        num_parts = len(parts)
-        print(f"{num_parts=} {num_parts % 2}")
-        if num_parts < 3 or not num_parts % 2:
-            return self._unparsed_path
-        index = 0
-        mode = " ("
-        parenthified = parts[index]
-        index += 1
-        while index < len(parts):
-            parenthified += mode + parts[index]
-            print(f"{parenthified=}")
-            mode = ") " if mode == " (" else ") "
-            index += 1
-        return parenthified.strip()
-
     def _clean_dividers(self):
         """Replace non space dividers and clean extra spaces out of string."""
-        data = self._parenthify_double_underscores()
+        data = self._unparsed_path
 
         # Simple substitutions
         for regex, pair in REGEX_SUBS.items():
