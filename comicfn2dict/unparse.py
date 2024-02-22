@@ -3,6 +3,7 @@ from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
 from calendar import month_abbr
 from types import MappingProxyType
+from comicfn2dict.log import print_log_header
 
 
 def issue_formatter(issue: str) -> str:
@@ -36,7 +37,17 @@ _DATE_KEYS = ("year", "month", "day")
 
 
 class ComicFilenameSerializer:
+    """Serialize Comic Filenames from dict."""
+
+    def _log(self, label, fn):
+        """Log progress."""
+        if not self._debug:
+            return
+        print_log_header(label)
+        print(fn)
+
     def _add_date(self) -> None:
+        """Construct date from Y-m-D if they exist."""
         if "date" in self.metadata:
             return
         parts = []
@@ -52,9 +63,11 @@ class ComicFilenameSerializer:
                 break
         if parts:
             date = "-".join(parts)
+            self._log("After date", date)
             self.metadata = MappingProxyType({**self.metadata, "date": date})
 
     def _tokenize_tag(self, tag: str, fmt: str | Callable) -> str:
+        """Add tags to the string."""
         val = self.metadata.get(tag)
         if val in _EMPTY_VALUES:
             return ""
@@ -63,6 +76,7 @@ class ComicFilenameSerializer:
         return token
 
     def _add_remainder(self) -> str:
+        """Add the remainders specially."""
         if remainders := self.metadata.get("remainders"):
             if isinstance(remainders, Sequence):
                 remainder = " ".join(remainders)
@@ -79,19 +93,23 @@ class ComicFilenameSerializer:
         for tag, fmt in _FILENAME_FORMAT_TAGS:
             if token := self._tokenize_tag(tag, fmt):
                 tokens.append(token)
+            self._log(f"After {tag}", tokens)
         fn = " ".join(tokens)
 
         fn += self._add_remainder()
+        self._log("After remainder", fn)
 
         if self._ext:
             ext = self.metadata.get("ext", _DEFAULT_EXT)
             fn += f".{ext}"
+            self._log("After ext", fn)
 
         return fn
 
-    def __init__(self, metadata: Mapping, ext: bool = True):
+    def __init__(self, metadata: Mapping, ext: bool = True, verbose: int = 0):
         self.metadata: Mapping = metadata
         self._ext: bool = ext
+        self._debug: bool = bool(verbose)
 
 
 def dict2comicfn(md: Mapping, ext: bool = True) -> str:

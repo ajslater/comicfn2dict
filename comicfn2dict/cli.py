@@ -22,6 +22,8 @@ def main():
     name = args.path.name
     cfnparser = ComicFilenameParser(name, verbose=args.verbose)
     metadata = cfnparser.parse()
+    if args.verbose:
+        print("=" * 80)
     pprint(metadata)  # noqa:T203
 
 

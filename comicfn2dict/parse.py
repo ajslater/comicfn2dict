@@ -1,11 +1,11 @@
 """Parse comic book archive names using the simple 'parse' parser."""
-from pprint import pprint
+from pprint import pformat
 from calendar import month_abbr
 from copy import copy
 from pathlib import Path
 from re import Pattern
 from typing import Any
-
+from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
     ALPHA_MONTH_RANGE_RE,
     BOOK_VOLUME_RE,
@@ -215,24 +215,24 @@ class ComicFilenameParser:
         if remainders:
             self.metadata["remainders"] = tuple(remainders)
 
-    def _log_progress(self, label):
+    def _log(self, label):
         if not self._debug:
             return
-        print(label + ":")
+        print_log_header(label)
         combined = {}
         for key in self.metadata:
             combined[key] = (self.metadata.get(key), self.path_index(key))
-        pprint(combined)
-        print(self._unparsed_path)
+        print("  " + self._unparsed_path)
+        print("  " + pformat(combined))
 
     def parse(self) -> dict[str, Any]:
         """Parse the filename with a hierarchy of regexes."""
         # Init
         #
-        self._log_progress("INITIAL")
+        self._log("Init")
         self._parse_ext()
         self._clean_dividers()
-        self._log_progress("CLEANED")
+        self._log("After Clean Path")
 
         # Issue
         #
@@ -240,15 +240,19 @@ class ComicFilenameParser:
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_WITH_COUNT_RE)
         # self._parse_items(ISSUE_COUNT_RE)
-        self._log_progress("AFTER ISSUE")
+        self._log("After Issue")
 
-        # Volume and Date
+        # Volume
         #
         self._parse_items(VOLUME_RE)
         if "volume" not in self.metadata:
             self._parse_items(VOLUME_WITH_COUNT_RE)
+        self._log("After Volume")
+
+        # Date
+        #
         self._parse_dates()
-        self._log_progress("AFTER VOLUME & DATE")
+        self._log("After Date")
 
         # Format & Scan Info
         #
@@ -260,26 +264,26 @@ class ComicFilenameParser:
             self._parse_items(
                 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
             )
-
         self._parse_items(SCAN_INFO_SECONDARY_RE)
         if (
             scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
         ) and "scan_info" not in self.metadata:
             self.metadata["scan_info"] = scan_info_secondary  # type: ignore
-
-        self._log_progress("AFTER PAREN TOKENS")
+        self._log("After original_format & scan_info")
 
         # Series and Title
         #
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
             self._parse_items(BOOK_VOLUME_RE)
+            self._log("After original_format & scan_info")
 
         # Years left on the end of string tokens
         year_end_matched = False
         if "year" not in self.metadata:
             self._parse_items(YEAR_END_RE, pop=False)
             year_end_matched = "year" in self.metadata
+            self._log("After Year on end of token")
 
         # Issue left on the end of string tokens
         if "issue" not in self.metadata and not year_end_matched:
@@ -287,7 +291,7 @@ class ComicFilenameParser:
             self._parse_items(ISSUE_END_RE, exclude=exclude)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
-        self._log_progress("AFTER ISSUE PICKUP")
+        self._log("After Issue on ends of tokens")
 
         # Publisher
         #
@@ -299,20 +303,22 @@ class ComicFilenameParser:
             self._parse_items(PUBLISHER_UNAMBIGUOUS_RE, pop=False, first_only=True)
         if "publisher" not in self.metadata:
             self._parse_items(PUBLISHER_AMBIGUOUS_RE, pop=False, first_only=True)
+        self._log("After publisher")
 
         self._assign_remaining_groups()
-        self._log_progress("AFTER SERIES AND TITLE")
+        self._log("After Series & Title")
 
         # Final try for issue number.
         # TODO unused
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_ANYWHERE_RE)
-        self._log_progress("AFTER ISSUE PICKUP")
+        self._log("AFTER ISSUE PICKUP")
 
         # Copy volume into issue if it's all we have.
         #
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
+        self._log("After issue can be volume")
 
         self._add_remainders()
 
