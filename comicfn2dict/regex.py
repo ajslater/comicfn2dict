@@ -105,10 +105,14 @@ _MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
 _MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
 _ALPHA_MONTH_RANGE = (
     r"\b"
-    + r"(" + r"|".join(MONTHS) + r")"
+    + r"("
+    + r"|".join(MONTHS)
+    + r")"
     + r"("
     + r"\.?-"
-    + r"(" + r"|".join(MONTHS) + r")"
+    + r"("
+    + r"|".join(MONTHS)
+    + r")"
     + r")\b"
 )
 print(_ALPHA_MONTH_RANGE)

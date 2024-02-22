@@ -1,5 +1,8 @@
 """Test filenames with human parsed correct results."""
 
+from types import MappingProxyType
+
+
 TEST_COMIC_FIELDS = {
     "series": "Long Series Name",
     "issue": "001",
@@ -30,7 +33,7 @@ TEST_COMIC_VOL_ONLY = {
     "ext": "cbr",
 }
 
-# Working with 0.1.0
+# Tests for 0.1.0
 FNS = {
     "Night of 1000 Wolves 001 (2013).cbz": {
         "series": "Night of 1000 Wolves",
@@ -239,7 +242,7 @@ FNS = {
     },
 }
 
-# Fixed with 0.2.0
+# Tests for 0.2.0
 FNS.update(
     {
         # Philosopy change regarding dashes.
@@ -439,6 +442,34 @@ FNS.update(
                 "digital (downsized, lightened, 4 missing story pages "
                 "restored) (Shadowcat-Empire)",
             ),
+        },
+    }
+)
+PARSE_FNS = MappingProxyType(FNS)
+
+SERIALIZE_FNS = MappingProxyType(
+    {
+        "Long Series Name #001 (2000) Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS,
+        "Long Series Name v1 #001 "
+        "(2000) Title (TPB) (Releaser & Releaser-Releaser).cbr": TEST_COMIC_VOL_ONLY,
+        "Series Name (2000-12-31).cbz": {
+            "series": "Series Name",
+            "year": "2000",
+            "month": "12",
+            "day": "31",
+            "ext": "cbz",
+        },
+        "Series Name (2000-12).cbz": {
+            "series": "Series Name",
+            "year": "2000",
+            "month": "12",
+            "ext": "cbz",
+        },
+        "Series Name (Dec-31).cbz": {
+            "series": "Series Name",
+            "month": "12",
+            "day": "31",
+            "ext": "cbz",
         },
     }
 )
