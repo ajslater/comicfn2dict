@@ -445,6 +445,9 @@ FNS.update(
         },
     }
 )
+
+# first_key, first_val = NEW.popitem()
+# FNS[first_key] = first_val
 PARSE_FNS = MappingProxyType(FNS)
 
 SERIALIZE_FNS = MappingProxyType(
@@ -473,10 +476,6 @@ SERIALIZE_FNS = MappingProxyType(
         },
     }
 )
-
-# first_key, first_val = NEW.popitem()
-# FNS[first_key] = first_val
-
 WONFIX = {
     # Leading issue number is usually an alternate sequence number
     #   WONTFIX: Series names may begin with numerals.
