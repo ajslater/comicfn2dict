@@ -476,20 +476,3 @@ SERIALIZE_FNS = MappingProxyType(
         },
     }
 )
-WONFIX = {
-    # Leading issue number is usually an alternate sequence number
-    #   WONTFIX: Series names may begin with numerals.
-    "52 action comics #2024.cbz": {
-        "ext": "cbz",
-        "issue": "2024",
-        "series": "action comics",
-        "alternate": "52",
-    },
-    # Only the issue number. CT ensures that the series always has a value if possible
-    #   I don't think making the series the same as the number is valuable.
-    "#52.cbz": {
-        "ext": "cbz",
-        "issue": "52",
-        "series": "52",
-    },
-}
