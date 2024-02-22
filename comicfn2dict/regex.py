@@ -10,6 +10,30 @@ def re_compile(exp, parenthify=False):
     return re.compile(exp, flags=re.IGNORECASE)
 
 
+PUBLISHERS_UNAMBIGUOUS = (
+    r"Abrams ComicArts",
+    r"BOOM! Studios",
+    r"DC(\sComics)?",
+    r"Dark Horse Comics",
+    r"Drawn & Quarterly",
+    r"Dynamite Entertainment",
+    r"IDW Publishing",
+    r"Icon Comics",
+    r"Kodansha",
+    r"Oni Press",
+    r"Pantheon Books",
+    r"SLG Publishing",
+    r"SelfMadeHero",
+    r"Titan Comics",
+)
+PUBLISHERS_AMBIGUOUS = (
+    r"Marvel",
+    r"Heavy Metal",
+    r"Epic",
+    r"Image",
+    r"Mirage",
+)
+
 ORIGINAL_FORMAT_PATTERNS = (
     r"Anthology",
     r"(One|1)[-\s]Shot",
@@ -48,7 +72,7 @@ MONTHS = (
     r"Jun(e)?",
     r"Jul(y)?",
     r"Aug(ust)?",
-    r"Sept(ember)?",
+    r"Sep(tember)?",
     r"Oct(ober)?",
     r"Nov(ember)?",
     r"Dec(ember)?",
@@ -74,9 +98,19 @@ REGEX_SUBS: MappingProxyType[re.Pattern, tuple[str, int]] = MappingProxyType(
 
 ### DATES
 _YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
-_MONTH_ALPHA_RE_EXP = r"(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?"
+_MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?" r")"
 _MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
 _MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
+_ALPHA_MONTH_RANGE = (
+    r"\b"
+    + r"(" + r"|".join(MONTHS) + r")"
+    + r"("
+    + r"\.?-"
+    + r"(" + r"|".join(MONTHS) + r")"
+    + r")\b"
+)
+print(_ALPHA_MONTH_RANGE)
+ALPHA_MONTH_RANGE_RE = re_compile(_ALPHA_MONTH_RANGE)
 
 _DAY_RE_EXP = r"(?P<day>([0-2]?\d|(3)[0-1]))"
 _DATE_DELIM = r"[-\s]+"
@@ -124,6 +158,8 @@ ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE = re_compile(
     r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\).*\(" + _SCAN_INFO_RE_EXP + r"\)"
 )
 
+SCAN_INFO_SECONDARY_RE = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
+
 # ISSUE
 _ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
 _ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
@@ -151,7 +187,22 @@ VOLUME_WITH_COUNT_RE = re_compile(
 )
 BOOK_VOLUME_RE = re_compile(r"(?P<title>" + r"book\s*(?P<volume>\d+)" + r")")
 
+# Publisher
+_PUBLISHER_UNAMBIGUOUS_RE_EXP = (
+    r"(\b(?P<publisher>" + r"|".join(PUBLISHERS_UNAMBIGUOUS) + r")\b)"
+)
+_PUBLISHER_AMBIGUOUS_RE_EXP = (
+    r"(\b(?P<publisher>" + r"|".join(PUBLISHERS_AMBIGUOUS) + r")\b)"
+)
+PUBLISHER_UNAMBIGUOUS_TOKEN_RE = re_compile(
+    r"(^|\/)" + _PUBLISHER_UNAMBIGUOUS_RE_EXP + r"($|\/)"
+)
+PUBLISHER_AMBIGUOUS_TOKEN_RE = re_compile(
+    r"(^|\/)" + _PUBLISHER_AMBIGUOUS_RE_EXP + r"($|\/)"
+)
+PUBLISHER_UNAMBIGUOUS_RE = re_compile(_PUBLISHER_UNAMBIGUOUS_RE_EXP)
+PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
-REMAINING_GROUP_RE = re_compile(r"^[^\()].*[^\)]")
+REMAINING_GROUP_RE = re_compile(r"^[^\(].*[^\)]")
 NON_NUMBER_DOT_RE = re_compile(r"(\D)\.(\D)")

@@ -7,6 +7,7 @@ from re import Pattern
 from typing import Any
 
 from comicfn2dict.regex import (
+    ALPHA_MONTH_RANGE_RE,
     BOOK_VOLUME_RE,
     ISSUE_ANYWHERE_RE,
     ISSUE_BEGIN_RE,
@@ -17,8 +18,13 @@ from comicfn2dict.regex import (
     NON_NUMBER_DOT_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+    PUBLISHER_AMBIGUOUS_RE,
+    PUBLISHER_UNAMBIGUOUS_RE,
+    PUBLISHER_AMBIGUOUS_TOKEN_RE,
+    PUBLISHER_UNAMBIGUOUS_TOKEN_RE,
     REGEX_SUBS,
     REMAINING_GROUP_RE,
+    SCAN_INFO_SECONDARY_RE,
     TOKEN_DELIMETER,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
@@ -41,6 +47,8 @@ class ComicFilenameParser:
         if not value:
             return -1
         if value not in self._path_indexes:
+            # TODO This is fragile.
+            #      Better to get it at match time.
             if key == "ext":
                 index = self.path.rfind(value)
             else:
@@ -69,12 +77,32 @@ class ComicFilenameParser:
         value = value.strip("'").strip()
         return value.strip('"').strip()
 
+    def _parenthify_double_underscores(self) -> str:
+        """Replace double underscores with parens."""
+        parts = self._unparsed_path.split("__")
+        num_parts = len(parts)
+        print(f"{num_parts=} {num_parts % 2}")
+        if num_parts < 3 or not num_parts % 2:
+            return self._unparsed_path
+        index = 0
+        mode = " ("
+        parenthified = parts[index]
+        index += 1
+        while index < len(parts):
+            parenthified += mode + parts[index]
+            print(f"{parenthified=}")
+            mode = ") " if mode == " (" else ") "
+            index += 1
+        return parenthified.strip()
+
     def _clean_dividers(self):
         """Replace non space dividers and clean extra spaces out of string."""
-        data = self._unparsed_path
+        data = self._parenthify_double_underscores()
+
+        # Simple substitutions
         for regex, pair in REGEX_SUBS.items():
             replacement, count = pair
-            data = regex.sub(replacement, data, count=count)
+            data = regex.sub(replacement, data, count=count).strip()
         self._unparsed_path = data.strip()
 
     def _parse_items(
@@ -91,7 +119,6 @@ class ComicFilenameParser:
             return
         matched_metadata = {}
         for key, value in matches.groupdict().items():
-            print(f"{value=} == {exclude=}")
             if value == exclude:
                 continue
             if not value:
@@ -126,6 +153,9 @@ class ComicFilenameParser:
 
     def _parse_dates(self):
         """Parse date schemes."""
+        # Discard second month of alpha month ranges.
+        self._unparsed_path = ALPHA_MONTH_RANGE_RE.sub(r"\1", self._unparsed_path)
+
         # Month first date
         self._parse_items(MONTH_FIRST_DATE_RE)
         self._alpha_month_to_numeric()
@@ -248,6 +278,13 @@ class ComicFilenameParser:
             self._parse_items(
                 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
             )
+
+        self._parse_items(SCAN_INFO_SECONDARY_RE)
+        if (
+            scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
+        ) and "scan_info" not in self.metadata:
+            self.metadata["scan_info"] = scan_info_secondary  # type: ignore
+
         self._log_progress("AFTER PAREN TOKENS")
 
         # Series and Title
@@ -269,6 +306,18 @@ class ComicFilenameParser:
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
         self._log_progress("AFTER ISSUE PICKUP")
+
+        # Publisher
+        #
+        # Pop single tokens so they don't end up titles.
+        self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_UNAMBIGUOUS_RE, pop=False, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_AMBIGUOUS_RE, pop=False, first_only=True)
+
         self._assign_remaining_groups()
         self._log_progress("AFTER SERIES AND TITLE")
 

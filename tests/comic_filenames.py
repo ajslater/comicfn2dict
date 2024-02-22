@@ -274,7 +274,8 @@ FNS.update(
             "issue": "2",
             "series": "Monster Island",
             "volume": "1",
-            "remainders": ("repaired c2c",),
+            "scan_info": "c2c",
+            "remainders": ("(repaired)",),
         },
         # Extra - in the series
         " X-Men-V1-#067.cbr": {
@@ -334,6 +335,7 @@ FNS.update(
             "ext": "cbr",
             "issue": "002",
             "series": "Marvel Previews",
+            "publisher": "Marvel",
             "month": "01",
             "year": "2022",
         },
@@ -416,36 +418,32 @@ FNS.update(
             "volume": "03",
             "year": "2020",
         },
+        # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
+        "Marvel Two In One V1 #090  c2c.cbr": {
+            "ext": "cbr",
+            "issue": "090",
+            "series": "Marvel Two In One",
+            "publisher": "Marvel",
+            "volume": "1",
+            "scan_info": "c2c",
+        },
+        # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
+        "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
+            "ext": "cbz",
+            "issue": "49",
+            "series": "Wonder Woman",
+            "publisher": "DC",
+            "year": "1951",
+            "month": "09",
+            "remainders": (
+                "digital (downsized, lightened, 4 missing story pages "
+                "restored) (Shadowcat-Empire)",
+            ),
+        },
     }
 )
-PUBLISHER = {
-    # c2c aka "cover to cover" is fairly common and CT moves it to scan_info/remainder
-    #
-    # 1. c2c is not a title and is an original_format
-    # Leading common publisher may be a publisher? Do not pop
-    "Marvel Two In One V1 #090  c2c.cbr": {
-        "ext": "cbr",
-        "issue": "090",
-        "series": "Marvel Two In One",
-        "publisher": "Marvel",
-        "volume": "1",
-    },
-    # CT treats '[]' as equivalent to '()', catches DC as a publisher and 'Sep-Oct 1951' as dates and removes them. CT doesn't catch the digital though so that could be better but I blame whoever made this atrocious filename
-    #
-    # 1. Month-Month should be handled
-    # 2. DC is a common publisher, no pop?
-    "Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz": {
-        "ext": "cbz",
-        "issue": "49",
-        "series": "Wonder Woman",
-        "title": "digital",
-        "publisher": "DC",
-        "year": "1951",
-        "month": "10",
-    },
-}
 
-# first_key, first_val = VOLUME.popitem()
+# first_key, first_val = NEW.popitem()
 # FNS[first_key] = first_val
 
 WONFIX = {
