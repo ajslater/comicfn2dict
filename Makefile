@@ -2,27 +2,25 @@
 ## Update pip and install poetry
 	pip install --upgrade pip
 	pip install --upgrade poetry
+	npm install
 
 .PHONY: install
 ## Install for production
 ## @category Install
 install-prod: install-deps
 	poetry install --no-root --only-root
-	npm install
 
 .PHONY: install-dev
 ## Install dev requirements
 ## @category Install
 install-dev: install-deps
 	poetry install --no-root --only-root --with dev
-	npm install
 
 .PHONY: install-all
 ## Install with all extras
 ## @category Install
 install-all: install-deps
 	poetry install --no-root --all-extras
-	npm install
 
 .PHONY: clean
 ## Clean pycaches
