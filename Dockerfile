@@ -15,6 +15,6 @@ WORKDIR /app
 
 COPY bin ./bin
 COPY package.json package-lock.json pyproject.toml poetry.lock Makefile ./
-RUN make install-deps install-all
+RUN make install-all
 
 COPY . .
