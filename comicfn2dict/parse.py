@@ -47,7 +47,7 @@ class ComicFilenameParser:
             return -1
         if value not in self._path_indexes:
             # TODO This is fragile.
-            #      Better to get it at match time.
+            #      Can I get it at match time?
             if key == "ext":
                 index = self.path.rfind(value)
             else:
@@ -66,15 +66,6 @@ class ComicFilenameParser:
         ext = suffix.lstrip(".")
         self.metadata["ext"] = ext
         self._unparsed_path = data
-
-    def _grouping_operators_strip(self, value: str) -> str:
-        """Strip spaces and parens."""
-        value = value.strip()
-        value = value.strip("()").strip()
-        value = value.strip("-").strip()
-        value = value.strip(",").strip()
-        value = value.strip("'").strip()
-        return value.strip('"').strip()
 
     def _clean_dividers(self):
         """Replace non space dividers and clean extra spaces out of string."""
@@ -173,6 +164,15 @@ class ComicFilenameParser:
                 title_ok = True
                 break
         return title_ok or not other_tokens_exist
+
+    def _grouping_operators_strip(self, value: str) -> str:
+        """Strip spaces and parens."""
+        value = value.strip()
+        value = value.strip("()").strip()
+        value = value.strip("-").strip()
+        value = value.strip(",").strip()
+        value = value.strip("'").strip()
+        return value.strip('"').strip()
 
     def _assign_remaining_groups(self):
         """Assign series and title."""
