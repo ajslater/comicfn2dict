@@ -38,6 +38,8 @@ _DATE_KEYS = frozenset({"year", "month", "day"})
 
 
 class ComicFilenameParser:
+    """Parse a filename metadata into a dict."""
+
     def path_index(self, key: str):
         """Lazily retrieve and memoize the key's location in the path."""
         if key == "remainders":
