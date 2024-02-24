@@ -174,12 +174,8 @@ ISSUE_NUMBER_RE = re_compile(
 ISSUE_WITH_COUNT_RE = re_compile(
     r"(\(?" + _ISSUE_RE_EXP + r"\)?" + r"\W*" + _ISSUE_COUNT_RE_EXP + r")"
 )
-
 ISSUE_END_RE = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
-
-# TODO unused
-ISSUE_ANYWHERE_RE = re_compile(r"\b(\(?" + _ISSUE_RE_EXP + r"\)?)\b")
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"

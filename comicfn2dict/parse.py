@@ -9,7 +9,6 @@ from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
     ALPHA_MONTH_RANGE_RE,
     BOOK_VOLUME_RE,
-    ISSUE_ANYWHERE_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
     ISSUE_NUMBER_RE,
@@ -307,12 +306,6 @@ class ComicFilenameParser:
 
         self._assign_remaining_groups()
         self._log("After Series & Title")
-
-        # Final try for issue number.
-        # TODO unused
-        if "issue" not in self.metadata:
-            self._parse_items(ISSUE_ANYWHERE_RE)
-        self._log("AFTER ISSUE PICKUP")
 
         # Copy volume into issue if it's all we have.
         #
