@@ -1,0 +1,21 @@
+services:
+  comicfn2dict-builder:
+    build: .
+    image: comicfn2dict-builder
+    container_name: comicfn2dict-builder
+  comicfn2dict-lint:
+    image: comicfn2dict-builder
+    container_name: comicfn2dict-lint
+    command: make lint
+  comicfn2dict-test:
+    image: comicfn2dict-builder
+    container_name: comicfn2dict-test
+    command: make test
+    volumes:
+      - ./test-results/:/app/test-results/
+  comicfn2dict-build:
+    image: comicfn2dict-builder
+    container_name: comicfn2dict-build
+    volumes:
+      - ./dist/:/app/dist/
+    command: poetry build
