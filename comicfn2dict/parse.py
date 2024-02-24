@@ -3,7 +3,7 @@ from pprint import pformat
 from calendar import month_abbr
 from copy import copy
 from pathlib import Path
-from re import Pattern
+from re import Match, Pattern
 from typing import Any
 from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
@@ -79,6 +79,36 @@ class ComicFilenameParser:
             data = regex.sub(replacement, data, count=count).strip()
         self._unparsed_path = data.strip()
 
+    def _parse_items_update_metadata(
+        self, matches: Match, exclude: str, require_all: bool, first_only: bool
+    ) -> bool:
+        """Update Metadata."""
+        matched_metadata = {}
+        for key, value in matches.groupdict().items():
+            if value == exclude:
+                continue
+            if not value:
+                if require_all:
+                    return False
+                continue
+            matched_metadata[key] = value
+            if first_only:
+                break
+        if not matched_metadata:
+            return False
+        self.metadata.update(matched_metadata)
+        return True
+
+    def _parse_items_pop_tokens(self, regex: Pattern, first_only: bool) -> None:
+        """Pop tokens from unparsed path."""
+        count = 1 if first_only else 0
+        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
+        parts = []
+        for part in marked_str.split(TOKEN_DELIMETER):
+            if token := part.strip():
+                parts.append(token)
+        self._unparsed_path = TOKEN_DELIMETER.join(parts)
+
     def _parse_items(
         self,
         regex: Pattern,
@@ -88,31 +118,18 @@ class ComicFilenameParser:
         pop: bool = True,
     ) -> None:
         """Parse a value from the data list into metadata and alter the data list."""
+        # Match
         matches = regex.search(self._unparsed_path)
         if not matches:
             return
-        matched_metadata = {}
-        for key, value in matches.groupdict().items():
-            if value == exclude:
-                continue
-            if not value:
-                if require_all:
-                    return
-                continue
-            matched_metadata[key] = value
-            if first_only:
-                break
-        self.metadata.update(matched_metadata)
 
-        if not matched_metadata or not pop:
+        if not self._parse_items_update_metadata(
+            matches, exclude, require_all, first_only
+        ):
             return
-        count = 1 if first_only else 0
-        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
-        parts = []
-        for part in marked_str.split(TOKEN_DELIMETER):
-            if token := part.strip():
-                parts.append(token)
-        self._unparsed_path = TOKEN_DELIMETER.join(parts)
+
+        if pop:
+            self._parse_items_pop_tokens(regex, first_only)
 
     def _alpha_month_to_numeric(self):
         """Translate alpha_month to numeric month."""
