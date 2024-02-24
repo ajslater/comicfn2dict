@@ -1,5 +1,7 @@
 .PHONY: install-deps
 ## Update pip and install poetry
+## @category Install
+install-deps:
 	pip install --upgrade pip
 	pip install --upgrade poetry
 	npm install
