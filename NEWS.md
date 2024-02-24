@@ -11,6 +11,7 @@
   the volume number.
 - ComicFilenameParser and ComicFilenameSerializer classes are available as well
   as the old function API.
+- New test cases thanks to @lordwelch & @bpepple
 
 ## v0.1.4
 
