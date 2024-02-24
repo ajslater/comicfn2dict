@@ -106,8 +106,7 @@ class ComicFilenameParser:
                 if require_all:
                     return
                 continue
-            # TODO idk if strip is necessary here
-            matched_metadata[key] = self._grouping_operators_strip(value)
+            matched_metadata[key] = value
             if first_only:
                 break
         self.metadata.update(matched_metadata)
