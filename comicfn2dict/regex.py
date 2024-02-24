@@ -156,6 +156,8 @@ _SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()]*)"
 _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP = (
     _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]" + _SCAN_INFO_RE_EXP  # + r")?"
 )
+# Keep this even though comicfn2dict doesn't use it directly
+ORIGINAL_FORMAT_RE = re_compile(_ORIGINAL_FORMAT_RE_EXP, parenthify=True)
 ORIGINAL_FORMAT_SCAN_INFO_RE = re_compile(
     _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP, parenthify=True
 )
