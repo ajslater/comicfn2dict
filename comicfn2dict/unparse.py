@@ -62,6 +62,7 @@ class ComicFilenameSerializer:
                 # noop if only day.
                 break
         if parts:
+            parts = (str(part) for part in parts)
             date = "-".join(parts)
             self._log("After date", date)
             self.metadata = MappingProxyType({**self.metadata, "date": date})
@@ -79,6 +80,7 @@ class ComicFilenameSerializer:
         """Add the remainders specially."""
         if remainders := self.metadata.get("remainders"):
             if isinstance(remainders, Sequence):
+                remainders = (str(remainder) for remainder in remainders)
                 remainder = " ".join(remainders)
             else:
                 remainder = str(remainders)
