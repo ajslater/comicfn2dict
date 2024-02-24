@@ -48,8 +48,8 @@ class ComicFilenameParser:
         if not value:
             return -1
         if value not in self._path_indexes:
-            # TODO This is fragile.
-            #      Can I get it at match time?
+            # XXX This is fragile, but it's difficult to calculate the original
+            #     position at match time from the ever changing _unparsed_path.
             if key == "ext":
                 index = self.path.rfind(value)
             else:
