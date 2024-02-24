@@ -57,6 +57,16 @@ class ComicFilenameParser:
             self._path_indexes[value] = index
         return self._path_indexes[value]
 
+    def _log(self, label):
+        if not self._debug:
+            return
+        print_log_header(label)
+        combined = {}
+        for key in self.metadata:
+            combined[key] = (self.metadata.get(key), self.path_index(key))
+        print("  " + self._unparsed_path)
+        print("  " + pformat(combined))
+
     def _parse_ext(self):
         """Pop the extension from the pathname."""
         path = Path(self._unparsed_path)
@@ -78,6 +88,7 @@ class ComicFilenameParser:
             replacement, count = pair
             data = regex.sub(replacement, data, count=count).strip()
         self._unparsed_path = data.strip()
+        self._log("After Clean Path")
 
     def _parse_items_update_metadata(
         self, matches: Match, exclude: str, require_all: bool, first_only: bool
@@ -131,6 +142,20 @@ class ComicFilenameParser:
         if pop:
             self._parse_items_pop_tokens(regex, first_only)
 
+    def _parse_issue(self):
+        """Parse Issue."""
+        self._parse_items(ISSUE_NUMBER_RE)
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_WITH_COUNT_RE)
+        self._log("After Issue")
+
+    def _parse_volume(self):
+        """Parse Volume."""
+        self._parse_items(VOLUME_RE)
+        if "volume" not in self.metadata:
+            self._parse_items(VOLUME_WITH_COUNT_RE)
+        self._log("After Volume")
+
     def _alpha_month_to_numeric(self):
         """Translate alpha_month to numeric month."""
         if alpha_month := self.metadata.pop("alpha_month", ""):
@@ -165,6 +190,58 @@ class ComicFilenameParser:
                 self._parse_items(YEAR_TOKEN_RE)
                 if self.metadata.get("year", "") != volume:
                     self.metadata["volume"] = volume
+        self._log("After Date")
+
+    def _parse_format_and_scan_info(self):
+        # Format & Scan Info
+        #
+        self._parse_items(
+            ORIGINAL_FORMAT_SCAN_INFO_RE,
+            require_all=True,
+        )
+        if "original_format" not in self.metadata:
+            self._parse_items(
+                ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+            )
+        self._parse_items(SCAN_INFO_SECONDARY_RE)
+        if (
+            scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
+        ) and "scan_info" not in self.metadata:
+            self.metadata["scan_info"] = scan_info_secondary  # type: ignore
+        self._log("After original_format & scan_info")
+
+    def _parse_ends_of_remaining_tokens(self):
+        # Volume left on the end of string tokens
+        if "volume" not in self.metadata:
+            self._parse_items(BOOK_VOLUME_RE)
+            self._log("After original_format & scan_info")
+
+        # Years left on the end of string tokens
+        year_end_matched = False
+        if "year" not in self.metadata:
+            self._parse_items(YEAR_END_RE, pop=False)
+            year_end_matched = "year" in self.metadata
+            self._log("After Year on end of token")
+
+        # Issue left on the end of string tokens
+        if "issue" not in self.metadata and not year_end_matched:
+            exclude: str = self.metadata.get("year", "")  # type: ignore
+            self._parse_items(ISSUE_END_RE, exclude=exclude)
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_BEGIN_RE)
+        self._log("After Issue on ends of tokens")
+
+    def _parse_publisher(self):
+        """Parse Publisher."""
+        # Pop single tokens so they don't end up titles.
+        self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_UNAMBIGUOUS_RE, pop=False, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_AMBIGUOUS_RE, pop=False, first_only=True)
+        self._log("After publisher")
 
     def _is_title_in_position(self, value):
         """Does the title come after series and one other token if they exist."""
@@ -193,7 +270,7 @@ class ComicFilenameParser:
         value = value.strip("'").strip()
         return value.strip('"').strip()
 
-    def _assign_remaining_groups(self):
+    def _parse_series_and_title(self):
         """Assign series and title."""
         if not self._unparsed_path:
             return
@@ -221,6 +298,7 @@ class ComicFilenameParser:
                 unused_tokens.append(token)
 
         self._unparsed_path = " ".join(unused_tokens) if unused_tokens else ""
+        self._log("After Series & Title")
 
     def _add_remainders(self):
         """Add Remainders."""
@@ -232,101 +310,20 @@ class ComicFilenameParser:
         if remainders:
             self.metadata["remainders"] = tuple(remainders)
 
-    def _log(self, label):
-        if not self._debug:
-            return
-        print_log_header(label)
-        combined = {}
-        for key in self.metadata:
-            combined[key] = (self.metadata.get(key), self.path_index(key))
-        print("  " + self._unparsed_path)
-        print("  " + pformat(combined))
-
     def parse(self) -> dict[str, Any]:
         """Parse the filename with a hierarchy of regexes."""
-        # Init
-        #
         self._log("Init")
         self._parse_ext()
         self._clean_dividers()
-        self._log("After Clean Path")
-
-        # Issue
-        #
-        self._parse_items(ISSUE_NUMBER_RE)
-        if "issue" not in self.metadata:
-            self._parse_items(ISSUE_WITH_COUNT_RE)
-        # self._parse_items(ISSUE_COUNT_RE)
-        self._log("After Issue")
-
-        # Volume
-        #
-        self._parse_items(VOLUME_RE)
-        if "volume" not in self.metadata:
-            self._parse_items(VOLUME_WITH_COUNT_RE)
-        self._log("After Volume")
-
-        # Date
-        #
+        self._parse_issue()
+        self._parse_volume()
         self._parse_dates()
-        self._log("After Date")
-
-        # Format & Scan Info
-        #
-        self._parse_items(
-            ORIGINAL_FORMAT_SCAN_INFO_RE,
-            require_all=True,
-        )
-        if "original_format" not in self.metadata:
-            self._parse_items(
-                ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
-            )
-        self._parse_items(SCAN_INFO_SECONDARY_RE)
-        if (
-            scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
-        ) and "scan_info" not in self.metadata:
-            self.metadata["scan_info"] = scan_info_secondary  # type: ignore
-        self._log("After original_format & scan_info")
-
-        # Series and Title
-        #
-        # Volume left on the end of string tokens
-        if "volume" not in self.metadata:
-            self._parse_items(BOOK_VOLUME_RE)
-            self._log("After original_format & scan_info")
-
-        # Years left on the end of string tokens
-        year_end_matched = False
-        if "year" not in self.metadata:
-            self._parse_items(YEAR_END_RE, pop=False)
-            year_end_matched = "year" in self.metadata
-            self._log("After Year on end of token")
-
-        # Issue left on the end of string tokens
-        if "issue" not in self.metadata and not year_end_matched:
-            exclude: str = self.metadata.get("year", "")  # type: ignore
-            self._parse_items(ISSUE_END_RE, exclude=exclude)
-        if "issue" not in self.metadata:
-            self._parse_items(ISSUE_BEGIN_RE)
-        self._log("After Issue on ends of tokens")
-
-        # Publisher
-        #
-        # Pop single tokens so they don't end up titles.
-        self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
-        if "publisher" not in self.metadata:
-            self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)
-        if "publisher" not in self.metadata:
-            self._parse_items(PUBLISHER_UNAMBIGUOUS_RE, pop=False, first_only=True)
-        if "publisher" not in self.metadata:
-            self._parse_items(PUBLISHER_AMBIGUOUS_RE, pop=False, first_only=True)
-        self._log("After publisher")
-
-        self._assign_remaining_groups()
-        self._log("After Series & Title")
+        self._parse_format_and_scan_info()
+        self._parse_ends_of_remaining_tokens()
+        self._parse_publisher()
+        self._parse_series_and_title()
 
         # Copy volume into issue if it's all we have.
-        #
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
         self._log("After issue can be volume")
