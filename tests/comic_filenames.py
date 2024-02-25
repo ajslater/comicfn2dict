@@ -449,7 +449,7 @@ FNS.update(
             "ext": "cbr",
             "issue": "001",
             "series": "Captain Science",
-            "remainders": ("cix-cbi",),
+            "title": "cix-cbi",
         },
         "Long Series Name v1 (2000) #001 "
         "Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS_VOL,
