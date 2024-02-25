@@ -39,7 +39,7 @@ _DATE_KEYS = ("year", "month", "day")
 class ComicFilenameSerializer:
     """Serialize Comic Filenames from dict."""
 
-    def _log(self, label, fn):
+    def _log(self, label: str, fn: str) -> None:
         """Log progress."""
         if not self._debug:
             return
@@ -95,7 +95,7 @@ class ComicFilenameSerializer:
         for tag, fmt in _FILENAME_FORMAT_TAGS:
             if token := self._tokenize_tag(tag, fmt):
                 tokens.append(token)
-            self._log(f"After {tag}", tokens)
+            self._log(f"After {tag}", str(tokens))
         fn = " ".join(tokens)
 
         fn += self._add_remainder()

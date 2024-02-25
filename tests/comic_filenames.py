@@ -56,11 +56,6 @@ FNS = {
     "Long Series Name #001 (2000) Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS,
     "Long Series Name (2000) 001 Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS,
     "Long Series Name (2000) #001 Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS,
-    "Long Series Name v1 (2000) #001 "
-    "Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS_VOL,
-    "Long Series Name 001 (2000) (TPB-Releaser) Title.cbz": TEST_COMIC_FIELDS,
-    "Long Series Name Vol 1 "
-    "(2000) (TPB) (Releaser & Releaser-Releaser) Title.cbr": TEST_COMIC_VOL_ONLY,
     "Ultimate Craziness (2019) (Digital) (Friends-of-Bill).cbr": {
         "series": "Ultimate Craziness",
         "year": "2019",
@@ -442,6 +437,41 @@ FNS.update(
                 "digital (downsized, lightened, 4 missing story pages "
                 "restored) (Shadowcat-Empire)",
             ),
+        },
+        "Captain Science #001 (1950) The Beginning - nothing.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "title": "The Beginning - nothing",
+            "series": "Captain Science",
+            "year": "1950",
+        },
+        "Captain Science #001-cix-cbi.cbr": {
+            "ext": "cbr",
+            "issue": "001",
+            "series": "Captain Science",
+            "remainders": ("cix-cbi",),
+        },
+        "Long Series Name v1 (2000) #001 "
+        "Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS_VOL,
+        "Long Series Name 001 (2000) (TPB-Releaser) Title.cbz": {
+            "series": "Long Series Name",
+            "issue": "001",
+            "year": "2000",
+            "original_format": "TPB",
+            "scan_info": "Releaser",
+            "remainders": ("Title",),
+            "ext": "cbz",
+        },
+        "Long Series Name Vol 1 "
+        "(2000) (TPB) (Releaser & Releaser-Releaser) Title.cbr": {
+            "series": "Long Series Name",
+            "volume": "1",
+            "issue": "1",
+            "remainders": ("Title",),
+            "original_format": "TPB",
+            "year": "2000",
+            "scan_info": "Releaser & Releaser-Releaser",
+            "ext": "cbr",
         },
     }
 )

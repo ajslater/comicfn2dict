@@ -12,6 +12,8 @@
 - ComicFilenameParser and ComicFilenameSerializer classes are available as well
   as the old function API.
 - New test cases thanks to @lordwelch & @bpepple
+- Titles must come after series and one other token, but before format and scan
+  info.
 
 ## v0.1.4
 
