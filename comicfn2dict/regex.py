@@ -19,7 +19,7 @@ PUBLISHERS_UNAMBIGUOUS: tuple[str, ...] = (
     r"Titan Comics",
 )
 PUBLISHERS_AMBIGUOUS: tuple[str, ...] = (
-    r"Marvel",
+    r"(?<!Capt\.\s)(?<!Capt\s)(?<!Captain\s)Marvel",
     r"Heavy Metal",
     r"Epic",
     r"Image",
