@@ -2,7 +2,6 @@
 
 from types import MappingProxyType
 
-
 TEST_COMIC_FIELDS = {
     "series": "Long Series Name",
     "issue": "001",

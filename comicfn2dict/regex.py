@@ -1,16 +1,8 @@
 """Parsing regexes."""
-import re
+from re import IGNORECASE, Pattern, compile
 from types import MappingProxyType
 
-
-def re_compile(exp, parenthify=False):
-    """Compile regex with options."""
-    if parenthify:
-        exp = r"\(" + exp + r"\)"
-    return re.compile(exp, flags=re.IGNORECASE)
-
-
-PUBLISHERS_UNAMBIGUOUS = (
+PUBLISHERS_UNAMBIGUOUS: tuple[str, ...] = (
     r"Abrams ComicArts",
     r"BOOM! Studios",
     r"DC(\sComics)?",
@@ -26,7 +18,7 @@ PUBLISHERS_UNAMBIGUOUS = (
     r"SelfMadeHero",
     r"Titan Comics",
 )
-PUBLISHERS_AMBIGUOUS = (
+PUBLISHERS_AMBIGUOUS: tuple[str, ...] = (
     r"Marvel",
     r"Heavy Metal",
     r"Epic",
@@ -34,7 +26,7 @@ PUBLISHERS_AMBIGUOUS = (
     r"Mirage",
 )
 
-ORIGINAL_FORMAT_PATTERNS = (
+ORIGINAL_FORMAT_PATTERNS: tuple[str, ...] = (
     r"Anthology",
     r"(One|1)[-\s]Shot",
     r"Annual",
@@ -63,7 +55,7 @@ ORIGINAL_FORMAT_PATTERNS = (
     r"Web([-\s]?(Comic|Rip))?",
 )
 
-MONTHS = (
+MONTHS: tuple[str, ...] = (
     r"Jan(uary)?",
     r"Feb(ruary)?",
     r"Mar(ch)?",
@@ -78,7 +70,15 @@ MONTHS = (
     r"Dec(ember)?",
 )
 
-TOKEN_DELIMETER = r"/"
+TOKEN_DELIMETER: str = r"/"
+
+
+def re_compile(exp: str, parenthify: bool = False) -> Pattern:
+    """Compile regex with options."""
+    if parenthify:
+        exp = r"\(" + exp + r"\)"
+    return compile(exp, flags=IGNORECASE)
+
 
 # CLEAN
 _TOKEN_DIVIDERS_RE = re_compile(r":")
@@ -87,7 +87,7 @@ _EXTRA_SPACES_RE = re_compile(r"\s\s+")
 _LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
 _RIGHT_PAREN_EQUIVALENT_RE = re_compile(r"\]")
 _DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
-REGEX_SUBS: MappingProxyType[re.Pattern, tuple[str, int]] = MappingProxyType(
+REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
     {
         _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
         _TOKEN_DIVIDERS_RE: (TOKEN_DELIMETER, 1),
@@ -104,7 +104,7 @@ _MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?" r"
 _MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
 _MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
 _ALPHA_MONTH_RANGE = (
-    r"\b"
+    r"\b"  # noqa: ISC003
     + r"("
     + r"|".join(MONTHS)
     + r")"
@@ -115,7 +115,7 @@ _ALPHA_MONTH_RANGE = (
     + r")"
     + r")\b"
 )
-ALPHA_MONTH_RANGE_RE = re_compile(_ALPHA_MONTH_RANGE)
+ALPHA_MONTH_RANGE_RE: Pattern = re_compile(_ALPHA_MONTH_RANGE)
 
 _DAY_RE_EXP = r"(?P<day>([0-2]?\d|(3)[0-1]))"
 _DATE_DELIM = r"[-\s]+"
@@ -144,10 +144,10 @@ _YEAR_FIRST_DATE_RE_EXP = (
     + r"\b\)?)"
 )
 
-MONTH_FIRST_DATE_RE = re_compile(_MONTH_FIRST_DATE_RE_EXP)
-YEAR_FIRST_DATE_RE = re_compile(_YEAR_FIRST_DATE_RE_EXP)
-YEAR_TOKEN_RE = re_compile(_YEAR_RE_EXP, parenthify=True)
-YEAR_END_RE = re_compile(_YEAR_RE_EXP + r"\/|$")
+MONTH_FIRST_DATE_RE: Pattern = re_compile(_MONTH_FIRST_DATE_RE_EXP)
+YEAR_FIRST_DATE_RE: Pattern = re_compile(_YEAR_FIRST_DATE_RE_EXP)
+YEAR_TOKEN_RE: Pattern = re_compile(_YEAR_RE_EXP, parenthify=True)
+YEAR_END_RE: Pattern = re_compile(_YEAR_RE_EXP + r"\/|$")
 
 # PAREN GROUPS
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)
@@ -157,38 +157,38 @@ _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP = (
     _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]" + _SCAN_INFO_RE_EXP  # + r")?"
 )
 # Keep this even though comicfn2dict doesn't use it directly
-ORIGINAL_FORMAT_RE = re_compile(_ORIGINAL_FORMAT_RE_EXP, parenthify=True)
-ORIGINAL_FORMAT_SCAN_INFO_RE = re_compile(
+ORIGINAL_FORMAT_RE: Pattern = re_compile(_ORIGINAL_FORMAT_RE_EXP, parenthify=True)
+ORIGINAL_FORMAT_SCAN_INFO_RE: Pattern = re_compile(
     _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP, parenthify=True
 )
-ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE = re_compile(
+ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE: Pattern = re_compile(
     r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\).*\(" + _SCAN_INFO_RE_EXP + r"\)"
 )
 
-SCAN_INFO_SECONDARY_RE = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
+SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
 
 # ISSUE
 _ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
 _ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
-ISSUE_NUMBER_RE = re_compile(
+ISSUE_NUMBER_RE: Pattern = re_compile(
     r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"
 )
-ISSUE_WITH_COUNT_RE = re_compile(
+ISSUE_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + _ISSUE_RE_EXP + r"\)?" + r"\W*" + _ISSUE_COUNT_RE_EXP + r")"
 )
-ISSUE_END_RE = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
-ISSUE_BEGIN_RE = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
+ISSUE_END_RE: Pattern = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
+ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
-VOLUME_RE = re_compile(
-    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"
+VOLUME_RE: Pattern = re_compile(
+    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"  # noqa: ISC003
     r"(\W*" + _VOLUME_COUNT_RE_EXP + r")?" + r")"
 )
-VOLUME_WITH_COUNT_RE = re_compile(
+VOLUME_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )
-BOOK_VOLUME_RE = re_compile(r"(?P<title>" + r"book\s*(?P<volume>\d+)" + r")")
+BOOK_VOLUME_RE: Pattern = re_compile(r"(?P<title>" + r"book\s*(?P<volume>\d+)" + r")")
 
 # Publisher
 _PUBLISHER_UNAMBIGUOUS_RE_EXP = (
@@ -197,15 +197,15 @@ _PUBLISHER_UNAMBIGUOUS_RE_EXP = (
 _PUBLISHER_AMBIGUOUS_RE_EXP = (
     r"(\b(?P<publisher>" + r"|".join(PUBLISHERS_AMBIGUOUS) + r")\b)"
 )
-PUBLISHER_UNAMBIGUOUS_TOKEN_RE = re_compile(
+PUBLISHER_UNAMBIGUOUS_TOKEN_RE: Pattern = re_compile(
     r"(^|\/)" + _PUBLISHER_UNAMBIGUOUS_RE_EXP + r"($|\/)"
 )
-PUBLISHER_AMBIGUOUS_TOKEN_RE = re_compile(
+PUBLISHER_AMBIGUOUS_TOKEN_RE: Pattern = re_compile(
     r"(^|\/)" + _PUBLISHER_AMBIGUOUS_RE_EXP + r"($|\/)"
 )
-PUBLISHER_UNAMBIGUOUS_RE = re_compile(_PUBLISHER_UNAMBIGUOUS_RE_EXP)
+PUBLISHER_UNAMBIGUOUS_RE: Pattern = re_compile(_PUBLISHER_UNAMBIGUOUS_RE_EXP)
 PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
-REMAINING_GROUP_RE = re_compile(r"^[^\(].*[^\)]")
-NON_NUMBER_DOT_RE = re_compile(r"(\D)\.(\D)")
+REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(].*[^\)]")
+NON_NUMBER_DOT_RE: Pattern = re_compile(r"(\D)\.(\D)")

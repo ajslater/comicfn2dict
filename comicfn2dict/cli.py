@@ -3,10 +3,11 @@
 from argparse import ArgumentParser
 from pathlib import Path
 from pprint import pprint
+
 from comicfn2dict.parse import ComicFilenameParser
 
 
-def main():
+def main() -> None:
     """Test parser."""
     description = "Comic book archive read/write tool."
     parser = ArgumentParser(description=description)
@@ -23,7 +24,7 @@ def main():
     cfnparser = ComicFilenameParser(name, verbose=args.verbose)
     metadata = cfnparser.parse()
     if args.verbose:
-        print("=" * 80)
+        print("=" * 80)  # noqa:T201
     pprint(metadata)  # noqa:T203
 
 

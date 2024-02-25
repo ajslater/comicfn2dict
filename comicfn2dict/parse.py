@@ -1,10 +1,11 @@
 """Parse comic book archive names using the simple 'parse' parser."""
-from pprint import pformat
 from calendar import month_abbr
 from copy import copy
 from pathlib import Path
+from pprint import pformat
 from re import Match, Pattern
 from sys import maxsize
+
 from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
     ALPHA_MONTH_RANGE_RE,
@@ -18,8 +19,8 @@ from comicfn2dict.regex import (
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     PUBLISHER_AMBIGUOUS_RE,
-    PUBLISHER_UNAMBIGUOUS_RE,
     PUBLISHER_AMBIGUOUS_TOKEN_RE,
+    PUBLISHER_UNAMBIGUOUS_RE,
     PUBLISHER_UNAMBIGUOUS_TOKEN_RE,
     REGEX_SUBS,
     REMAINING_GROUP_RE,
@@ -51,10 +52,7 @@ class ComicFilenameParser:
         if value not in self._path_indexes:
             # XXX This is fragile, but it's difficult to calculate the original
             #     position at match time from the ever changing _unparsed_path.
-            if key == "ext":
-                index = self.path.rfind(value)
-            else:
-                index = self.path.find(value)
+            index = self.path.rfind(value) if key == "ext" else self.path.find(value)
             self._path_indexes[value] = index
         return self._path_indexes[value]
 
@@ -65,8 +63,8 @@ class ComicFilenameParser:
         combined = {}
         for key in self.metadata:
             combined[key] = (self.metadata.get(key), self.path_index(key))
-        print("  " + self._unparsed_path)
-        print("  " + pformat(combined))
+        print("  " + self._unparsed_path)  # noqa: T201
+        print("  " + pformat(combined))  # noqa: T201
 
     def _parse_ext(self) -> None:
         """Pop the extension from the pathname."""
@@ -121,7 +119,7 @@ class ComicFilenameParser:
                 parts.append(token)
         self._unparsed_path = TOKEN_DELIMETER.join(parts)
 
-    def _parse_items(
+    def _parse_items(  # noqa: PLR0913
         self,
         regex: Pattern,
         require_all: bool = False,
@@ -244,7 +242,7 @@ class ComicFilenameParser:
         self._log("After publisher")
 
     def _is_at_title_position(self, value: str) -> bool:
-        """Does the title come after series and one other token if they exist."""
+        """Title is in correct position."""
         title_index = self.path.find(value)
 
         # Titles must come after series but before format and scan_info
@@ -286,9 +284,8 @@ class ComicFilenameParser:
         if not match:
             return token
         value = match.group()
-        if key == "title":
-            if not self._is_at_title_position(value):
-                return token
+        if key == "title" and not self._is_at_title_position(value):
+            return token
         value = NON_NUMBER_DOT_RE.sub(r"\1 \2", value)
         value = self._grouping_operators_strip(value)
         if value:
@@ -311,7 +308,6 @@ class ComicFilenameParser:
                 unused_tokens.append(unused_token)
             remaining_key_index += 1
 
-        print(f"{unused_tokens=}")
         self._unparsed_path = " ".join(unused_tokens) if unused_tokens else ""
         self._log("After Series & Title")
 
@@ -363,6 +359,6 @@ class ComicFilenameParser:
 def comicfn2dict(
     path: str | Path, verbose: int = 0
 ) -> dict[str, str | tuple[str, ...]]:
-    """Simple API."""
+    """Simplfily the API."""
     parser = ComicFilenameParser(path, verbose=verbose)
     return parser.parse()

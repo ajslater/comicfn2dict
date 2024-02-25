@@ -1,8 +1,9 @@
 """Unparse comic filenames."""
+from calendar import month_abbr
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
-from calendar import month_abbr
 from types import MappingProxyType
+
 from comicfn2dict.log import print_log_header
 
 
@@ -44,7 +45,7 @@ class ComicFilenameSerializer:
         if not self._debug:
             return
         print_log_header(label)
-        print(fn)
+        print(fn)  # noqa: T201
 
     def _add_date(self) -> None:
         """Construct date from Y-m-D if they exist."""
@@ -73,8 +74,7 @@ class ComicFilenameSerializer:
         if val in _EMPTY_VALUES:
             return ""
         final_fmt = fmt(val) if isinstance(fmt, Callable) else fmt
-        token = final_fmt.format(val).strip()
-        return token
+        return final_fmt.format(val).strip()
 
     def _add_remainder(self) -> str:
         """Add the remainders specially."""
@@ -109,12 +109,13 @@ class ComicFilenameSerializer:
         return fn
 
     def __init__(self, metadata: Mapping, ext: bool = True, verbose: int = 0):
+        """Initialize."""
         self.metadata: Mapping = metadata
         self._ext: bool = ext
         self._debug: bool = bool(verbose)
 
 
 def dict2comicfn(md: Mapping, ext: bool = True, verbose: int = 0) -> str:
-    """Simple API."""
+    """Simplify API."""
     serializer = ComicFilenameSerializer(md, ext=ext, verbose=verbose)
     return serializer.serialize()

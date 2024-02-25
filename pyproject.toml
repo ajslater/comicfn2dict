@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "comicfn2dict"
-version = "0.2.0a3"
+version = "0.2.0a4"
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 license = "GPL-3.0-only"
 authors = ["AJ Slater <aj@slater.net>"]
@@ -125,7 +125,7 @@ exclude = "*~,.git/*,.mypy_cache/*,.pytest_cache/*,.venv*,__pycache__/*,cache/*,
 extend-exclude = ["typings"]
 target-version = "py310"
 
-[tool.lint.ruff]
+[tool.ruff.lint]
 extend-ignore = [
   "S101",
   "D203",
