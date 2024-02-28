@@ -1,0 +1,60 @@
+jobs:
+  build:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      DOCKER_CLI_EXPERIMENTAL: enabled
+      DOCKER_BUILDKIT: 1
+    steps:
+      - checkout
+      - run:
+          command: docker compose build comicfn2dict-builder
+          name: Build Builder
+      - run:
+          command: ./bin/docker-compose-exit.sh comicfn2dict-lint
+          name: comicfn2dict Lint
+      - run:
+          command: ./bin/docker-compose-exit.sh comicfn2dict-test
+          name: comicfn2dict Test
+      - store_test_results:
+          path: test-results/pytest
+      - store_artifacts:
+          path: test-results/coverage
+      - run:
+          command: ./bin/docker-compose-exit.sh comicfn2dict-build
+          name: Build comicfn2dict Dist
+      - persist_to_workspace:
+          paths:
+            - ./README.md
+            - ./bin
+            - ./dist
+            - ./pyproject.toml
+          root: .
+  deploy:
+    docker:
+      - image: cimg/python:3.12.1
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          command: ./bin/publish-pypi.sh
+version: 2.1
+workflows:
+  main:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - develop
+                - pre-release
+                - main
+      - deploy:
+          filters:
+            branches:
+              only:
+                - pre-release
+                - main
+          requires:
+            - build
+  version: 2.1
