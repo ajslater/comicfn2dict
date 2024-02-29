@@ -2,18 +2,17 @@
 
 ## v0.2.0
 
+- The `-` character no longer breaks up tokens
 - Titles are now parsed only if they occur after the series token AND after
   either issue, year or volume.
 - A more sophisticated date parser.
 - Issue numbers that lead with a '#' character may start with alphabetical
   characters.
-- If volume is parsed, but issue number is not, the issue number is copied from
+- If volume exists, but issue number does not, then issue number becomes
   the volume number.
 - ComicFilenameParser and ComicFilenameSerializer classes are available as well
   as the old function API.
 - New test cases thanks to @lordwelch & @bpepple
-- Titles must come after series and one other token, but before format and scan
-  info.
 
 ## v0.1.4
 
