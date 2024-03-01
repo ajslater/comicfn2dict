@@ -1,4 +1,5 @@
 """Tests for filename parsing."""
+
 import pytest
 
 from comicfn2dict import ComicFilenameSerializer

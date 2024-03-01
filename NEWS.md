@@ -8,8 +8,8 @@
 - A more sophisticated date parser.
 - Issue numbers that lead with a '#' character may start with alphabetical
   characters.
-- If volume exists, but issue number does not, then issue number becomes
-  the volume number.
+- If volume exists, but issue number does not, then issue number becomes the
+  volume number.
 - ComicFilenameParser and ComicFilenameSerializer classes are available as well
   as the old function API.
 - New test cases thanks to @lordwelch & @bpepple

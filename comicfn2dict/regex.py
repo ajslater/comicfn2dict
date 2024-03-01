@@ -1,4 +1,5 @@
 """Parsing regexes."""
+
 from re import IGNORECASE, Pattern, compile
 from types import MappingProxyType
 
