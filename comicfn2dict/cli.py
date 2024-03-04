@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Simple cli for comicfn2dict."""
+
 from argparse import ArgumentParser
 from pathlib import Path
 from pprint import pprint

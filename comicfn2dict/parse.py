@@ -1,10 +1,13 @@
 """Parse comic book archive names using the simple 'parse' parser."""
+
+from __future__ import annotations
+
 from calendar import month_abbr
 from copy import copy
 from pathlib import Path
 from pprint import pformat
-from re import Match, Pattern
 from sys import maxsize
+from typing import TYPE_CHECKING
 
 from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
@@ -32,6 +35,9 @@ from comicfn2dict.regex import (
     YEAR_FIRST_DATE_RE,
     YEAR_TOKEN_RE,
 )
+
+if TYPE_CHECKING:
+    from re import Match, Pattern
 
 _DATE_KEYS = frozenset({"year", "month", "day"})
 _REMAINING_GROUP_KEYS = ("series", "title")

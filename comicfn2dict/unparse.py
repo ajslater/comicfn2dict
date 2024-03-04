@@ -1,4 +1,7 @@
 """Unparse comic filenames."""
+
+from __future__ import annotations
+
 from calendar import month_abbr
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
