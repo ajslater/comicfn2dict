@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+## v0.2.1
+
+- Support Python 3.9, thanks to @lordwelch
+
 ## v0.2.0
 
 - The `-` character no longer breaks up tokens
