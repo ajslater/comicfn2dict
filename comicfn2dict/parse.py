@@ -1,4 +1,5 @@
 """Parse comic book archive names using the simple 'parse' parser."""
+from __future__ import annotations
 
 from calendar import month_abbr
 from copy import copy
