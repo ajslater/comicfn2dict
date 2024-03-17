@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "comicfn2dict"
-version = "0.2.1"
+version = "0.2.2"
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 license = "GPL-3.0-only"
 authors = ["AJ Slater <aj@slater.net>"]
@@ -33,7 +33,7 @@ python = "^3.9"
 [tool.poetry.group.dev.dependencies]
 neovim = "^0.3.1"
 djlint = "^1.19.17"
-wheel = "^0.42.0"
+wheel = "^0.43.0"
 
 [tool.poetry.group.test.dependencies]
 coverage = { extras = ["toml"], version = "^7.0" }

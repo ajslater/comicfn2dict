@@ -8,3 +8,5 @@
 /test-results
 __pycache__
 dist
+package-lock.json
+poetry.lock
