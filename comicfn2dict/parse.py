@@ -19,6 +19,7 @@ from comicfn2dict.regex import (
     ISSUE_WITH_COUNT_RE,
     MONTH_FIRST_DATE_RE,
     NON_NUMBER_DOT_RE,
+    ORIGINAL_FORMAT_NAKED_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     PUBLISHER_AMBIGUOUS_RE,
@@ -26,6 +27,7 @@ from comicfn2dict.regex import (
     PUBLISHER_UNAMBIGUOUS_RE,
     PUBLISHER_UNAMBIGUOUS_TOKEN_RE,
     REGEX_SUBS,
+    REMAINDER_PAREN_GROUPS_RE,
     REMAINING_GROUP_RE,
     SCAN_INFO_SECONDARY_RE,
     TOKEN_DELIMETER,
@@ -214,6 +216,14 @@ class ComicFilenameParser:
             self.metadata["scan_info"] = scan_info_secondary  # type: ignore
         self._log("After original_format & scan_info")
 
+    def _parse_remainder_paren_groups(self) -> None:
+        """Remove extraneous paren groups."""
+        self._parse_items(REMAINDER_PAREN_GROUPS_RE)
+        remainders: str = self.metadata.get("remainders", "")  # type: ignore
+        if remainders:
+            self.metadata["remainders"] = (remainders,)
+        self._log("After parsing remainder paren and bracket groups")
+
     def _parse_ends_of_remaining_tokens(self):
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
@@ -290,8 +300,17 @@ class ComicFilenameParser:
         if not match:
             return token
         value = match.group()
-        if key == "title" and not self._is_at_title_position(value):
-            return token
+        if key == "title":
+            if not self._is_at_title_position(value):
+                return token
+
+            # Parse titles that are really formats as formats.
+            if "original_format" not in self.metadata and (
+                match := ORIGINAL_FORMAT_NAKED_RE.fullmatch(value)
+            ):
+                self.metadata["original_format"] = match.group()
+                return ""
+
         value = NON_NUMBER_DOT_RE.sub(r"\1 \2", value)
         value = self._grouping_operators_strip(value)
         if value:
@@ -325,7 +344,9 @@ class ComicFilenameParser:
                 remainders.append(remainder)
 
         if remainders:
-            self.metadata["remainders"] = tuple(remainders)
+            self.metadata["remainders"] = tuple(
+                remainders + list(self.metadata.get("remainders", []))
+            )
 
     def parse(self) -> dict[str, str | tuple[str, ...]]:
         """Parse the filename with a hierarchy of regexes."""
@@ -336,6 +357,7 @@ class ComicFilenameParser:
         self._parse_volume()
         self._parse_dates()
         self._parse_format_and_scan_info()
+        self._parse_remainder_paren_groups()
         self._parse_ends_of_remaining_tokens()
         self._parse_publisher()
         self._parse_series_and_title()

@@ -429,11 +429,12 @@ FNS.update(
             "ext": "cbz",
             "issue": "49",
             "series": "Wonder Woman",
+            "original_format": "digital",
             "publisher": "DC",
             "year": "1951",
             "month": "09",
             "remainders": (
-                "digital (downsized, lightened, 4 missing story pages "
+                "(downsized, lightened, 4 missing story pages "
                 "restored) (Shadowcat-Empire)",
             ),
         },
@@ -471,6 +472,15 @@ FNS.update(
             "year": "2000",
             "scan_info": "Releaser & Releaser-Releaser",
             "ext": "cbr",
+        },
+        "Ex Machina 050 (2 Covers) (2010) (Digital) (Zone-Empire).cbz": {
+            "ext": "cbz",
+            "issue": "050",
+            "original_format": "Digital",
+            "scan_info": "Zone-Empire",
+            "series": "Ex Machina",
+            "year": "2010",
+            "remainders": ("(2 Covers)",),
         },
     }
 )

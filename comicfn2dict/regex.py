@@ -158,6 +158,7 @@ _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP = (
     _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]" + _SCAN_INFO_RE_EXP  # + r")?"
 )
 # Keep this even though comicfn2dict doesn't use it directly
+ORIGINAL_FORMAT_NAKED_RE: Pattern = re_compile(_ORIGINAL_FORMAT_RE_EXP)
 ORIGINAL_FORMAT_RE: Pattern = re_compile(_ORIGINAL_FORMAT_RE_EXP, parenthify=True)
 ORIGINAL_FORMAT_SCAN_INFO_RE: Pattern = re_compile(
     _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP, parenthify=True
@@ -210,3 +211,5 @@ PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 # LONG STRINGS
 REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(].*[^\)]")
 NON_NUMBER_DOT_RE: Pattern = re_compile(r"(\D)\.(\D)")
+
+REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"(?P<remainders>\(.*\))")

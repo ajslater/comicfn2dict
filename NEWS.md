@@ -1,5 +1,10 @@
 # 📰 comicfn2dict News
 
+## v0.2.2
+
+- Fix extra paren groups parsed into series and title
+- Parse "titles" with the exact same name as printing formats as original_format
+
 ## v0.2.1
 
 - Support Python 3.9, thanks to @lordwelch
