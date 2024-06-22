@@ -14,7 +14,7 @@ RUN apt-get clean \
 WORKDIR /app
 
 COPY bin ./bin
-COPY .eslintignore .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js package.json package-lock.json pyproject.toml poetry.lock Makefile ./
+COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js package.json package-lock.json pyproject.toml poetry.lock Makefile ./
 RUN make install-all
 
 COPY . .
