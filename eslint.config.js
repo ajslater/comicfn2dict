@@ -6,7 +6,7 @@ import eslintPluginJsonc from "eslint-plugin-jsonc";
 import eslintPluginMarkdown from "eslint-plugin-markdown";
 import eslintPluginNoSecrets from "eslint-plugin-no-secrets";
 // import eslintPluginNoUnsanitized from "eslint-plugin-no-unsanitized";
-import eslintPluginNoUseExtendNative from "eslint-plugin-no-use-extend-native";
+//import eslintPluginNoUseExtendNative from "eslint-plugin-no-use-extend-native";
 import eslintPluginPrettier from "eslint-plugin-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import eslintPluginRegexp from "eslint-plugin-regexp";
@@ -54,7 +54,7 @@ export default [
       jsonc: eslintPluginJsonc,
       markdown: eslintPluginMarkdown,
       "no-secrets": eslintPluginNoSecrets,
-      "no-use-extend-native": eslintPluginNoUseExtendNative,
+      // "no-use-extend-native": eslintPluginNoUseExtendNative,
       // "no-unsantized": eslintPluginNoUnsanitized,
       prettier: eslintPluginPrettier,
       security: eslintPluginSecurity,
@@ -112,7 +112,7 @@ export default [
   eslintPluginArrayFunc.configs.all,
   ...eslintPluginJsonc.configs["flat/recommended-with-jsonc"],
   ...eslintPluginMarkdown.configs.recommended,
-  eslintPluginNoUseExtendNative.configs.recommended,
+  // eslintPluginNoUseExtendNative.configs.recommended,
   // eslintPluginNoUnsanitized.configs.recommended,
   eslintPluginRegexp.configs["flat/recommended"],
   eslintPluginSecurity.configs.recommended,
