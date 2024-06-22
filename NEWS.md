@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+# v0.2.3
+
+- Dependencies security update
+
 ## v0.2.2
 
 - Fix extra paren groups parsed into series and title
