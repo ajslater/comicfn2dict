@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+# v0.2.4
+
+- Fix parsing negative issue numbers
+
 # v0.2.3
 
 - Dependencies security update
