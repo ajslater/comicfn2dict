@@ -170,7 +170,7 @@ ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE: Pattern = re_compile(
 SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
 
 # ISSUE
-_ISSUE_RE_EXP = r"(?P<issue>\w*(½|\d+)[\.\d+]*\w*)"
+_ISSUE_RE_EXP = r"(?P<issue>-?\w*(½|\d+)[\.\d+]*\w*)"
 _ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
 ISSUE_NUMBER_RE: Pattern = re_compile(
     r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"

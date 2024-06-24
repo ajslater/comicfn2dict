@@ -482,6 +482,13 @@ FNS.update(
             "year": "2010",
             "remainders": ("(2 Covers)",),
         },
+        "The Sensational Spider-Man v1 #-1 (1997).cbz": {
+            "ext": "cbz",
+            "volume": "1",
+            "year": "1997",
+            "series": "The Sensational Spider-Man",
+            "issue": "-1",
+        },
     }
 )
 
