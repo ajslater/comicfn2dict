@@ -127,7 +127,7 @@ class ComicFilenameParser:
                 parts.append(token)
         self._unparsed_path = TOKEN_DELIMETER.join(parts)
 
-    def _parse_items(  # noqa: PLR0913
+    def _parse_items(
         self,
         regex: Pattern,
         require_all: bool = False,
