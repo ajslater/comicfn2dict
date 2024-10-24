@@ -492,8 +492,8 @@ FNS.update(
     }
 )
 
-# first_key, first_val = NEW.popitem()
-# FNS[first_key] = first_val
+# first_key, first_val = NEW.popitem() for testing
+# FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)
 
 SERIALIZE_FNS = MappingProxyType(

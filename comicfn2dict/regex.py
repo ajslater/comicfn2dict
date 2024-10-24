@@ -74,7 +74,7 @@ MONTHS: tuple[str, ...] = (
 TOKEN_DELIMETER: str = r"/"
 
 
-def re_compile(exp: str, parenthify: bool = False) -> Pattern:
+def re_compile(exp: str, parenthify: bool = False) -> Pattern:  # noqa: FBT002
     """Compile regex with options."""
     if parenthify:
         exp = r"\(" + exp + r"\)"
