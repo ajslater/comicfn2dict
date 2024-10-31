@@ -3,8 +3,8 @@
   "description": "comicfn2dict linting",
   "type": "module",
   "scripts": {
-    "fix": "eslint --cache --fix . && prettier --write .",
-    "lint": "eslint --cache . && prettier --check .",
+    "fix": "eslint_d --cache --fix . && prettier --write .",
+    "lint": "eslint_d --cache . && prettier --check .",
     "remark-check": "remark .",
     "remark-fix": "remark . --output"
   },
@@ -39,6 +39,7 @@
     }
   },
   "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.4",
     "@fsouza/prettierd": "^0.25.1",
     "@prettier/plugin-xml": "^3.0.0",
     "eslint": "^9.5.0",
@@ -50,7 +51,6 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsonc": "^2.13.0",
     "eslint-plugin-markdown": "^5.0.0",
-    "eslint-plugin-no-constructor-bind": "^2.0.4",
     "eslint-plugin-no-secrets": "^1.0.2",
     "eslint-plugin-no-unsanitized": "^4.1.2",
     "eslint-plugin-prettier": "^5.1.3",

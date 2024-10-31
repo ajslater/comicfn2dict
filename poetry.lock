@@ -154,13 +154,13 @@ optimize = ["orjson"]
 
 [[package]]
 name = "djlint"
-version = "1.35.2"
+version = "1.35.3"
 description = "HTML Template Linter and Formatter"
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "djlint-1.35.2-py3-none-any.whl", hash = "sha256:4ba995bad378f2afa77c8ea56ba1c14429d9ff26a18e8ae23bc71eedb9152243"},
-    {file = "djlint-1.35.2.tar.gz", hash = "sha256:318de9d4b9b0061a111f8f5164ecbacd8215f449dd4bd5a76d2a691c815ee103"},
+    {file = "djlint-1.35.3-py3-none-any.whl", hash = "sha256:bf2f23798909f9c5a110925c369538383de0141f9a2be37ee0d26422d41b7543"},
+    {file = "djlint-1.35.3.tar.gz", hash = "sha256:780ea3e25662fca89033fa96ecf656099954d6f81dce039eac90f4bba3cbe850"},
 ]
 
 [package.dependencies]
@@ -168,11 +168,11 @@ click = ">=8.0.1"
 colorama = ">=0.4.4"
 cssbeautifier = ">=1.14.4"
 html-tag-names = ">=0.1.2"
-html-void-elements = ">=0.1.0"
+html-void-elements = ">=0.1"
 jsbeautifier = ">=1.14.4"
 json5 = ">=0.9.11"
-pathspec = ">=0.12.0"
-PyYAML = ">=6.0"
+pathspec = ">=0.12"
+pyyaml = ">=6"
 regex = ">=2023"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 tqdm = ">=4.62.2"
@@ -528,13 +528,13 @@ test = ["pytest"]
 
 [[package]]
 name = "pyright"
-version = "1.1.386"
+version = "1.1.387"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.386-py3-none-any.whl", hash = "sha256:7071ac495593b2258ccdbbf495f1a5c0e5f27951f6b429bed4e8b296eb5cd21d"},
-    {file = "pyright-1.1.386.tar.gz", hash = "sha256:8e9975e34948ba5f8e07792a9c9d2bdceb2c6c0b61742b068d2229ca2bc4a9d9"},
+    {file = "pyright-1.1.387-py3-none-any.whl", hash = "sha256:6a1f495a261a72e12ad17e20d1ae3df4511223c773b19407cfa006229b1b08a5"},
+    {file = "pyright-1.1.387.tar.gz", hash = "sha256:577de60224f7fe36505d5b181231e3a395d427b7873be0bbcaa962a29ea93a60"},
 ]
 
 [package.dependencies]
@@ -570,17 +570,17 @@ dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments
 
 [[package]]
 name = "pytest-cov"
-version = "5.0.0"
+version = "6.0.0"
 description = "Pytest plugin for measuring coverage."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "pytest-cov-5.0.0.tar.gz", hash = "sha256:5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857"},
-    {file = "pytest_cov-5.0.0-py3-none-any.whl", hash = "sha256:4f0764a1219df53214206bf1feea4633c3b558a2925c8b59f144f682861ce652"},
+    {file = "pytest-cov-6.0.0.tar.gz", hash = "sha256:fde0b595ca248bb8e2d76f020b465f3b107c9632e6a1d1705f17834c89dcadc0"},
+    {file = "pytest_cov-6.0.0-py3-none-any.whl", hash = "sha256:eee6f1b9e61008bd34975a4d5bab25801eb31898b032dd55addc93e96fcaaa35"},
 ]
 
 [package.dependencies]
-coverage = {version = ">=5.2.1", extras = ["toml"]}
+coverage = {version = ">=7.5", extras = ["toml"]}
 pytest = ">=4.6"
 
 [package.extras]
@@ -835,13 +835,13 @@ files = [
 
 [[package]]
 name = "tqdm"
-version = "4.66.5"
+version = "4.66.6"
 description = "Fast, Extensible Progress Meter"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tqdm-4.66.5-py3-none-any.whl", hash = "sha256:90279a3770753eafc9194a0364852159802111925aa30eb3f9d85b0e805ac7cd"},
-    {file = "tqdm-4.66.5.tar.gz", hash = "sha256:e1020aef2e5096702d8a025ac7d16b1577279c9d63f8375b63083e9a5f0fcbad"},
+    {file = "tqdm-4.66.6-py3-none-any.whl", hash = "sha256:223e8b5359c2efc4b30555531f09e9f2f3589bcd7fdd389271191031b49b7a63"},
+    {file = "tqdm-4.66.6.tar.gz", hash = "sha256:4bdd694238bef1485ce839d67967ab50af8f9272aab687c0d7702a01da0be090"},
 ]
 
 [package.dependencies]
@@ -906,4 +906,4 @@ test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "d00c7a8ab15af23bf572855ed294c0fb120109adc24aeb81689c504c223d7c15"
+content-hash = "863d28c33a9ce528fd0ef1f7bef9da5f114d57dbf2ed19e6317b75582219a144"
