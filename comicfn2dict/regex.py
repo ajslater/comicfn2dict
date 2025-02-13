@@ -1,6 +1,7 @@
 """Parsing regexes."""
 
-from re import IGNORECASE, Pattern, compile
+import re
+from re import IGNORECASE, Pattern
 from types import MappingProxyType
 
 PUBLISHERS_UNAMBIGUOUS: tuple[str, ...] = (
@@ -71,14 +72,14 @@ MONTHS: tuple[str, ...] = (
     r"Dec(ember)?",
 )
 
-TOKEN_DELIMETER: str = r"/"
+TOKEN_DELIMETER: str = r"/"  # noqa: S105
 
 
 def re_compile(exp: str, parenthify: bool = False) -> Pattern:  # noqa: FBT002
     """Compile regex with options."""
     if parenthify:
         exp = r"\(" + exp + r"\)"
-    return compile(exp, flags=IGNORECASE)
+    return re.compile(exp, flags=IGNORECASE)
 
 
 # CLEAN
