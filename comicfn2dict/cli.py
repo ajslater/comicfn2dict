@@ -10,7 +10,7 @@ from comicfn2dict.parse import ComicFilenameParser
 
 def main() -> None:
     """Test parser."""
-    description = "Comic book archive read/write tool."
+    description = "Comic book filename metadata parser."
     parser = ArgumentParser(description=description)
     parser.add_argument("path", help="Path of comic filename to parse", type=Path)
     parser.add_argument(

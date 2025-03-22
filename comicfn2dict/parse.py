@@ -369,6 +369,7 @@ class ComicFilenameParser:
         # Copy volume into issue if it's all we have.
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
+            self._log("Using volume for issue.")
         self._log("After issue can be volume")
 
         self._add_remainders()
