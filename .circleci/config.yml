@@ -32,12 +32,11 @@ jobs:
           root: .
   deploy:
     docker:
-      - image: cimg/python:3.12.1
+      - image: ghcr.io/astral-sh/uv:bookworm-slim
     steps:
       - attach_workspace:
           at: .
-      - run:
-          command: ./bin/publish-pypi.sh
+      - run: uv publish
 version: 2.1
 workflows:
   main:

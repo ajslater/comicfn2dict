@@ -1,4 +1,4 @@
-FROM python:3.9-bookworm
+FROM nikolaik/python-nodejs:python3.13-nodejs23-slim
 LABEL maintainer="AJ Slater <aj@slater.net>"
 
 COPY debian.sources /etc/apt/sources.list.d/
@@ -14,7 +14,7 @@ RUN apt-get clean \
 WORKDIR /app
 
 COPY bin ./bin
-COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js package.json package-lock.json pyproject.toml poetry.lock Makefile ./
+COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js package.json package-lock.json pyproject.toml uv.lock Makefile ./
 RUN make install-all
 
 COPY . .

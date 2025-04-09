@@ -9,4 +9,4 @@ __pycache__
 /test-results
 dist
 package-lock.json
-poetry.lock
+uv.lock
