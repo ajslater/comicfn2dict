@@ -47,12 +47,12 @@
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-sonarjs": "^3.0.1",
     "eslint-plugin-toml": "^0.12.0",
-    "eslint-plugin-unicorn": "^57.0.0",
+    "eslint-plugin-unicorn": "^58.0.0",
     "eslint-plugin-yml": "^1.14.0",
     "eslint_d": "^14.1.1",
     "prettier": "^3.2.5",
     "prettier-plugin-packagejson": "^2.4.4",
-    "prettier-plugin-sh": "^0.15.0",
+    "prettier-plugin-sh": "^0.17.1",
     "prettier-plugin-toml": "^2.0.1"
   }
 }
