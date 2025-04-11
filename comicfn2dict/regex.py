@@ -1,6 +1,7 @@
 """Parsing regexes."""
 
-from re import IGNORECASE, Pattern, compile
+import re
+from re import IGNORECASE, Pattern
 from types import MappingProxyType
 
 PUBLISHERS_UNAMBIGUOUS: tuple[str, ...] = (
@@ -29,25 +30,28 @@ PUBLISHERS_AMBIGUOUS: tuple[str, ...] = (
 
 ORIGINAL_FORMAT_PATTERNS: tuple[str, ...] = (
     r"Anthology",
-    r"(One|1)[-\s]Shot",
     r"Annual",
     r"Annotation[s]?",
     r"Box[-\s]Set",
     r"Digital",
+    r"Digital\sChapter",
     r"Director[’']?s\sCut",  # noqa: RUF001
     r"Giant([-\s]Size(d)?)?",
-    r"Graphic\sNovel",
+    r"Graphic[-\s]Novel",
     r"GN",
     r"Hard[-\s]?Cover",
     r"HC",
     r"HD-Upscaled",
     r"King[-\s]Size(d)?",
+    r"Limited[-\s]Series",
     r"Magazine",
-    r"Manga?",
+    r"Manga",
     r"Omnibus",
+    r"(One|1)[-\s]Shot",
     r"PDF([-\s]Rip)?",
     r"Preview",
     r"Prologue",
+    r"Single[-\s]Issue",
     r"Scanlation",
     r"Script",
     r"Sketch",
@@ -71,14 +75,14 @@ MONTHS: tuple[str, ...] = (
     r"Dec(ember)?",
 )
 
-TOKEN_DELIMETER: str = r"/"
+TOKEN_DELIMETER: str = r"/"  # noqa: S105
 
 
-def re_compile(exp: str, parenthify: bool = False) -> Pattern:
+def re_compile(exp: str, parenthify: bool = False) -> Pattern:  # noqa: FBT002
     """Compile regex with options."""
     if parenthify:
         exp = r"\(" + exp + r"\)"
-    return compile(exp, flags=IGNORECASE)
+    return re.compile(exp, flags=IGNORECASE)
 
 
 # CLEAN

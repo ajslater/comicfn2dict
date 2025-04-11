@@ -1,4 +1,4 @@
 #!/bin/bash
-# Run comicbox file parser test
+# Run comicfn2dict cli
 set -euo pipefail
 poetry run ./comicfn2dict.py "$@"

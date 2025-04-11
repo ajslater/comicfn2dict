@@ -54,11 +54,11 @@ class ComicFilenameParser:
         """Lazily retrieve and memoize the key's location in the path."""
         if key == "remainders":
             return default
-        value: str = self.metadata.get(key, "")  # type: ignore
+        value: str = self.metadata.get(key, "")  # type: ignore[reportAssignmentType]
         if not value:
             return default
         if value not in self._path_indexes:
-            # XXX This is fragile, but it's difficult to calculate the original
+            # This is fragile, but it's difficult to calculate the original
             #     position at match time from the ever changing _unparsed_path.
             index = self.path.rfind(value) if key == "ext" else self.path.find(value)
             self._path_indexes[value] = index
@@ -123,17 +123,18 @@ class ComicFilenameParser:
         marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
         parts = []
         for part in marked_str.split(TOKEN_DELIMETER):
-            if token := part.strip():
+            token = part.strip()
+            if token:
                 parts.append(token)
         self._unparsed_path = TOKEN_DELIMETER.join(parts)
 
-    def _parse_items(  # noqa: PLR0913
+    def _parse_items(
         self,
         regex: Pattern,
-        require_all: bool = False,
+        require_all: bool = False,  # noqa: FBT002
+        first_only: bool = False,  # noqa: FBT002
+        pop: bool = True,  # noqa: FBT002
         exclude: str = "",
-        first_only: bool = False,
-        pop: bool = True,
     ) -> None:
         """Parse a value from the data list into metadata and alter the data list."""
         # Match
@@ -165,8 +166,10 @@ class ComicFilenameParser:
 
     def _alpha_month_to_numeric(self) -> None:
         """Translate alpha_month to numeric month."""
-        if alpha_month := self.metadata.pop("alpha_month", ""):
-            alpha_month = alpha_month.capitalize()  # type: ignore
+        alpha_month: str = self.metadata.pop("alpha_month", "")  # type: ignore[reportAssignmentType]
+        if alpha_month:
+            alpha_month = alpha_month.capitalize()
+            # type: ignore[reportAttributeAccessIssue]
             for index, abbr in enumerate(month_abbr):
                 if abbr and alpha_month.startswith(abbr):
                     month = f"{index:02d}"
@@ -213,13 +216,13 @@ class ComicFilenameParser:
         if (
             scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
         ) and "scan_info" not in self.metadata:
-            self.metadata["scan_info"] = scan_info_secondary  # type: ignore
+            self.metadata["scan_info"] = scan_info_secondary
         self._log("After original_format & scan_info")
 
     def _parse_remainder_paren_groups(self) -> None:
         """Remove extraneous paren groups."""
         self._parse_items(REMAINDER_PAREN_GROUPS_RE)
-        remainders: str = self.metadata.get("remainders", "")  # type: ignore
+        remainders: str = self.metadata.get("remainders", "")  # type: ignore[reportAssignmentType]
         if remainders:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
@@ -239,7 +242,7 @@ class ComicFilenameParser:
 
         # Issue left on the end of string tokens
         if "issue" not in self.metadata and not year_end_matched:
-            exclude: str = self.metadata.get("year", "")  # type: ignore
+            exclude: str = self.metadata.get("year", "")  # type: ignore[reportAssignmentType]
             self._parse_items(ISSUE_END_RE, exclude=exclude)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
@@ -340,7 +343,8 @@ class ComicFilenameParser:
         """Add Remainders."""
         remainders = []
         for token in self._unparsed_path.split(TOKEN_DELIMETER):
-            if remainder := token.strip():
+            remainder = token.strip()
+            if remainder:
                 remainders.append(remainder)
 
         if remainders:
@@ -365,6 +369,7 @@ class ComicFilenameParser:
         # Copy volume into issue if it's all we have.
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
+            self._log("Using volume for issue.")
         self._log("After issue can be volume")
 
         self._add_remainders()

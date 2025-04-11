@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+# v0.2.5
+
+- Slightly expanded range of publishing format detection.
+
 # v0.2.4
 
 - Fix parsing negative issue numbers
