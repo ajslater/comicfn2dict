@@ -54,7 +54,7 @@ class ComicFilenameParser:
         """Lazily retrieve and memoize the key's location in the path."""
         if key == "remainders":
             return default
-        value: str = self.metadata.get(key, "")  # type: ignore[reportAssignmentType]
+        value: str = self.metadata.get(key, "")  # pyright: ignore[reportAssignmentType]
         if not value:
             return default
         if value not in self._path_indexes:
@@ -166,7 +166,7 @@ class ComicFilenameParser:
 
     def _alpha_month_to_numeric(self) -> None:
         """Translate alpha_month to numeric month."""
-        alpha_month: str = self.metadata.pop("alpha_month", "")  # type: ignore[reportAssignmentType]
+        alpha_month: str = self.metadata.pop("alpha_month", "")  # pyright: ignore[reportAssignmentType]
         if alpha_month:
             alpha_month = alpha_month.capitalize()
             # type: ignore[reportAttributeAccessIssue]
@@ -222,7 +222,7 @@ class ComicFilenameParser:
     def _parse_remainder_paren_groups(self) -> None:
         """Remove extraneous paren groups."""
         self._parse_items(REMAINDER_PAREN_GROUPS_RE)
-        remainders: str = self.metadata.get("remainders", "")  # type: ignore[reportAssignmentType]
+        remainders: str = self.metadata.get("remainders", "")  # pyright: ignore[reportAssignmentType]
         if remainders:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
@@ -242,7 +242,7 @@ class ComicFilenameParser:
 
         # Issue left on the end of string tokens
         if "issue" not in self.metadata and not year_end_matched:
-            exclude: str = self.metadata.get("year", "")  # type: ignore[reportAssignmentType]
+            exclude: str = self.metadata.get("year", "")  # pyright: ignore[reportAssignmentType]
             self._parse_items(ISSUE_END_RE, exclude=exclude)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)

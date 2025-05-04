@@ -28,16 +28,15 @@ comicfn2dict = "comicfn2dict.cli:main"
 
 [dependency-groups]
 dev = [
-  "neovim<1.0.0,>=0.3.1",
-  "djlint<2.0.0,>=1.19.17",
-  "hatchling<2.0.0,>=1.27.0",
-  "toml-cli<1.0.0,>=0.7.0",
+  "basedpyright~=1.29.1",
+  "codespell<3.0.0,>=2.1.0",
   "coverage[toml]<8.0,>=7.0",
   "deepdiff<9.0.0,>=8.0.1",
+  "hatchling<2.0.0,>=1.27.0",
+  "neovim<1.0.0,>=0.3.1",
   "pytest-cov<7.0.0,>=6.0.0",
   "pytest-gitignore<2.0,>=1.3",
-  "codespell<3.0.0,>=2.1.0",
-  "pyright<2.0.0,>=1.1.232",
+  "toml-cli<1.0.0,>=0.7.0",
   "radon[toml]<7.0.0,>=6.0.1",
   "ruff<1.0.0,>=0.11.2",
   "types-python-dateutil<3.0.0,>=2.8.19",
@@ -52,8 +51,35 @@ build-backend = "hatchling.build"
 include = ["comicfn2dict", "tests"]
 exclude = ["*/**/*~"]
 
+[tool.basedpyright]
+exclude = [
+  "**/.*",
+  "**/__pycache__",
+  "**/node_modules",
+  "dist",
+  "test-results",
+  "typings",
+  "vulture_whitelist.py",
+]
+pythonVersion = "3.10"
+failOnWarnings = false
+reportAny = false
+reportExplicitAny = false
+reportImportCycles = true
+reportIncompatibleUnannotatedOverride = true
+reportMissingParameterType = false
+reportMissingTypeArgument = false
+reportUnannotatedClassAttribute = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUnusedCallResult = false
+reportUnusedParameter = false # ruff does this 
+reportMissingTypeStubs = false
+
 [tool.codespell]
-skip = './cache,./dist,./test-results,.git,.mypy_cache,.pytest_cache,.venv*,node_modules,package-lock.json,uv.lock,run.spec'
+skip = ".*,*~,./dist,./node_modules,./package.json,./package-lock.json,./uv.lock,./test-results"
 builtin = 'clear,rare,code'
 check-hidden = true
 # Remove 'coverd' when this issue is resolved
@@ -79,29 +105,6 @@ omit = [
   "typings/*",
 ]
 
-[tool.pyright]
-exclude = [
-  "**/__pycache__",
-  "**/node_modules",
-  ".git",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".venv*",
-  "cache",
-  "dist",
-  "package-lock.json",
-  "uv.lock",
-  "test-results",
-  "typings",
-]
-useLibraryCodeForTypes = true
-reportMissingImports = true
-reportImportCycles = true
-pythonVersion = "3.10"
-pythonPlatform = "All"
-venvPath = "."
-venv = ".venv"
-
 [tool.pytest.ini_options]
 addopts = """
     --junit-xml=test-results/pytest/results.xml
@@ -117,10 +120,10 @@ junit_family = "xunit2"
 testpaths = "tests"
 
 [tool.radon]
-exclude = "*~,.git/*,.mypy_cache/*,.pytest_cache/*,.venv*,__pycache__/*,cache/*,dist/*,node_modules/*,test-results/*,typings/*"
+exclude = "*~,.*,.*/*,__pycache__/*,dist/*,node_modules/*,test-results/*,typings/*"
 
 [tool.ruff]
-extend-exclude = ["typings"]
+extend-exclude = ["**/.*", "**/__pycache__", "dist", "test-results", "typings"]
 target-version = "py310"
 
 [tool.ruff.lint]
@@ -216,14 +219,11 @@ ignore-overlong-task-comments = true
 
 [tool.vulture]
 exclude = [
-  ".git/",
-  ".mypy_cache/",
-  ".pytest_cache/",
-  "*.venv*",
-  "*/__pycache__",
+  "*/.*",
+  "*/__pycache__*",
+  "*/node_modules*",
   "dist/",
-  "node_modules/",
-  "test_results/",
+  "test-results/",
   "typings/",
 ]
 min_confidence = 61

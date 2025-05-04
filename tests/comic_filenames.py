@@ -434,8 +434,7 @@ FNS.update(
             "year": "1951",
             "month": "09",
             "remainders": (
-                "(downsized, lightened, 4 missing story pages "
-                "restored) (Shadowcat-Empire)",
+                "(downsized, lightened, 4 missing story pages restored) (Shadowcat-Empire)",
             ),
         },
         "Captain Science #001 (1950) The Beginning - nothing.cbz": {
@@ -451,8 +450,9 @@ FNS.update(
             "series": "Captain Science",
             "title": "cix-cbi",
         },
-        "Long Series Name v1 (2000) #001 "
-        "Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS_VOL,
+        (
+            "Long Series Name v1 (2000) #001 Title (TPB) (Releaser).cbz"
+        ): TEST_COMIC_FIELDS_VOL,
         "Long Series Name 001 (2000) (TPB-Releaser) Title.cbz": {
             "series": "Long Series Name",
             "issue": "001",
@@ -462,8 +462,10 @@ FNS.update(
             "remainders": ("Title",),
             "ext": "cbz",
         },
-        "Long Series Name Vol 1 "
-        "(2000) (TPB) (Releaser & Releaser-Releaser) Title.cbr": {
+        (
+            "Long Series Name Vol 1 "
+            "(2000) (TPB) (Releaser & Releaser-Releaser) Title.cbr"
+        ): {
             "series": "Long Series Name",
             "volume": "1",
             "issue": "1",
@@ -499,8 +501,10 @@ PARSE_FNS = MappingProxyType(FNS)
 SERIALIZE_FNS = MappingProxyType(
     {
         "Long Series Name #001 (2000) Title (TPB) (Releaser).cbz": TEST_COMIC_FIELDS,
-        "Long Series Name v1 #001 "
-        "(2000) Title (TPB) (Releaser & Releaser-Releaser).cbr": TEST_COMIC_VOL_ONLY,
+        (
+            "Long Series Name v1 #001 "
+            "(2000) Title (TPB) (Releaser & Releaser-Releaser).cbr"
+        ): TEST_COMIC_VOL_ONLY,
         "Series Name (2000-12-31).cbz": {
             "series": "Series Name",
             "year": "2000",

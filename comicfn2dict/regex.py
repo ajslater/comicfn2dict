@@ -105,7 +105,7 @@ REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
 
 ### DATES
 _YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
-_MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?" r")"
+_MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?)"
 _MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
 _MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
 _ALPHA_MONTH_RANGE = (
@@ -187,10 +187,10 @@ ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
-VOLUME_RE: Pattern = re_compile(
-    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"  # noqa: ISC003
-    r"(\W*" + _VOLUME_COUNT_RE_EXP + r")?" + r")"
+_VOLUME_RE_EXP = (
+    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)(\W*" + _VOLUME_COUNT_RE_EXP + r")?)"
 )
+VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )

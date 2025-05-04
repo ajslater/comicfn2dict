@@ -1,4 +1,11 @@
 """Comic Filename to Dict parser and unparser."""
 
-from .parse import ComicFilenameParser, comicfn2dict  # noqa: F401
-from .unparse import ComicFilenameSerializer, dict2comicfn  # noqa: F401
+from comicfn2dict.parse import ComicFilenameParser, comicfn2dict
+from comicfn2dict.unparse import ComicFilenameSerializer, dict2comicfn
+
+__all__ = (
+    "ComicFilenameParser",
+    "ComicFilenameSerializer",
+    "comicfn2dict",
+    "dict2comicfn",
+)
