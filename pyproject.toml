@@ -2,7 +2,7 @@
 authors = [{ name = "AJ Slater", email = "aj@slater.net" }]
 license = { text = "GPL-3.0-only" }
 requires-python = "<4.0,>=3.9"
-dependencies = []
+dependencies = ["typing-extensions>=4.13.2"]
 name = "comicfn2dict"
 version = "0.2.5"
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
