@@ -69,6 +69,7 @@ reportImportCycles = true
 reportIncompatibleUnannotatedOverride = true
 reportMissingParameterType = false
 reportMissingTypeArgument = false
+reportPrivateUsage = false # ruff does this
 reportUnannotatedClassAttribute = false
 reportUnknownArgumentType = false
 reportUnknownMemberType = false
