@@ -98,7 +98,7 @@ class ComicFilenameParser:
         self._log("After Clean Path")
 
     def _parse_items_update_metadata(
-        self, matches: Match, exclude: str, require_all: bool, first_only: bool
+        self, matches: Match, exclude: str, *, require_all: bool, first_only: bool
     ) -> bool:
         """Update Metadata."""
         matched_metadata = {}
@@ -117,7 +117,7 @@ class ComicFilenameParser:
         self.metadata.update(matched_metadata)
         return True
 
-    def _parse_items_pop_tokens(self, regex: Pattern, first_only: bool) -> None:
+    def _parse_items_pop_tokens(self, regex: Pattern, *, first_only: bool) -> None:
         """Pop tokens from unparsed path."""
         count = 1 if first_only else 0
         marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
@@ -131,10 +131,11 @@ class ComicFilenameParser:
     def _parse_items(
         self,
         regex: Pattern,
-        require_all: bool = False,  # noqa: FBT002
-        first_only: bool = False,  # noqa: FBT002
-        pop: bool = True,  # noqa: FBT002
         exclude: str = "",
+        *,
+        require_all: bool = False,
+        first_only: bool = False,
+        pop: bool = True,
     ) -> None:
         """Parse a value from the data list into metadata and alter the data list."""
         # Match
@@ -143,12 +144,12 @@ class ComicFilenameParser:
             return
 
         if not self._parse_items_update_metadata(
-            matches, exclude, require_all, first_only
+            matches, exclude, require_all=require_all, first_only=first_only
         ):
             return
 
         if pop:
-            self._parse_items_pop_tokens(regex, first_only)
+            self._parse_items_pop_tokens(regex, first_only=first_only)
 
     def _parse_issue(self) -> None:
         """Parse Issue."""
