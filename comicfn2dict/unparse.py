@@ -71,7 +71,7 @@ class ComicFilenameSerializer:
             self._log("After date", date)
             self.metadata = MappingProxyType({**self.metadata, "date": date})
 
-    def _tokenize_tag(self, tag: str, fmt: str | Callable) -> str:
+    def _tokenize_tag(self, tag: str, fmt: str | Callable[[str], str]) -> str:
         """Add tags to the string."""
         val = self.metadata.get(tag)
         if val in _EMPTY_VALUES:
