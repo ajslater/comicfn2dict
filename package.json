@@ -19,7 +19,8 @@
           "**/*.md"
         ],
         "options": {
-          "proseWrap": "always"
+          "proseWrap": "always",
+          "tabWidth": 4
         }
       },
       {
@@ -34,8 +35,8 @@
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.4",
-    "@eslint/json": "^0.12.0",
-    "@eslint/markdown": "^6.2.1",
+    "@eslint/json": "^0.13.0",
+    "@eslint/markdown": "^7.0.0",
     "@fsouza/prettierd": "^0.26.1",
     "@prettier/plugin-xml": "^3.0.0",
     "eslint": "^9.5.0",
@@ -60,7 +61,7 @@
     "eslint-plugin-yml": "^1.14.0",
     "prettier": "^3.2.5",
     "prettier-plugin-packagejson": "^2.4.4",
-    "prettier-plugin-sh": "^0.17.1",
+    "prettier-plugin-sh": "^0.18.0",
     "prettier-plugin-toml": "^2.0.1"
   }
 }
