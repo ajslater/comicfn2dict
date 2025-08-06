@@ -76,7 +76,7 @@ class ComicFilenameSerializer:
         val = self.metadata.get(tag)
         if val in _EMPTY_VALUES:
             return ""
-        final_fmt = fmt(val) if isinstance(fmt, Callable) else fmt
+        final_fmt: str = fmt(val) if isinstance(fmt, Callable) else fmt  # ty: ignore[call-non-callable, invalid-assignment]
         return final_fmt.format(val).strip()
 
     def _add_remainder(self) -> str:
