@@ -30,7 +30,7 @@ from comicfn2dict.regex import (
     REMAINDER_PAREN_GROUPS_RE,
     REMAINING_GROUP_RE,
     SCAN_INFO_SECONDARY_RE,
-    TOKEN_DELIMETER,
+    TOKEN_DELIMITER,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
     YEAR_END_RE,
@@ -54,7 +54,7 @@ class ComicFilenameParser:
         """Lazily retrieve and memoize the key's location in the path."""
         if key == "remainders":
             return default
-        value: str = self.metadata.get(key, "")  # pyright: ignore[reportAssignmentType]
+        value: str = self.metadata.get(key, "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
         if not value:
             return default
         if value not in self._path_indexes:
@@ -120,13 +120,13 @@ class ComicFilenameParser:
     def _parse_items_pop_tokens(self, regex: Pattern, *, first_only: bool) -> None:
         """Pop tokens from unparsed path."""
         count = 1 if first_only else 0
-        marked_str = regex.sub(TOKEN_DELIMETER, self._unparsed_path, count=count)
+        marked_str = regex.sub(TOKEN_DELIMITER, self._unparsed_path, count=count)
         parts = []
-        for part in marked_str.split(TOKEN_DELIMETER):
+        for part in marked_str.split(TOKEN_DELIMITER):
             token = part.strip()
             if token:
                 parts.append(token)
-        self._unparsed_path = TOKEN_DELIMETER.join(parts)
+        self._unparsed_path = TOKEN_DELIMITER.join(parts)
 
     def _parse_items(
         self,
@@ -167,7 +167,7 @@ class ComicFilenameParser:
 
     def _alpha_month_to_numeric(self) -> None:
         """Translate alpha_month to numeric month."""
-        alpha_month: str = self.metadata.pop("alpha_month", "")  # pyright: ignore[reportAssignmentType]
+        alpha_month: str = self.metadata.pop("alpha_month", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
         if alpha_month:
             alpha_month = alpha_month.capitalize()
             # type: ignore[reportAttributeAccessIssue]
@@ -223,7 +223,7 @@ class ComicFilenameParser:
     def _parse_remainder_paren_groups(self) -> None:
         """Remove extraneous paren groups."""
         self._parse_items(REMAINDER_PAREN_GROUPS_RE)
-        remainders: str = self.metadata.get("remainders", "")  # pyright: ignore[reportAssignmentType]
+        remainders: str = self.metadata.get("remainders", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
         if remainders:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
@@ -243,7 +243,7 @@ class ComicFilenameParser:
 
         # Issue left on the end of string tokens
         if "issue" not in self.metadata and not year_end_matched:
-            exclude: str = self.metadata.get("year", "")  # pyright: ignore[reportAssignmentType]
+            exclude: str = self.metadata.get("year", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
             self._parse_items(ISSUE_END_RE, exclude=exclude)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
@@ -328,7 +328,7 @@ class ComicFilenameParser:
 
         remaining_key_index = 0
         unused_tokens = []
-        tokens = self._unparsed_path.split(TOKEN_DELIMETER)
+        tokens = self._unparsed_path.split(TOKEN_DELIMITER)
         while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
             unused_token = self._parse_series_and_title_token(
                 remaining_key_index, tokens
@@ -343,7 +343,7 @@ class ComicFilenameParser:
     def _add_remainders(self) -> None:
         """Add Remainders."""
         remainders = []
-        for token in self._unparsed_path.split(TOKEN_DELIMETER):
+        for token in self._unparsed_path.split(TOKEN_DELIMITER):
             remainder = token.strip()
             if remainder:
                 remainders.append(remainder)

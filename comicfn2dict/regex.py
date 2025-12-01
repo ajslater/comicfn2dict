@@ -75,7 +75,7 @@ MONTHS: tuple[str, ...] = (
     r"Dec(ember)?",
 )
 
-TOKEN_DELIMETER: str = r"/"  # noqa: S105
+TOKEN_DELIMITER: str = r"/"  # noqa: S105
 
 
 def re_compile(exp: str, *, parenthify: bool = False) -> Pattern:
@@ -95,7 +95,7 @@ _DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
 REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
     {
         _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
-        _TOKEN_DIVIDERS_RE: (TOKEN_DELIMETER, 1),
+        _TOKEN_DIVIDERS_RE: (TOKEN_DELIMITER, 1),
         _SPACE_EQUIVALENT_RE: (r" ", 0),
         _EXTRA_SPACES_RE: (r" ", 0),
         _LEFT_PAREN_EQUIVALENT_RE: (r"(", 0),
