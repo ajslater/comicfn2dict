@@ -1,9 +1,8 @@
 __pycache__/
 __pypackages__/
 __snapshots__
-.cache
-.coverage
-.coverage.*
+.*cache
+.coverage*
 .dmypy.json
 .docker-token
 .DS_Store
