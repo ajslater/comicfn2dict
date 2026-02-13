@@ -111,7 +111,7 @@ class ComicFilenameSerializer:
 
         return fn
 
-    def __init__(self, metadata: Mapping, ext: bool = True, verbose: int = 0):  # noqa: FBT001,FBT002
+    def __init__(self, metadata: Mapping, ext: bool = True, verbose: int = 0) -> None:  # noqa: FBT001,FBT002
         """Initialize."""
         self.metadata: Mapping = metadata
         self._ext: bool = ext

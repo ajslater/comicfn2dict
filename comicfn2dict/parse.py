@@ -41,7 +41,7 @@ from comicfn2dict.regex import (
 if TYPE_CHECKING:
     from re import Match, Pattern
 
-_DATE_KEYS = frozenset({"year", "month", "day"})
+_DATE_KEYS: frozenset[str] = frozenset({"year", "month", "day"})
 _REMAINING_GROUP_KEYS = ("series", "title")
 # Ordered by commonness.
 _TITLE_PRECEDING_KEYS = ("issue", "year", "volume", "month")
@@ -227,7 +227,7 @@ class ComicFilenameParser:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
 
-    def _parse_ends_of_remaining_tokens(self):
+    def _parse_ends_of_remaining_tokens(self) -> None:
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
             self._parse_items(BOOK_VOLUME_RE)
@@ -376,7 +376,7 @@ class ComicFilenameParser:
 
         return self.metadata
 
-    def __init__(self, path: str | Path, verbose: int = 0):
+    def __init__(self, path: str | Path, verbose: int = 0) -> None:
         """Initialize."""
         self._debug: bool = verbose > 0
         # munge path
