@@ -12,7 +12,6 @@ bin/copy-new-files.sh "$DEVENV_SRC"/bin bin
 bin/copy-new-files.sh "$DEVENV_SRC"/cfg cfg
 bin/merge-dotfiles.sh "$DEVENV_SRC"/templates .
 uv run bin/merge_package_json.py "$DEVENV_SRC"/templates/package.json package.json -o package.json
-npm update
 fix_files=(package.json)
 if [ "${MERGE_PYTHON:-}" != "" ]; then
   uv run bin/merge_toml.py "$DEVENV_SRC"/templates/pyproject-template.toml pyproject.toml -o pyproject.toml
@@ -25,6 +24,7 @@ if [ "${MERGE_DOCS:-}" != "" ]; then
 fi
 
 # Fix Merged
+npm update
 npx eslint_d --cache --fix "${fix_files[@]}"
 npx prettier --write "${fix_files[@]}"
 
