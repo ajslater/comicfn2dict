@@ -33,7 +33,7 @@ dev = [
   "infer-types~=1.0.0",
   "neovim~=0.3",
   "pyclean~=3.1",
-  "semver~=3.0",
+  "semver~=3.0.4",
   "toml-cli~=0.7",
   "tomlkit~=0.14",
 ]
@@ -173,6 +173,24 @@ omit = [
   "typings/*",
   "vulture_ignorelist.py",
 ]
+
+[tool.pytest]
+minversion = "9.0"
+asyncio_mode = "strict"
+addopts = [
+  "--cov",
+  "--cov-append",
+  "--cov-report=html",
+  "--cov-report=term",
+  "--junit-xml=test-results/pytest/results.xml",
+  "-ra",
+  "--strict-config",
+  "--strict-markers",
+]
+junit_family = "xunit2"
+strict = true
+testpaths = "tests"
+pythonpath = ["."]
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"

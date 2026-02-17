@@ -23,10 +23,12 @@ jobs:
       - run:
           command: ./bin/docker-compose-exit.sh comicfn2dict-build
           name: Build comicfn2dict Dist
+      - run:
+          command: sudo chown -R circleci:circleci dist
+          name: chown dist
       - persist_to_workspace:
           paths:
             - ./README.md
-            - ./bin
             - ./dist
             - ./pyproject.toml
           root: .
