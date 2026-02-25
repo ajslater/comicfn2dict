@@ -44,6 +44,8 @@ lint = [
   "complexipy~=5.1",
   "djlint~=1.3.dev0",
   "icecream~=2.1",
+  "mbake~=1.4.5",
+  "pathspec~=1.0.4",
   "radon[toml]~=6.0",
   "ruff~=0.15",
   "types-python-dateutil~=2.9",
@@ -176,21 +178,21 @@ omit = [
 
 [tool.pytest]
 minversion = "9.0"
-asyncio_mode = "strict"
 addopts = [
   "--cov",
   "--cov-append",
   "--cov-report=html",
   "--cov-report=term",
   "--junit-xml=test-results/pytest/results.xml",
-  "-ra",
   "--strict-config",
   "--strict-markers",
+  "-ra",
 ]
 junit_family = "xunit2"
 strict = true
 testpaths = "tests"
 pythonpath = ["."]
+asyncio_mode = "strict"
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
