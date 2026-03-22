@@ -9,9 +9,9 @@ dependencies = ["typing-extensions~=4.13"]
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 keywords = ["cbr", "cbz", "comic", "filename"]
 readme = "README.md"
+requires-python = ">=3.10"
 license = { text = "GPL-3.0-only" }
 name = "comicfn2dict"
-requires-python = "<4.0,>=3.10"
 version = "0.2.5"
 [[project.authors]]
 name = "AJ Slater"
