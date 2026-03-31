@@ -4,6 +4,7 @@ __pypackages__/
 __snapshots__
 .*cache
 .circleci
+.claude
 .coverage*
 .dmypy.json
 .docker-token
