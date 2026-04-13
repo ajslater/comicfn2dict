@@ -1,21 +1,13 @@
 services:
-  comicfn2dict-builder:
-    build: .
-    image: comicfn2dict-builder
-    container_name: comicfn2dict-builder
-  comicfn2dict-lint:
-    image: comicfn2dict-builder
-    container_name: comicfn2dict-lint
-    command: make lint
-  comicfn2dict-test:
-    image: comicfn2dict-builder
-    container_name: comicfn2dict-test
-    command: make test
+  ci:
+    build:
+      context: .
+      target: comicfn2dict-ci
+    image: comicfn2dict-ci:ci
+    container_name: comicfn2dict-ci
     volumes:
-      - ./test-results/:/app/test-results/
-  comicfn2dict-build:
-    image: comicfn2dict-builder
-    container_name: comicfn2dict-build
-    volumes:
-      - ./dist/:/app/dist/
-    command: uv build
+      - ./test-results:/app/test-results
+      - ./dist:/app/dist
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: [sleep, infinity]
