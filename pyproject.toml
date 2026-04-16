@@ -190,25 +190,9 @@ addopts = [
 ]
 junit_family = "xunit2"
 strict = true
-testpaths = "tests"
+testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "strict"
-
-[tool.pytest.ini_options]
-asyncio_mode = "strict"
-addopts = """
-    --junit-xml=test-results/pytest/results.xml
-    -ra
-    --strict-config
-    --strict-markers
-    --cov
-    --cov-append
-    --cov-report=html
-    --cov-report=term
-"""
-junit_family = "xunit2"
-testpaths = "tests"
-pythonpath = ["."]
 
 [tool.radon]
 exclude = "*~,.*,.*/*,__pycache__/*,config/*,dist/*,frontend/*,node_modules/*,site/*,test-results/*,typings/*"
