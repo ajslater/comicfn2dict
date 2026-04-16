@@ -3,11 +3,13 @@ services:
     build:
       context: .
       target: comicfn2dict-ci
-    image: comicfn2dict-ci:ci
     container_name: comicfn2dict-ci
+    entrypoint:
+      - sleep
+      - infinity
+    environment:
+      - PYTHONUNBUFFERED=1
+    image: comicfn2dict-ci:ci
     volumes:
       - ./test-results:/app/test-results
       - ./dist:/app/dist
-    environment:
-      - PYTHONUNBUFFERED=1
-    entrypoint: [sleep, infinity]
