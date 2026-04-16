@@ -12,10 +12,13 @@ RUN apt-get clean \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# hadolint ignore=DL4006
+RUN curl -fsSL https://bun.com/install | bash
+
 WORKDIR /app
 
 COPY bin ./bin
-COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js bun.lock package.json package-lock.json pyproject.toml uv.lock Makefile ./
+COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js bun.lock package.json pyproject.toml uv.lock Makefile ./
 RUN make install-all
 
 COPY . .
