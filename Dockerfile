@@ -18,7 +18,7 @@ COPY --from=bun-source /usr/local/bin/bunx /usr/local/bin/bunx
 
 WORKDIR /app
 
-COPY .gitignore .prettierignore .remarkignore .shellcheckrc eslint.config.js bun.lock package.json pyproject.toml uv.lock Makefile ./
+COPY bun.lock package.json ./
 RUN bun install
 
 COPY . .
