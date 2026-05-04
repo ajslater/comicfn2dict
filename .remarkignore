@@ -3,6 +3,7 @@ __pycache__/
 __pypackages__/
 __snapshots__
 .*cache
+.*cache/
 .circleci
 .claude
 .coverage*
@@ -36,6 +37,7 @@ __snapshots__
 .spyproject
 .tox/
 .uv-publish-env
+.venv
 .venv*
 .webassets-cache
 *.cover
@@ -52,10 +54,12 @@ __snapshots__
 *.spec
 *~
 *$py.class
+*Dockerfile
 /node_modules
 /test-results
 build
 build/
+bun.lock
 celerybeat-schedule
 celerybeat.pid
 coverage.xml
@@ -90,7 +94,12 @@ sdist/
 share/python-wheels/
 target/
 test-results
+tests/**/*.json
+tests/**/*.xml
+tests/**/*.yaml
+tests/**/*.yml
 TODO.md
+uv.lock
 var/
 venv.bak/
 venv/
