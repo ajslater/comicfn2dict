@@ -1,6 +1,6 @@
 # 📰 comicfn2dict News
 
-# v0.3.0
+## v0.3.0
 
 - Fixes
     - Smarter dot handling for Mega.Dude and B.U.C.K.L.E.R. without compromising
@@ -12,28 +12,23 @@
     - New format patterns recognized.
     - Handle lots of FCBD naming patterns.
     - Word-number volumes are recognized: "Book One" through "Book Twenty"
-      become volume="1" through volume="20".
-    - Strip trailing "by &lt;Author Names&gt;" attribution from a series when
-      three or more tokens follow "by". Single-author tails like
-      "Werewolf By Night" or "Step By Bloody Step" are preserved.
-    - A single dash separator (" - " or "word- ") now splits a series and
-      title to align with the canonical ":" convention that filesystems
-      disallow. Multi-dash co-headlining names like
-      "Aquaman - Green Arrow - Deep Target" stay in the series.
-    - New corpus-validation tooling: an opt-in `tests/test_corpus_smoke.py`
-      exercises the parser against a real comic library, and
-      `bin/cross_validate_comicbox.py` diffs parser output against
-      `comicbox`-extracted ground truth.
+    - Strip trailing "by \<Author Names>" attribution from a series when three
+      or more tokens follow "by". Single-author tails like "Werepenguin By
+      Night" or "Step By Bloody Step" are preserved.
+    - A single dash separator (" - " or "word- ") now splits a series and title
+      to align with the canonical ":" convention that filesystems disallow.
+      Multi-dash co-headlining names like "Hanuman - Foolish One - Deep Target"
+      stay in the series.
 
-# v0.2.5
+## v0.2.5
 
 - Slightly expanded range of publishing format detection.
 
-# v0.2.4
+## v0.2.4
 
 - Fix parsing negative issue numbers
 
-# v0.2.3
+## v0.2.3
 
 - Dependencies security update
 
