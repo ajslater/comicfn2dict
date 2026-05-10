@@ -329,7 +329,7 @@ test = [
     { name = "coverage", extras = ["toml"], specifier = "~=7.0" },
     { name = "deepdiff", specifier = "~=9.0" },
     { name = "pytest-asyncio", specifier = "~=1.0" },
-    { name = "pytest-cov", specifier = "~=7.0" },
+    { name = "pytest-cov", specifier = "~=7.1" },
     { name = "pytest-gitignore", specifier = "~=1.3" },
 ]
 
