@@ -1,5 +1,17 @@
 # 📰 comicfn2dict News
 
+# v0.3.0
+
+- Fixes
+    - Smarter dot handling for Mega.Dude and B.U.C.K.L.E.R. without compromising
+      Dr. or 0.0.1 versions.
+    - Keep publishers from sometimes being mistaken for titles.
+    - Year (2022-) handled correctly
+    - Handle #Alpha as an issue indicator more properly.
+- Features
+    - New format patterns recognized.
+    - Handle lots of FCBD naming patterns.
+
 # v0.2.5
 
 - Slightly expanded range of publishing format detection.
