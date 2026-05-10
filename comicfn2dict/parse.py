@@ -11,15 +11,18 @@ from typing import TYPE_CHECKING
 
 from comicfn2dict.log import print_log_header
 from comicfn2dict.regex import (
+    ACRONYM_TRAIL_DOT_RE,
     ALPHA_MONTH_RANGE_RE,
     BOOK_VOLUME_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
+    ISSUE_LETTER_RE,
     ISSUE_NUMBER_RE,
     ISSUE_WITH_COUNT_RE,
+    LETTER_DOT_RE,
     MONTH_FIRST_DATE_RE,
-    NON_NUMBER_DOT_RE,
     ORIGINAL_FORMAT_NAKED_RE,
+    ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
     PUBLISHER_AMBIGUOUS_RE,
@@ -30,7 +33,8 @@ from comicfn2dict.regex import (
     REMAINDER_PAREN_GROUPS_RE,
     REMAINING_GROUP_RE,
     SCAN_INFO_SECONDARY_RE,
-    TOKEN_DELIMITER,
+    TITLE_PAREN_RE,
+    TOKEN_DELIMETER,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
     YEAR_END_RE,
@@ -156,6 +160,10 @@ class ComicFilenameParser:
         self._parse_items(ISSUE_NUMBER_RE)
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_WITH_COUNT_RE)
+        if "issue" not in self.metadata:
+            # Letter-only issues like "#Omega" or "#Alpha" — only fires when
+            # no digit-bearing issue regex matched.
+            self._parse_items(ISSUE_LETTER_RE)
         self._log("After Issue")
 
     def _parse_volume(self) -> None:
@@ -204,10 +212,18 @@ class ComicFilenameParser:
 
     def _parse_format_and_scan_info(self) -> None:
         """Format & Scan Info."""
+        # Try adjacent "(format) (scan_info)" pairs first so compound formats
+        # like "(digital-mobile) (Empire)" don't get split as
+        # format=digital + scan_info=mobile by the combined regex.
         self._parse_items(
-            ORIGINAL_FORMAT_SCAN_INFO_RE,
+            ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE,
             require_all=True,
         )
+        if "original_format" not in self.metadata:
+            self._parse_items(
+                ORIGINAL_FORMAT_SCAN_INFO_RE,
+                require_all=True,
+            )
         if "original_format" not in self.metadata:
             self._parse_items(
                 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
@@ -218,6 +234,21 @@ class ComicFilenameParser:
         ) and "scan_info" not in self.metadata:
             self.metadata["scan_info"] = scan_info_secondary
         self._log("After original_format & scan_info")
+
+    def _parse_paren_subtitle(self) -> None:
+        """
+        Promote a Title Case paren group to a title (FCBD-style subtitle).
+
+        Only fires when there's a single remaining paren group, to avoid
+        misclassifying scan_info releaser groups like "(Shadowcat-Empire)"
+        that follow another paren.
+        """
+        if "title" in self.metadata:
+            return
+        if self._unparsed_path.count("(") != 1:
+            return
+        self._parse_items(TITLE_PAREN_RE, first_only=True)
+        self._log("After paren subtitle")
 
     def _parse_remainder_paren_groups(self) -> None:
         """Remove extraneous paren groups."""
@@ -250,10 +281,13 @@ class ComicFilenameParser:
 
     def _parse_publisher(self) -> None:
         """Parse Publisher."""
-        # Pop single tokens so they don't end up titles.
-        self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
-        if "publisher" not in self.metadata:
-            self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)
+        # Pop publisher tokens so they don't end up as titles, but only if
+        # other tokens remain — otherwise the publisher IS the series
+        # (e.g. "Marvel #001 (2020).cbz").
+        if TOKEN_DELIMETER in self._unparsed_path:
+            self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
+            if "publisher" not in self.metadata:
+                self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)
         if "publisher" not in self.metadata:
             self._parse_items(PUBLISHER_UNAMBIGUOUS_RE, pop=False, first_only=True)
         if "publisher" not in self.metadata:
@@ -314,7 +348,13 @@ class ComicFilenameParser:
                 self.metadata["original_format"] = match.group()
                 return ""
 
-        value = NON_NUMBER_DOT_RE.sub(r"\1 \2", value)
+        # Acronyms produce overlapping matches (A.X.E. needs two passes)
+        while (new := LETTER_DOT_RE.sub(r"\1 \2", value)) != value:
+            value = new
+        # Drop trailing acronym dot ("A X E." -> "A X E", "S H I E L D." ->
+        # "S H I E L D"). Keeps "Dr.", "Inc.", "vs." since those aren't
+        # whitespace-bounded single letters.
+        value = ACRONYM_TRAIL_DOT_RE.sub(r"\1\2\3", value)
         value = self._grouping_operators_strip(value)
         if value:
             self.metadata[key] = value
@@ -361,6 +401,7 @@ class ComicFilenameParser:
         self._parse_volume()
         self._parse_dates()
         self._parse_format_and_scan_info()
+        self._parse_paren_subtitle()
         self._parse_remainder_paren_groups()
         self._parse_ends_of_remaining_tokens()
         self._parse_publisher()

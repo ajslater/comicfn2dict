@@ -32,20 +32,24 @@ ORIGINAL_FORMAT_PATTERNS: tuple[str, ...] = (
     r"Anthology",
     r"Annual",
     r"Annotation[s]?",
+    r"Ashcan",
     r"Box[-\s]Set",
-    r"Digital",
-    r"Digital\sChapter",
+    r"Digital(?:[-\s](?:Chapter|Mobile|Rip))?",
     r"Director[’']?s\sCut",  # noqa: RUF001
+    r"FCBD",
+    r"Free[-\s]Comic[-\s]Book[-\s]Day",
     r"Giant([-\s]Size(d)?)?",
     r"Graphic[-\s]Novel",
     r"GN",
     r"Hard[-\s]?Cover",
     r"HC",
     r"HD-Upscaled",
+    r"Infinity[-\s]Comic",
     r"King[-\s]Size(d)?",
     r"Limited[-\s]Series",
     r"Magazine",
     r"Manga",
+    r"Mini[-\s]Series",
     r"Omnibus",
     r"(One|1)[-\s]Shot",
     r"PDF([-\s]Rip)?",
@@ -92,6 +96,10 @@ _EXTRA_SPACES_RE = re_compile(r"\s\s+")
 _LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
 _RIGHT_PAREN_EQUIVALENT_RE = re_compile(r"\]")
 _DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
+# Open-ended series-year notation "(2022-)" and ranged "(2022-2024)" both
+# get normalised to "(2022)" so the dual-year logic in _parse_dates assigns
+# the start year as the volume.
+_VOLUME_YEAR_RANGE_RE = re_compile(r"\(([12]\d{3})-(?:[12]\d{3})?\)")
 REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
     {
         _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
@@ -100,6 +108,7 @@ REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
         _EXTRA_SPACES_RE: (r" ", 0),
         _LEFT_PAREN_EQUIVALENT_RE: (r"(", 0),
         _RIGHT_PAREN_EQUIVALENT_RE: (r")", 0),
+        _VOLUME_YEAR_RANGE_RE: (r"(\1)", 0),
     }
 )
 
@@ -170,6 +179,13 @@ ORIGINAL_FORMAT_SCAN_INFO_RE: Pattern = re_compile(
 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE: Pattern = re_compile(
     r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\).*\(" + _SCAN_INFO_RE_EXP + r"\)"
 )
+# Tight variant: format and scan_info in adjacent paren groups separated only
+# by whitespace. Tried before the combined-format pattern so compound formats
+# like "(digital-mobile) (Empire)" are recognised as format + scan_info
+# instead of being split into format=digital, scan_info=mobile.
+ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE: Pattern = re_compile(
+    r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\)\s+\(" + _SCAN_INFO_RE_EXP + r"\)"
+)
 
 SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
 
@@ -184,11 +200,15 @@ ISSUE_WITH_COUNT_RE: Pattern = re_compile(
 )
 ISSUE_END_RE: Pattern = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
+# Letter-only issue tokens explicitly marked with '#' (e.g. "#Omega",
+# "#Alpha"). The '#' prefix is required so we don't grab series words.
+ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
-_VOLUME_RE_EXP = (
-    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)(\W*" + _VOLUME_COUNT_RE_EXP + r")?)"
+VOLUME_RE: Pattern = re_compile(
+    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"
+    r"(\W*" + _VOLUME_COUNT_RE_EXP + r")?" + r")"
 )
 VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
@@ -214,6 +234,28 @@ PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
 REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(].*[^\)]")
-NON_NUMBER_DOT_RE: Pattern = re_compile(r"(\D)\.(\D)")
+# Replace dots between letters with spaces ("Avengers.Hulk" -> "Avengers Hulk",
+# "A.X.E." -> "A X E.") without disturbing dots adjacent to spaces or digits
+# ("vs. Marvel" stays put, "0.0.1" stays put). Applied iteratively because
+# acronyms have overlapping matches: A.X.E -> A X.E -> A X E.
+LETTER_DOT_RE: Pattern = re_compile(r"([a-zA-Z])\.([a-zA-Z])")
+# After LETTER_DOT_RE flattens an acronym, a trailing dot remains on the last
+# letter ("S.H.I.E.L.D." -> "S H I E L D."). Strip dots that follow a single
+# letter that's at the start of the value or preceded by whitespace, when the
+# dot is followed by whitespace or end-of-string. Multi-letter abbreviations
+# like "Dr.", "Inc.", or "vs." are not preceded by a space-bounded single
+# letter, so they're left alone.
+ACRONYM_TRAIL_DOT_RE: Pattern = re_compile(r"(^|\s)([A-Za-z])\.(\s|$)")
 
 REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"(?P<remainders>\(.*\))")
+# A leftover paren group whose content is Title Case, alphabetic-only (no
+# digits, no commas), used to promote FCBD-style subtitles like
+# "Free Comic Book Day 2015 (Avengers)" -> title="Avengers". Only fires when
+# it's the sole remaining paren group, which avoids confusing it with
+# scan_info releaser groups like "(Shadowcat-Empire)" that follow another
+# paren. The (?-i:...) inline group disables IGNORECASE on the leading
+# letter so lowercase content like "(repaired)" or "(extras only)" is not
+# promoted.
+TITLE_PAREN_RE: Pattern = re_compile(
+    r"\((?P<title>(?-i:[A-Z])[A-Za-z\s\-']*[A-Za-z])\)\s*$"
+)
