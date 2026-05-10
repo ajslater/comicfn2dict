@@ -23,4 +23,7 @@ RUN bun install
 
 COPY . .
 
-RUN make install-all
+RUN mkdir -p test-results dist
+
+# hadolint ignore=DL3059
+RUN make install
