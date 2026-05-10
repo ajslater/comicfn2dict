@@ -34,7 +34,7 @@ from comicfn2dict.regex import (
     REMAINING_GROUP_RE,
     SCAN_INFO_SECONDARY_RE,
     TITLE_PAREN_RE,
-    TOKEN_DELIMETER,
+    TOKEN_DELIMITER,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
     YEAR_END_RE,
@@ -284,7 +284,7 @@ class ComicFilenameParser:
         # Pop publisher tokens so they don't end up as titles, but only if
         # other tokens remain — otherwise the publisher IS the series
         # (e.g. "Marvel #001 (2020).cbz").
-        if TOKEN_DELIMETER in self._unparsed_path:
+        if TOKEN_DELIMITER in self._unparsed_path:
             self._parse_items(PUBLISHER_UNAMBIGUOUS_TOKEN_RE, first_only=True)
             if "publisher" not in self.metadata:
                 self._parse_items(PUBLISHER_AMBIGUOUS_TOKEN_RE, first_only=True)

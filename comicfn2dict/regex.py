@@ -206,9 +206,11 @@ ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
-VOLUME_RE: Pattern = re_compile(
-    r"(" + r"(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)"
-    r"(\W*" + _VOLUME_COUNT_RE_EXP + r")?" + r")"
+_VOLUME_RE_EXP = (
+    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)(\W*"
+    + _VOLUME_COUNT_RE_EXP
+    + r")?"
+    + r")"
 )
 VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
