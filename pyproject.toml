@@ -210,6 +210,7 @@ task-tags = ["TODO", "FIXME", "XXX", "http", "HACK"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["SLF001", "T201", "T203"]
+"bin/*.py" = ["BLE001", "D", "S108", "T201"]
 
 [tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true

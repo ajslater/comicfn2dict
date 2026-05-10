@@ -492,6 +492,225 @@ FNS.update(
     }
 )
 
+# Tests for 0.2.6 - corpus-derived edge cases. Filenames here are fictional;
+# they exercise structural patterns observed in real comic libraries without
+# naming any specific real-world series.
+FNS.update(
+    {
+        # Acronyms with dots: spaces between letters, trailing dot stripped.
+        "Z.O.O. - Wandering Heroes #001 (2022).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2022",
+            "series": "Z O O - Wandering Heroes",
+        },
+        # "vs." preserved instead of becoming "vs  "
+        "Knights Vs. Wizards #001 (2012).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2012",
+            "series": "Knights Vs. Wizards",
+        },
+        # Acronym mid-series with dash subtitle
+        "Detective and the F.O.E. - Tales of the Storm #001 (2022).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2022",
+            "series": "Detective and the F O E - Tales of the Storm",
+        },
+        # Standalone publisher token IS the series; don't strip it. (Mirage is
+        # in PUBLISHERS_AMBIGUOUS so the publisher detection still fires.)
+        "Mirage #001 (2020).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2020",
+            "publisher": "Mirage",
+            "series": "Mirage",
+        },
+        # Year-numbered annual: year stays in series, no separate year.
+        "Phantom Annual 1995 #001.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "series": "Phantom Annual 1995",
+        },
+        # Issue number begins with # so a 4-digit value is a valid issue
+        # even when it equals the year.
+        "Birthday Bash #1999 (1999).cbz": {
+            "ext": "cbz",
+            "issue": "1999",
+            "year": "1999",
+            "series": "Birthday Bash",
+        },
+        # Open-ended series-year notation "(2022-)" populates volume start.
+        "Cosmic Battles - Hermit (2022-) #001 (2023).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "volume": "2022",
+            "year": "2023",
+            "series": "Cosmic Battles - Hermit",
+        },
+        # Ranged series years "(2020-2024)" use the start year as volume.
+        "Some Series (2020-2024) #001 (2024).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "volume": "2020",
+            "year": "2024",
+            "series": "Some Series",
+        },
+        # Subtitle in parens before issue is preserved as a remainder.
+        "Quagmire (or how to fix everything) #001 (2023).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2023",
+            "series": "Quagmire",
+            "remainders": ("(or how to fix everything)",),
+        },
+        # FCBD-style "Series YYYY (Crossover)": Title-Case paren promoted to
+        # title when it's the only remaining paren group.
+        "Festival Showcase 2001 (Hidden Realm) #001 (2001).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2001",
+            "series": "Festival Showcase 2001",
+            "title": "Hidden Realm",
+        },
+        # Multi-word Title-Case paren with hyphens promotes too.
+        "Founder Showcase 2003 (Lost Continent) #001 (2003).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2003",
+            "series": "Founder Showcase 2003",
+            "title": "Lost Continent",
+        },
+        # Lowercase content in parens stays as remainder (not Title Case).
+        "Some Series (extras only) #001 (2024).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2024",
+            "series": "Some Series",
+            "remainders": ("(extras only)",),
+        },
+        # Explanatory paren without issue/year stays as remainder.
+        "Complete Sentinels (extras only).cbz": {
+            "ext": "cbz",
+            "series": "Complete Sentinels",
+            "remainders": ("(extras only)",),
+        },
+        # Seven-figure issue numbers (some publishers run anniversary stunts).
+        "Phantom #1000000 (1998).cbz": {
+            "ext": "cbz",
+            "issue": "1000000",
+            "year": "1998",
+            "series": "Phantom",
+        },
+        # Dotted issue suffixes (e.g. point-issue numbering: .LR / .MU / .HU).
+        "The Astonishing Bat-Knight #050.LR (2020).cbz": {
+            "ext": "cbz",
+            "issue": "050.LR",
+            "year": "2020",
+            "series": "The Astonishing Bat-Knight",
+        },
+        # Lowercase series name.
+        "neoworld #001 (2006).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2006",
+            "series": "neoworld",
+        },
+        # Leetspeak / numbers inside series name.
+        "n3twrk22 #001 (2023).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2023",
+            "series": "n3twrk22",
+        },
+        # All-numeric series.
+        "451 (1999) #001.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "1999",
+            "series": "451",
+        },
+        # Apostrophes preserved.
+        "Demon's Wrath - Crimson Five #002 (2022).cbz": {
+            "ext": "cbz",
+            "issue": "002",
+            "year": "2022",
+            "series": "Demon's Wrath - Crimson Five",
+        },
+        # Page-count or duplicate marker after year stays as remainder.
+        "Phantom #080 (2019) (1).cbz": {
+            "ext": "cbz",
+            "issue": "080",
+            "year": "2019",
+            "series": "Phantom",
+            "remainders": ("(1)",),
+        },
+        # Ampersand in series.
+        "Phantom & the Void #27AU.cbz": {
+            "ext": "cbz",
+            "issue": "27AU",
+            "series": "Phantom & the Void",
+        },
+        # Plus sign in series.
+        "The Pure + The Fallen #001 (2014).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2014",
+            "series": "The Pure + The Fallen",
+        },
+        # Unicode en-dash (U+2013) in series; preserved.
+        "Twilight Crisis - Worlds Without a Hero League – Phantom #001 (2023).cbz": {  # noqa: RUF001
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2023",
+            "series": "Twilight Crisis - Worlds Without a Hero League – Phantom",  # noqa: RUF001
+        },
+        # Ellipsis in series.
+        "Cosmo Town - That Was Then… Special #001 (2022).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2022",
+            "series": "Cosmo Town - That Was Then… Special",
+        },
+        # Symbol-substituted profanity in series.
+        "The Lady Who F#&%ed Up Space #001 (2020).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2020",
+            "series": "The Lady Who F#&%ed Up Space",
+        },
+        # Single-character filename — falls into remainders, no series detected.
+        "a.cbz": {
+            "ext": "cbz",
+            "remainders": ("a",),
+        },
+        # Pure-numeric stem.
+        "97.cbz": {
+            "ext": "cbz",
+            "series": "97",
+        },
+        # Hyphenated single-word stem (no issue/year).
+        "case-test.cbz": {
+            "ext": "cbz",
+            "series": "case-test",
+        },
+        # Letter-only issue identifier with explicit '#' marker.
+        "Crimson Saga #Omega (2022).cbz": {
+            "ext": "cbz",
+            "issue": "Omega",
+            "year": "2022",
+            "series": "Crimson Saga",
+        },
+        "Realm X #X (2000).cbz": {
+            "ext": "cbz",
+            "issue": "X",
+            "year": "2000",
+            "series": "Realm X",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)
