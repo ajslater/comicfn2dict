@@ -14,6 +14,8 @@ from comicfn2dict.regex import (
     ACRONYM_TRAIL_DOT_RE,
     ALPHA_MONTH_RANGE_RE,
     BOOK_VOLUME_RE,
+    BY_AUTHOR_RE,
+    DASH_SEPARATOR_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
     ISSUE_LETTER_RE,
@@ -37,6 +39,7 @@ from comicfn2dict.regex import (
     TOKEN_DELIMITER,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
+    WORD_NUMBER_TO_DIGIT,
     YEAR_END_RE,
     YEAR_FIRST_DATE_RE,
     YEAR_TOKEN_RE,
@@ -262,6 +265,13 @@ class ComicFilenameParser:
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
             self._parse_items(BOOK_VOLUME_RE)
+            # BOOK_VOLUME_RE accepts word-number volumes ("Book One"); convert
+            # them to digit strings so downstream consumers see "1" not "one".
+            volume = self.metadata.get("volume", "")
+            if isinstance(volume, str) and (
+                digit := WORD_NUMBER_TO_DIGIT.get(volume.lower())
+            ):
+                self.metadata["volume"] = digit
             self._log("After original_format & scan_info")
 
         # Years left on the end of string tokens
@@ -355,6 +365,9 @@ class ComicFilenameParser:
         # "S H I E L D"). Keeps "Dr.", "Inc.", "vs." since those aren't
         # whitespace-bounded single letters.
         value = ACRONYM_TRAIL_DOT_RE.sub(r"\1\2\3", value)
+        # Drop "by Author1 (& Author2)" attribution from series names.
+        if key == "series":
+            value = BY_AUTHOR_RE.sub("", value)
         value = self._grouping_operators_strip(value)
         if value:
             self.metadata[key] = value
@@ -365,9 +378,22 @@ class ComicFilenameParser:
         if not self._unparsed_path:
             return
 
+        tokens = self._unparsed_path.split(TOKEN_DELIMITER)
+        # Promote a single dash separator in the only remaining token to a
+        # series/title boundary. Catches the common convention where the
+        # canonical ":" is replaced with " - " (or "word- ") because
+        # filesystems disallow ":". Restricted to the single-token case so
+        # multi-dash co-headlining like "Aquaman - Green Arrow - Deep Target"
+        # stays in the series and so a later token already destined for the
+        # title isn't displaced.
+        if "title" not in self.metadata and len(tokens) == 1:
+            matches = DASH_SEPARATOR_RE.findall(tokens[0])
+            if len(matches) == 1:
+                head, tail = DASH_SEPARATOR_RE.split(tokens[0], maxsplit=1)
+                tokens = [head, tail]
+
         remaining_key_index = 0
         unused_tokens = []
-        tokens = self._unparsed_path.split(TOKEN_DELIMITER)
         while tokens and remaining_key_index < len(_REMAINING_GROUP_KEYS):
             unused_token = self._parse_series_and_title_token(
                 remaining_key_index, tokens

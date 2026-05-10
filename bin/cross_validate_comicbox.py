@@ -25,11 +25,18 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from comicbox.box import (  # pyright: ignore[reportMissingImports], #ty: ignore[unresolved-import]
+# When run as `python bin/cross_validate_comicbox.py`, Python doesn't put the
+# project root on sys.path[0], so a comicfn2dict bundled in the comicbox
+# environment can shadow the editable install. Force the project root to the
+# very front so we always exercise the parser under development.
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+sys.path[:0] = [_PROJECT_ROOT]
+
+from comicbox.box import (  # noqa: E402  # pyright: ignore[reportMissingImports], #ty: ignore[unresolved-import]
     Comicbox,
 )
 
-from comicfn2dict import comicfn2dict
+from comicfn2dict import comicfn2dict  # noqa: E402
 
 _COMIC_SUFFIXES = frozenset({".cbz", ".cbr", ".cbt"})
 _DEFAULT_DIRS = (
@@ -82,6 +89,22 @@ def _parser_output(filename: str) -> dict[str, str]:
 
 
 def _diff(truth: dict[str, str], parsed: dict[str, str]) -> dict[str, tuple[str, str]]:
+    # Comicbox stores colon-joined names like "Stillwater: The Escape" in the
+    # series field; if the parser split that into series + title, treat it as
+    # an equivalent match for the series check (and skip title since comicbox
+    # didn't supply one).
+    truth_series = truth.get("series", "")
+    parsed_series = parsed.get("series", "")
+    parsed_title = parsed.get("title", "")
+    if (
+        ":" in truth_series
+        and parsed_series
+        and parsed_title
+        and truth_series == f"{parsed_series}: {parsed_title}"
+    ):
+        truth = {k: v for k, v in truth.items() if k not in ("series", "title")}
+        parsed = {k: v for k, v in parsed.items() if k not in ("series", "title")}
+
     diff: dict[str, tuple[str, str]] = {}
     for key in _COMPARE_KEYS:
         t = truth.get(key, "")

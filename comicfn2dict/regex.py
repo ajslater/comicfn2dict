@@ -216,7 +216,37 @@ VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )
-BOOK_VOLUME_RE: Pattern = re_compile(r"(?P<title>" + r"book\s*(?P<volume>\d+)" + r")")
+# Word-number volumes: "Book One" through "Book Twenty". The match for
+# the volume captures the word; ComicFilenameParser._normalize_volume
+# converts it to a digit string after parsing.
+WORD_NUMBERS: tuple[str, ...] = (
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+    "twenty",
+)
+WORD_NUMBER_TO_DIGIT: MappingProxyType[str, str] = MappingProxyType(
+    {word: str(index + 1) for index, word in enumerate(WORD_NUMBERS)}
+)
+BOOK_VOLUME_RE: Pattern = re_compile(
+    r"(?P<title>book\s*(?P<volume>\d+|" + r"|".join(WORD_NUMBERS) + r"))\b"
+)
 
 # Publisher
 _PUBLISHER_UNAMBIGUOUS_RE_EXP = (
@@ -248,6 +278,22 @@ LETTER_DOT_RE: Pattern = re_compile(r"([a-zA-Z])\.([a-zA-Z])")
 # like "Dr.", "Inc.", or "vs." are not preceded by a space-bounded single
 # letter, so they're left alone.
 ACRONYM_TRAIL_DOT_RE: Pattern = re_compile(r"(^|\s)([A-Za-z])\.(\s|$)")
+
+# Strip a trailing "by Author Names" attribution from a series. Requires at
+# least three whitespace-delimited tokens after "by" so legitimate names like
+# "Step By Bloody Step" (one trailing token), "Werewolf By Night" (one
+# trailing token), or "Thor was Raised by Frost Giants" (two trailing tokens)
+# stay intact. Three-token trails cover the common comic-credits forms:
+# "by First Middle Last", "by Author1 & Author2", "by Author1 and Author2".
+BY_AUTHOR_RE: Pattern = re_compile(r"\s+by\s+\S+\s+\S+\s+\S+(?:\s+\S+)*\s*$")
+
+# Either " - " or "word- " is treated as a series/title separator when it
+# occurs exactly once in the remaining token. The "word- " variant catches
+# filenames where the user typed "Captain America- Reborn" (no space before
+# the dash) as a substitute for the canonical "Captain America: Reborn".
+# Hyphens inside compound words like "X-Men" don't match because they aren't
+# followed by whitespace.
+DASH_SEPARATOR_RE: Pattern = re_compile(r"(?:(?<=\w)-\s+|\s+-\s+)(?=\S)")
 
 REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"(?P<remainders>\(.*\))")
 # A leftover paren group whose content is Title Case, alphabetic-only (no
