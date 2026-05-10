@@ -117,8 +117,11 @@ FNS = {
         "scan_info": "Zone-Empire",
         "title": "Last Bullet",
     },
+    # 0.3.0: a single " - " in the series text is now promoted to a
+    # series/title separator.
     "Jeremy John - Not A Title (2017) (digital-Minutement).cbz": {
-        "series": "Jeremy John - Not A Title",
+        "series": "Jeremy John",
+        "title": "Not A Title",
         "year": "2017",
         "ext": "cbz",
         "original_format": "digital",
@@ -239,13 +242,17 @@ FNS = {
 # Tests for 0.2.0
 FNS.update(
     {
-        # Philosopy change regarding dashes.
+        # 0.3.0: a single " - " in the series text is now promoted to a
+        # series/title separator (filenames replace ":" with "-" because of
+        # filesystem constraints, so this re-aligns with canonical metadata).
         "Bardude - The Last Thing I Remember.cbz": {
-            "series": "Bardude - The Last Thing I Remember",
+            "series": "Bardude",
+            "title": "The Last Thing I Remember",
             "ext": "cbz",
         },
         "Drunkguy - The Man Without Fear - 01.cbz": {
-            "series": "Drunkguy - The Man Without Fear",
+            "series": "Drunkguy",
+            "title": "The Man Without Fear",
             "issue": "01",
             "ext": "cbz",
         },
@@ -290,10 +297,12 @@ FNS.update(
             "issue_count": "07",
         },
         # CT only separates this into a title if the '-' is attached to the previous word eg 'aquaman- Green Arrow'. @bpepple opened a ticket for this https://github.com/ajslater/comicfn2dict/issues/1 already
+        # 0.3.0: single " - " now promoted to series/title separator.
         "Batman_-_Superman_#020_(2021).cbr": {
             "ext": "cbr",
             "issue": "020",
-            "series": "Batman - Superman",
+            "series": "Batman",
+            "title": "Superman",
             "year": "2021",
         },
         # Publishers like to re-print some of their annuals using this format for the year
@@ -314,16 +323,19 @@ FNS.update(
             "series": "Star Wars - War of the Bounty Hunters - IG-88",
             "year": "2021",
         },
+        # 0.3.0: single " - " now promoted to series/title separator.
         "Free Comic Book Day - Avengers.Hulk (2021).cbz": {
             "ext": "cbz",
-            "series": "Free Comic Book Day - Avengers Hulk",
+            "series": "Free Comic Book Day",
+            "title": "Avengers Hulk",
             "year": "2021",
         },
         # CT assumes the volume is also the issue number if it can't find an issue number
+        # 0.3.0: "by Author" attribution stripped from series (3+ trailing tokens).
         "Avengers By Brian Michael Bendis volume 03 (2013).cbz": {
             "ext": "cbz",
             "issue": "03",
-            "series": "Avengers By Brian Michael Bendis",
+            "series": "Avengers",
             "volume": "03",
             "year": "2013",
         },
@@ -500,11 +512,13 @@ FNS.update(
 FNS.update(
     {
         # Acronyms with dots: spaces between letters, trailing dot stripped.
+        # 0.3.0: single " - " also splits series and title.
         "Z.O.O. - Wandering Heroes #001 (2022).cbz": {
             "ext": "cbz",
             "issue": "001",
             "year": "2022",
-            "series": "Z O O - Wandering Heroes",
+            "series": "Z O O",
+            "title": "Wandering Heroes",
         },
         # "vs." preserved instead of becoming "vs  "
         "Knights Vs. Wizards #001 (2012).cbz": {
@@ -513,12 +527,13 @@ FNS.update(
             "year": "2012",
             "series": "Knights Vs. Wizards",
         },
-        # Acronym mid-series with dash subtitle
+        # Acronym mid-series with dash subtitle: 0.3.0 splits at " - ".
         "Detective and the F.O.E. - Tales of the Storm #001 (2022).cbz": {
             "ext": "cbz",
             "issue": "001",
             "year": "2022",
-            "series": "Detective and the F O E - Tales of the Storm",
+            "series": "Detective and the F O E",
+            "title": "Tales of the Storm",
         },
         # Standalone publisher token IS the series; don't strip it. (Mirage is
         # in PUBLISHERS_AMBIGUOUS so the publisher detection still fires.)
@@ -544,12 +559,14 @@ FNS.update(
             "series": "Birthday Bash",
         },
         # Open-ended series-year notation "(2022-)" populates volume start.
+        # 0.3.0 also splits the single " - " into series + title.
         "Cosmic Battles - Hermit (2022-) #001 (2023).cbz": {
             "ext": "cbz",
             "issue": "001",
             "volume": "2022",
             "year": "2023",
-            "series": "Cosmic Battles - Hermit",
+            "series": "Cosmic Battles",
+            "title": "Hermit",
         },
         # Ranged series years "(2020-2024)" use the start year as volume.
         "Some Series (2020-2024) #001 (2024).cbz": {
@@ -633,12 +650,13 @@ FNS.update(
             "year": "1999",
             "series": "451",
         },
-        # Apostrophes preserved.
+        # Apostrophes preserved; 0.3.0 also splits the single " - ".
         "Demon's Wrath - Crimson Five #002 (2022).cbz": {
             "ext": "cbz",
             "issue": "002",
             "year": "2022",
-            "series": "Demon's Wrath - Crimson Five",
+            "series": "Demon's Wrath",
+            "title": "Crimson Five",
         },
         # Page-count or duplicate marker after year stays as remainder.
         "Phantom #080 (2019) (1).cbz": {
@@ -661,19 +679,22 @@ FNS.update(
             "year": "2014",
             "series": "The Pure + The Fallen",
         },
-        # Unicode en-dash (U+2013) in series; preserved.
+        # Unicode en-dash (U+2013) inside the title is preserved; the regular
+        # " - " (single occurrence) splits series and title in 0.3.0.
         "Twilight Crisis - Worlds Without a Hero League – Phantom #001 (2023).cbz": {  # noqa: RUF001
             "ext": "cbz",
             "issue": "001",
             "year": "2023",
-            "series": "Twilight Crisis - Worlds Without a Hero League – Phantom",  # noqa: RUF001
+            "series": "Twilight Crisis",
+            "title": "Worlds Without a Hero League – Phantom",  # noqa: RUF001
         },
-        # Ellipsis in series.
+        # Ellipsis inside the title is preserved; 0.3.0 splits the single " - ".
         "Cosmo Town - That Was Then… Special #001 (2022).cbz": {
             "ext": "cbz",
             "issue": "001",
             "year": "2022",
-            "series": "Cosmo Town - That Was Then… Special",
+            "series": "Cosmo Town",
+            "title": "That Was Then… Special",
         },
         # Symbol-substituted profanity in series.
         "The Lady Who F#&%ed Up Space #001 (2020).cbz": {
@@ -709,6 +730,124 @@ FNS.update(
             "issue": "X",
             "year": "2000",
             "series": "Realm X",
+        },
+    }
+)
+
+# Tests for 0.3.0 - new heuristics for word-number volumes, "by Author"
+# attribution stripping, and single-dash title separation.
+FNS.update(
+    {
+        # Word-number volume "Book One" -> volume="1" (digit-normalised),
+        # title="Book One", series stripped of the volume token. Issue is
+        # backfilled from volume when no issue is detected.
+        "Brick Walker's Beanbag Book One.cbz": {
+            "ext": "cbz",
+            "series": "Brick Walker's Beanbag",
+            "title": "Book One",
+            "volume": "1",
+            "issue": "1",
+        },
+        # Higher word-number volumes resolve correctly too.
+        "Some Anthology Book Twelve (2024).cbz": {
+            "ext": "cbz",
+            "year": "2024",
+            "series": "Some Anthology",
+            "title": "Book Twelve",
+            "volume": "12",
+            "issue": "12",
+        },
+        # Digit "Book NN" still works alongside the new word-number support.
+        "Boundwater Book 03 (2020).cbr": {
+            "ext": "cbr",
+            "year": "2020",
+            "series": "Boundwater",
+            "title": "Book 03",
+            "volume": "03",
+            "issue": "03",
+        },
+        # "by Author1 & Author2" attribution (3 trailing tokens including the
+        # ampersand) is stripped from the series.
+        "Quietwater by Lattice & Galway #011.cbz": {
+            "ext": "cbz",
+            "issue": "011",
+            "series": "Quietwater",
+        },
+        # "By Author1 Middle Last" (3 trailing tokens, capitalised "By") also
+        # strips.
+        "Champions By Carla Donahue Jones volume 03 (2013).cbz": {
+            "ext": "cbz",
+            "issue": "03",
+            "series": "Champions",
+            "volume": "03",
+            "year": "2013",
+        },
+        # "by Author1 and Author2" with the literal "and" connector strips
+        # because there are 3 trailing tokens after "by".
+        "Fable Tales by Glass and Hammer #001 (2015).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2015",
+            "series": "Fable Tales",
+        },
+        # Two trailing tokens (no connector) is intentionally left alone so
+        # legitimate series like "Step By Bloody Step" (single trailing
+        # token) and ambiguous "Story by First Last" (two trailing tokens)
+        # aren't stripped.
+        "Story by First Last #001 (2024).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2024",
+            "series": "Story by First Last",
+        },
+        # Series whose name legitimately contains "by" (as a non-attribution
+        # word) with one trailing token is preserved.
+        "Watchman By Moonlight #001 (2023).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2023",
+            "series": "Watchman By Moonlight",
+        },
+        # Multi-dash co-headlining stays intact (more than one " - " keeps the
+        # whole phrase as the series).
+        "Sea King - Bow Hunter - Deep Object #001 (2021).cbr": {
+            "ext": "cbr",
+            "issue": "001",
+            "year": "2021",
+            "series": "Sea King - Bow Hunter - Deep Object",
+        },
+        # Single " - " in a series with no other delimiters splits into
+        # series and title.
+        "Hidden Atlas - The Cartographer #001 (2024).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2024",
+            "series": "Hidden Atlas",
+            "title": "The Cartographer",
+        },
+        # "word- " (no space before the dash) is also recognised as a single
+        # title separator, matching ComicTagger's convention.
+        "Knight Hour- Repealed #001 (2009).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2009",
+            "series": "Knight Hour",
+            "title": "Repealed",
+        },
+        # Mixed dash forms: a "word- " plus a separate " - " counts as TWO
+        # separators, so the whole phrase stays in the series.
+        "Murky Realm- The Roster - Hidden Brigade #001 (2009).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2009",
+            "series": "Murky Realm- The Roster - Hidden Brigade",
+        },
+        # Hyphens inside compound words (no whitespace adjacent) never split.
+        "Fox-Hare #001 (2010).cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2010",
+            "series": "Fox-Hare",
         },
     }
 )
