@@ -96,6 +96,7 @@ source-include = [
   "frontend/**",
   "img/**",
   "mkdocks.yml",
+  "mkdocs.yml",
   "mock_comics/**",
   "package-lock.json",
   "package.json",
@@ -113,7 +114,6 @@ exclude = [
   "**/node_modules",
   "dist",
   "frontend",
-  "site",
   "site",
   "test-results",
   "typings",
@@ -141,13 +141,15 @@ reportUnusedParameter = false
 [tool.codespell]
 builtin = "clear,code,rare"
 check-hidden = true
-ignore-words-list = "coverd,falsy,jupyter,ro,searchd,searched,thead,versio,ws"
-skip = "*~,.*,./bun.lock,./dist,./node_modules,./package-lock.json,./package.json,./test-results,./uv.lock,/uv.lock"
+ignore-words-list = "coverd,crate,falsy,iff,jupyter,ro,searchd,searched,thead,versio,wan,warmup,ws"
+skip = "*.svg,*~,.*,.*/*,./bun.lock,./dist,./node_modules,./package-lock.json,./package.json,./test-results,./uv.lock,/uv.lock,__pycache__,bun.lock,dist,htmlcov,node_modules,package.json,test-results,typings,uv.lock"
 
 [tool.complexipy]
 failed = true
 paths = ["comicfn2dict", "tests"]
 exclude = [
+  "**/.*",
+  "**/__pycache__",
   "*/.*",
   "frontend",
   "node_modules",
@@ -196,7 +198,7 @@ pythonpath = ["."]
 asyncio_mode = "strict"
 
 [tool.radon]
-exclude = "*~,.*,.*/*,__pycache__/*,config/*,dist/*,frontend/*,node_modules/*,site/*,test-results/*,typings/*"
+exclude = "*~,.*,.*/*,__pycache__/*,config/*,dist/*,frontend/*,node_modules/*,site/*,test-results/*,typings/*,vulture_ignorelist.py"
 dev = ["icecream~=2.1", "neovim~=0.3", "pyclean~=3.1", "toml-cli~=0.7"]
 lint = [
   "basedpyright~=1.30",
@@ -331,13 +333,11 @@ exclude = [
   "vulture_ignorelist.py",
 ]
 
-[tool.typos.default.extend-words]
-bookmarkd = "bookmarkd"
-coverd = "coverd"
-versio = "versio"
-
 [tool.vulture]
 exclude = [
+  "**/.*",
+  "**/__pycache__",
+  "**/node_modules",
   "*/.*",
   "*/__pycache__*",
   "*/node_modules*",
@@ -350,3 +350,8 @@ exclude = [
 ]
 min_confidence = 61
 sort_by_size = true
+
+[tool.typos.default.extend-words]
+bookmarkd = "bookmarkd"
+coverd = "coverd"
+versio = "versio"
