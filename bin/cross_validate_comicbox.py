@@ -25,7 +25,9 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from comicbox.box import Comicbox  # type: ignore[import-not-found]
+from comicbox.box import (  # pyright: ignore[reportMissingImports], #ty: ignore[unresolved-import]
+    Comicbox,
+)
 
 from comicfn2dict import comicfn2dict
 
