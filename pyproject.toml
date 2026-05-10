@@ -301,12 +301,18 @@ extend-select = [
 external = ["V101"]
 task-tags = ["FIXME", "HACK", "TODO", "XXX", "http"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["D101", "D102", "SLF001", "T201", "T203"]
-"bin/*.py" = ["BLE001", "D", "S108", "T201"]
+[tool.ruff.lint.flake8-self]
+ignore-names = ["_meta"]
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
 
 [tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D101", "D102", "SLF001", "T201", "T203"]
+"bin/*.py" = ["BLE001", "D", "S108", "T201"]
 
 [tool.ruff.lint.pylint]
 max-args = 8
