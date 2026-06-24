@@ -849,6 +849,17 @@ FNS.update(
             "year": "2010",
             "series": "Fox-Hare",
         },
+        # Sweet Shop PDF file.
+        "radiant-black-issue-1.pdf": {
+            "ext": "pdf",
+            "issue": "1",
+            "series": "radiant black",
+        },
+        "criminal-issue-1.pdf": {
+            "ext": "pdf",
+            "issue": "1",
+            "series": "criminal",
+        },
     }
 )
 
