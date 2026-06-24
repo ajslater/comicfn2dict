@@ -203,6 +203,10 @@ ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s
 # Letter-only issue tokens explicitly marked with '#' (e.g. "#Omega",
 # "#Alpha"). The '#' prefix is required so we don't grab series words.
 ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")
+# "issue" as an explicit word/hyphen-delimited keyword, e.g. "series-issue-1.pdf"
+# or "Series Name Issue 12". The leading [-\s] is consumed to avoid leaving an
+# orphan separator in the token.
+ISSUE_KEYWORD_RE: Pattern = re_compile(r"[-\s]issue[-\s]+(?P<issue>\d+(?:\.\d+)?)")
 
 # Volume
 _VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"

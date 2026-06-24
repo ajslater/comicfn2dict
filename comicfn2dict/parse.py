@@ -18,6 +18,7 @@ from comicfn2dict.regex import (
     DASH_SEPARATOR_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
+    ISSUE_KEYWORD_RE,
     ISSUE_LETTER_RE,
     ISSUE_NUMBER_RE,
     ISSUE_WITH_COUNT_RE,
@@ -167,6 +168,14 @@ class ComicFilenameParser:
             # Letter-only issues like "#Omega" or "#Alpha" — only fires when
             # no digit-bearing issue regex matched.
             self._parse_items(ISSUE_LETTER_RE)
+        if "issue" not in self.metadata:
+            # "issue" as an explicit keyword, e.g. Sweet Shop "series-issue-1.pdf".
+            # When the entire path is hyphen-delimited (no spaces), also convert
+            # the remaining hyphens to spaces so the series name round-trips correctly.
+            _all_hyphens = " " not in self._unparsed_path
+            self._parse_items(ISSUE_KEYWORD_RE, first_only=True)
+            if "issue" in self.metadata and _all_hyphens:
+                self._unparsed_path = self._unparsed_path.replace("-", " ").strip()
         self._log("After Issue")
 
     def _parse_volume(self) -> None:
