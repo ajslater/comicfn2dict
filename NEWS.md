@@ -1,5 +1,11 @@
 # 📰 comicfn2dict News
 
+## v0.3.1
+
+- Features
+
+    - Add Sweet Shop kebab case filename format. Courtesy of @bpepple.
+
 ## v0.3.0
 
 - Fixes

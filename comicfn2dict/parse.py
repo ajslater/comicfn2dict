@@ -190,7 +190,7 @@ class ComicFilenameParser:
         alpha_month: str = self.metadata.pop("alpha_month", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
         if alpha_month:
             alpha_month = alpha_month.capitalize()
-            for index, abbr in enumerate(month_abbr):
+            for index, abbr in enumerate(month_abbr[:]):
                 if abbr and alpha_month.startswith(abbr):
                     month = f"{index:02d}"
                     self.metadata["month"] = month
