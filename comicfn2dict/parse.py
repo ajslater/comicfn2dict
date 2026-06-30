@@ -55,6 +55,39 @@ _REMAINING_GROUP_KEYS = ("series", "title")
 _TITLE_PRECEDING_KEYS = ("issue", "year", "volume", "month")
 
 
+def _outer_parens_enclose_all(value: str) -> bool:
+    """Whether value is one paren group: value[0]'s match is the final char."""
+    if not value.startswith("(") or not value.endswith(")"):
+        return False
+    depth = 0
+    for index, char in enumerate(value):
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return index == len(value) - 1
+    return False
+
+
+def _collapse_wrapping_parens(value: str) -> str:
+    """
+    Drop a redundant outer paren layer wrapping an already-parenthesized group.
+
+    The '[' -> '(' and ']' -> ')' normalization in _clean_dividers rewrites a
+    bracketed group that itself wraps a paren group ('[(5 covers)]') into a
+    doubled '((5 covers))'. Strip the duplicate outer layer so the remainder
+    serializes back to '[(5 covers)]' instead of '[((5 covers))]'. A genuine
+    single group like '(4 covers)' has non-paren content and is left untouched.
+    """
+    while _outer_parens_enclose_all(value):
+        inner = value[1:-1]
+        if not (inner.startswith("(") and inner.endswith(")")):
+            break
+        value = inner
+    return value
+
+
 class ComicFilenameParser:
     """Parse a filename metadata into a dict."""
 
@@ -267,7 +300,7 @@ class ComicFilenameParser:
         self._parse_items(REMAINDER_PAREN_GROUPS_RE)
         remainders: str = self.metadata.get("remainders", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
         if remainders:
-            self.metadata["remainders"] = (remainders,)
+            self.metadata["remainders"] = (_collapse_wrapping_parens(remainders),)
         self._log("After parsing remainder paren and bracket groups")
 
     def _parse_ends_of_remaining_tokens(self) -> None:

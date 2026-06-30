@@ -1,5 +1,13 @@
 # 📰 comicfn2dict News
 
+## v0.3.2
+
+- Fixes
+
+    - A parenthesized group wrapped in brackets (e.g. `[(5 covers)]`) no longer
+      gains a redundant second layer of parens, so it round-trips as
+      `[(5 covers)]` instead of `[((5 covers))]`.
+
 ## v0.3.1
 
 - Features

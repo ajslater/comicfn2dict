@@ -496,6 +496,22 @@ FNS.update(
             "year": "2010",
             "remainders": ("(2 Covers)",),
         },
+        # A paren group wrapped in brackets must not pick up a redundant second
+        # layer of parens from the [ ] -> ( ) normalization: [(5 covers)] should
+        # round-trip as [(5 covers)], not [((5 covers))].
+        (
+            "Conan the Barbarian #001 (2025) Scourge of the Serpent "
+            "(Digital) (Mephisto-Empire)[(5 covers)].cbz"
+        ): {
+            "series": "Conan the Barbarian",
+            "issue": "001",
+            "year": "2025",
+            "title": "Scourge of the Serpent",
+            "original_format": "Digital",
+            "scan_info": "Mephisto-Empire",
+            "remainders": ("(5 covers)",),
+            "ext": "cbz",
+        },
         "The Sensational Spider-Man v1 #-1 (1997).cbz": {
             "ext": "cbz",
             "volume": "1",
@@ -891,6 +907,21 @@ SERIALIZE_FNS = MappingProxyType(
             "series": "Series Name",
             "month": "12",
             "day": "31",
+            "ext": "cbz",
+        },
+        # A parenthesized remainder serializes inside brackets without doubling
+        # the parens.
+        (
+            "Conan the Barbarian #001 (2025) Scourge of the Serpent "
+            "(Digital) (Mephisto-Empire)[(5 covers)].cbz"
+        ): {
+            "series": "Conan the Barbarian",
+            "issue": "001",
+            "year": "2025",
+            "title": "Scourge of the Serpent",
+            "original_format": "Digital",
+            "scan_info": "Mephisto-Empire",
+            "remainders": ("(5 covers)",),
             "ext": "cbz",
         },
     }
