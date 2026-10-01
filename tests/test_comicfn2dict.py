@@ -1,6 +1,7 @@
 """Tests for filename parsing."""
 
 from pprint import pprint
+from time import perf_counter
 
 import pytest
 from deepdiff.diff import DeepDiff
@@ -20,3 +21,13 @@ def test_parse_filename(item):
     pprint(md)
     pprint(diff)
     assert not diff
+
+
+def test_parse_long_digit_run_is_fast():
+    """Long digit runs must not backtrack catastrophically in the issue regexes."""
+    digits = "1" * 120
+    start = perf_counter()
+    md = ComicFilenameParser(f"Batman {digits}.cbz").parse()
+    elapsed = perf_counter() - start
+    assert md == {"ext": "cbz", "issue": digits, "series": "Batman"}
+    assert elapsed < 1
