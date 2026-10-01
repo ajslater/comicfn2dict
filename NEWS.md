@@ -1,5 +1,15 @@
 # 📰 comicfn2dict News
 
+## v1.0.0
+
+- Breaking Changes
+
+    - Require Python 3.11.
+
+- Fixes
+
+    - Long digit runs in filenames no longer stall parsing.
+
 ## v0.3.2
 
 - Fixes
