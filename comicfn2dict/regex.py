@@ -190,7 +190,13 @@ ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE: Pattern = re_compile(
 SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
 
 # ISSUE
-_ISSUE_RE_EXP = r"(?P<issue>-?\w*(½|\d+)[\.\d+]*\w*)"
+# The atomic group (?>...) stops the overlapping \w, \d and [.\d] quantifiers
+# from retrying every split of a long digit run when what follows the issue
+# fails, which is polynomial in the run's length (240 digits took minutes).
+# Matches are unchanged: the group's first try is the longest issue, and what
+# follows an issue in each regex never matches after a shorter one unless it
+# also matches after the longest.
+_ISSUE_RE_EXP = r"(?P<issue>(?>-?\w*(½|\d+)[\.\d+]*\w*))"
 _ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
 ISSUE_NUMBER_RE: Pattern = re_compile(
     r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"
