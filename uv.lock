@@ -375,7 +375,7 @@ wheels = [
 
 [[package]]
 name = "comicfn2dict"
-version = "0.3.2"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions" },
