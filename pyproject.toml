@@ -3,7 +3,7 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3 :: Only"
+  "Programming Language :: Python :: 3 :: Only",
 ]
 dependencies = ["typing-extensions~=4.13"]
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
@@ -34,27 +34,26 @@ dev = [
   "neovim~=0.3",
   "pyclean~=3.1",
   "pypi-cleanup~=0.1.10",
-  "toml-cli~=0.7"
+  "toml-cli~=0.7",
 ]
 build = []
 lint = [
   "basedpyright~=1.38",
   "codespell~=2.4",
-  "complexipy~=8.0.1",
+  "complexipy~=8.1.0",
   "djlint~=1.3.dev0",
   "icecream~=2.1",
   "pathspec~=1.1.0",
   "radon~=6.0",
   "ruff~=0.17",
-  "types-python-dateutil~=2.9",
   "ty~=0.0.17",
-  "vulture~=2.3"
+  "vulture~=2.3",
 ]
 test = [
   "coverage~=7.0",
   "deepdiff~=9.0",
   "pytest-asyncio~=1.0",
-  "pytest-cov~=7.1"
+  "pytest-cov~=7.1",
 ]
 docs = ["mkapi~=4.4", "mkdocs-minify-plugin~=0.8", "mkdocs~=1.6"]
 ci = ["requests~=2.32"]
@@ -100,7 +99,7 @@ source-include = [
   "tests/**",
   "uv.lock",
   "vulture_ignorelist.py",
-  "docs/**"
+  "docs/**",
 ]
 source-exclude = ["**/*\\~", "**/.DS_Store", "frontend/node_modules"]
 wheel-exclude = ["**/*\\~", "**/.DS_Store"]
@@ -112,7 +111,7 @@ exclude = [
   "site",
   "test-results",
   "typings",
-  "vulture_ignorelist.py"
+  "vulture_ignorelist.py",
 ]
 pythonVersion = "3.11"
 failOnWarnings = false
@@ -157,7 +156,7 @@ omit = [
   "site/*",
   "test-results/*",
   "typings/*",
-  "vulture_ignorelist.py"
+  "vulture_ignorelist.py",
 ]
 
 [tool.pytest]
@@ -170,7 +169,7 @@ addopts = [
   "--junit-xml=test-results/pytest/results.xml",
   "--strict-config",
   "--strict-markers",
-  "-ra"
+  "-ra",
 ]
 junit_family = "xunit2"
 strict = true
@@ -189,7 +188,7 @@ extend-exclude = [
   "site",
   "test-results",
   "typings",
-  "vulture_ignorelist.py"
+  "vulture_ignorelist.py",
 ]
 show-fixes = true
 target-version = "py311"
@@ -210,7 +209,7 @@ extend-ignore = [
   "PERF203",
   "PLC0415",
   "S101",
-  "W191"
+  "W191",
 ]
 extend-select = [
   "A",
@@ -269,7 +268,7 @@ extend-select = [
   "TRY",
   "UP",
   "W",
-  "YTT"
+  "YTT",
 ]
 external = ["V101"]
 task-tags = ["FIXME", "HACK", "TODO", "XXX", "http"]
@@ -304,7 +303,7 @@ exclude = [
   "site",
   "test-results",
   "typings",
-  "vulture_ignorelist.py"
+  "vulture_ignorelist.py",
 ]
 
 [tool.vulture]
@@ -315,7 +314,7 @@ exclude = [
   "*/node_modules/*",
   "*/site/*",
   "*/test-results/*",
-  "*/typings/*"
+  "*/typings/*",
 ]
 min_confidence = 61
 sort_by_size = true
