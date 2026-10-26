@@ -1,5 +1,9 @@
 # 📰 comicfn2dict News
 
+## v1.0.1
+
+- Security update
+
 ## v1.0.0 - Python 3.11
 
 - Breaking Changes
