@@ -13,7 +13,6 @@ import eslintPluginMath from "eslint-plugin-math";
 import eslintPluginNoSecrets from "eslint-plugin-no-secrets";
 import eslintPluginNoUnsanitized from "eslint-plugin-no-unsanitized";
 import eslintPluginNoUseExtendNative from "eslint-plugin-no-use-extend-native";
-import eslintPluginPackageJson from "eslint-plugin-package-json";
 import eslintPluginPerfectionist from "eslint-plugin-perfectionist";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import eslintPluginPromise from "eslint-plugin-promise";
@@ -147,27 +146,32 @@ export const MARKDOWN_CONFIGS = [
   },
 ];
 
-export default defineConfig([
+// unicorn/no-top-level-side-effects reports `export default <call>`.
+const baseConfig = defineConfig([
   {
     ignores: [
+      // Unlike a .gitignore line, an ESLint pattern is anchored at the project
+      // root: "dist/" ignores dist/ but lints frontend/dist/. Tool output can
+      // land in any subproject, so it takes "**/". The last four are root-level
+      // state; deeper down, tasks/ and typings/ can be real source directories.
       "**/*.min.css",
       "**/*.min.js",
+      "**/*~",
+      "**/.*cache/",
+      "**/.eslintcache",
+      "**/.venv/",
       "**/__pycache__/",
+      "**/bun.lock",
       "**/coverage/",
+      "**/dist/",
       "**/htmlcov/",
       "**/node_modules/",
-      "*~",
+      "**/test-results/",
+      "**/uv.lock",
       ".claude",
-      ".eslintcache",
       ".git/",
-      ".*cache/",
-      ".venv/",
-      "bun.lock",
-      "dist/",
       "tasks/",
-      "test-results/",
       "typings/",
-      "uv.lock",
     ],
     name: "globalIgnores",
   },
@@ -217,14 +221,8 @@ export default defineConfig([
     ...eslintJson.configs.recommended,
     language: "json/json",
   },
-  eslintPluginPackageJson.configs.recommended,
-  eslintPluginPackageJson.configs.stylistic,
-  eslintPluginPackageJson.configs["recommended-publishable"],
   {
-    files: ["package.json"],
-    languageOptions: {
-      parser: "jsonc-eslint-parser",
-    },
+    files: ["**/package.json"],
     plugins: { depend: eslintPluginDepend },
     rules: {
       "depend/ban-dependencies": "error",
@@ -254,3 +252,5 @@ export default defineConfig([
   },
   eslintConfigPrettier, // Best if last
 ]);
+
+export default baseConfig;
