@@ -1,5 +1,11 @@
 # 📰 comicfn2dict News
 
+## v1.0.2
+
+### 🔥 Removed
+
+- Remove dependency on typing-extensions
+
 ## v1.0.1
 
 ### 🔒 Security
