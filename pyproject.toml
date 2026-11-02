@@ -5,14 +5,14 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3 :: Only",
 ]
-dependencies = ["typing-extensions~=4.13"]
+dependencies = []
 description = "Parse common comic filenames and return a dict of metadata attributes. Includes a cli."
 keywords = ["cbr", "cbz", "comic", "filename"]
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "GPL-3.0-only" }
 name = "comicfn2dict"
-version = "1.0.1"
+version = "1.0.2"
 
 [[project.authors]]
 name = "AJ Slater"
