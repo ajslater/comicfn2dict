@@ -187,7 +187,8 @@ YEAR_END_RE: Pattern = re_compile(_YEAR_RE_EXP + r"\/|$")
 # PAREN GROUPS
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)
 _ORIGINAL_FORMAT_RE_EXP = r"(?P<original_format>" + _OF_PATTERNS + r")"
-_SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()]*)"
+# No "/": that's a token delimiter left where an earlier pass popped a field.
+_SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()/]*)"
 _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP = (
     _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]\s*" + _SCAN_INFO_RE_EXP  # + r")?"
 )
@@ -211,7 +212,7 @@ ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE: Pattern = re_compile(
 # "c2c" takes its own parens with it, so the pop doesn't leave "(/)" behind. A
 # paren group right after it is the scan info: "(c2c) (Scanner-DCP)".
 SCAN_INFO_SECONDARY_RE: Pattern = re_compile(
-    r"\(?\b(?P<secondary_scan_info>c2c)\b\)?(\s*\((?P<scan_info>[^()]+)\))?"
+    r"\(?\b(?P<secondary_scan_info>c2c)\b\)?(\s*\((?P<scan_info>[^()/]+)\))?"
 )
 
 # ISSUE
