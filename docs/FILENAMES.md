@@ -35,7 +35,7 @@ The grammar uses the EBNF notation of the
                         [ wfc: Issue Padding ]
 [8]  IssueCount     ::= Count                         /* issue_count */
 [9]  Date           ::= "(" DateValue ")"
-[10] DateValue      ::= Year ("-" Month)? ("-" Day)?  /* year, month, day */
+[10] DateValue      ::= Year ("-" Month ("-" Day)?)?  /* year, month, day */
                       | MonthName ("-" Day)?          /* month, day */
                       | Text                          /* date */
 [11] Year           ::= [12] Digit Digit Digit
@@ -71,9 +71,10 @@ The grammar says how `dict2comicfn()` writes;
   count, date, title, publisher, original format, scan info.
 - **Date** is the `date` key when it is set. Otherwise it's built from `year`,
   `month` and `day`, joined with `-`. With no year, the month is written as its
-  name, and a day alone writes no date.
+  name. A day without a month is left out, because it would read back as a
+  month.
 - **Remainders** joins the `remainders` strings with spaces, inside one pair of
-  square brackets.
+  square brackets. A single string is written as it is.
 - **Extension** is the `ext` key, or `cbz` when the key is missing. It's left
   off when `dict2comicfn()` is called with `ext=False`.
 
@@ -89,14 +90,9 @@ with three digits. An issue that already does is written as it is: `1` becomes
 `#001`, `1.5` becomes `#001.5`, `27AU` becomes `#027AU`, `½` becomes `#000½` and
 `1024` stays `#1024`.
 
-**Count Padding:** a count shorter than three digits is padded with zeros to
-three.
-
-> [!WARNING]
->
-> `dict2comicfn()` pads a count given as a string on the right, so `"5"` is
-> written `(of 500)` and `"05"` is written `(of 050)`. A count given as an int
-> is padded on the left: `5` is written `(of 005)`.
+**Count Padding:** a count shorter than three digits is padded on the left with
+zeros to three, whether it's a string or an int: `"5"`, `"05"` and `5` are all
+written `(of 005)`.
 
 ### Examples
 
@@ -260,11 +256,15 @@ of the name. Otherwise it stays in the series as well.
 
 ### Remainders
 
-Parenthesized groups that no pass took stay together as one remainder. So is a
-run of text that is out of place for a title, such as one after the scan info.
+Parenthesized groups that no pass took stay together as one remainder. Runs of
+text that no pass took stay together as another: a run that is out of place for
+a title, such as one after the scan info, and any runs left once the series and
+title are taken.
 
 | Filename                                                              | Reads                                         |
 | --------------------------------------------------------------------- | --------------------------------------------- |
 | `Jeremy John 003 (2007) (4 covers) (digital) (Minutemen-Faessla).cbz` | `remainders: ("(4 covers)",)`                 |
 | `Quagmire (or how to fix everything) #001 (2023).cbz`                 | `remainders: ("(or how to fix everything)",)` |
 | `Long Series Name 001 (2000) (TPB-Releaser) Title.cbz`                | `remainders: ("Title",)`                      |
+| `Long Series Name 001 (2000) Title (TPB) (Releaser) Extra.cbz`        | `title: Title`, `remainders: ("Extra",)`      |
+| `Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz`        | `remainders: ("Out Of Place",)`               |

@@ -57,12 +57,18 @@ that is missing or empty._
   `(Digital) (Empire)`, or the text after a `-` or `:` inside the format's
   group, as in `(Digital-Empire)`. A bare `c2c` fills it when nothing else does.
   Length must be at least 1.
-- <a id="properties/remainders"></a>**`remainders`** _(array)_: Text that fits
-  no other key, as a tuple of strings. Leftover parenthesized and bracketed
-  groups are kept together as one string in parentheses: `[5 covers]` becomes
-  `(5 covers)`. Length must be at least 1.
-    - <a id="properties/remainders/items"></a>**Items** _(string)_: Length must
-      be at least 1.
+- <a id="properties/remainders"></a>**`remainders`**: Text that fits no other
+  key, as a tuple of strings. Leftover parenthesized and bracketed groups are
+  kept together as one string in parentheses: `[5 covers]` becomes `(5 covers)`.
+  `dict2comicfn()` also takes a single string; `comicfn2dict()` always returns a
+  tuple.
+    - **Any of**
+        - <a id="properties/remainders/anyOf/0"></a>_array_: Length must be at
+          least 1.
+            - <a id="properties/remainders/anyOf/0/items"></a>**Items**
+              _(string)_: Length must be at least 1.
+        - <a id="properties/remainders/anyOf/1"></a>_string_: Length must be at
+          least 1.
 - <a id="properties/ext"></a>**`ext`** _(string)_: The file extension, without
   its dot: `cbz`, `cbr`, `pdf`. `dict2comicfn()` writes `cbz` when the key is
   missing.
