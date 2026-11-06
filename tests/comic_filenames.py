@@ -281,12 +281,13 @@ FNS.update(
             "scan_info": "c2c",
             "remainders": ("(repaired)",),
         },
-        # A lone - left between fields is dropped.
+        # A lone - left between fields is a remainder, not a series or title.
         " X-Men-V1-#067.cbr": {
             "ext": "cbr",
             "issue": "067",
             "series": "X-Men",
             "volume": "1",
+            "remainders": ("-",),
         },
         "Aquaman - Green Arrow - Deep Target #01 (of 07) (2021).cbr": {
             "ext": "cbr",
@@ -733,6 +734,19 @@ FNS.update(
             "issue": "001",
             "series": "S",
             "title": "T",
+        },
+        # A one-character run that isn't a letter or digit is a remainder.
+        "Series Name #001 (2020) &.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "year": "2020",
+            "series": "Series Name",
+            "remainders": ("&",),
+        },
+        "! #001.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "remainders": ("!",),
         },
         # Pure-numeric stem.
         "97.cbz": {

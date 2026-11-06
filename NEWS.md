@@ -46,11 +46,10 @@
 - An `int` issue is padded like a `str` one instead of raising.
 - An empty `date` no longer hides the year, month and day, and an empty or
   `None` `ext` writes `.cbz`.
-- A one-letter series or title, `S #001`, reads as one instead of as a
-  remainder.
+- A one-letter or one-digit series or title, `S #001`, reads as one instead of
+  as a remainder. A lone punctuation mark stays a remainder.
 - Leftover paren groups are read one at a time, so
-  `(4 covers) Series Name (repaired) #001` keeps its series, and a lone `-`
-  between fields is dropped instead of kept as a remainder.
+  `(4 covers) Series Name (repaired) #001` keeps its series.
 - README API and CLI examples.
 
 ## v1.0.2
