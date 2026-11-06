@@ -307,7 +307,9 @@ PUBLISHER_AMBIGUOUS_PAREN_RE: Pattern = re_compile(
 PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
-REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(].*[^\)]")
+# A run of text, less a leading "(" and a trailing ")". One character is a run:
+# "S #001" has the series "S".
+REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(](?:.*[^\)])?")
 # Replace dots between letters with spaces ("Avengers.Hulk" -> "Avengers Hulk",
 # "A.X.E." -> "A X E.") without disturbing dots adjacent to spaces or digits
 # ("vs. Marvel" stays put, "0.0.1" stays put). Applied iteratively because
@@ -337,10 +339,12 @@ BY_AUTHOR_RE: Pattern = re_compile(r"\s+by\s+\S+\s+\S+\s+\S+(?:\s+\S+)*\s*$")
 # followed by whitespace.
 DASH_SEPARATOR_RE: Pattern = re_compile(r"(?:(?<=\w)-\s+|\s+-\s+)(?=\S)")
 
-# A run of leftover paren groups. It can't cross a token delimiter, which marks
-# where an earlier pass popped a field, so the delimiter never ends up inside a
-# remainder and "(4 covers) #001 (2020) (repaired)" gives two runs, not one.
-REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"\([^/]*\)")
+# One leftover paren group, with one level of nesting for the doubled parens
+# that "[(5 covers)]" becomes. Groups are taken one at a time, so the text
+# between two of them stays for the series and title. A group can't hold a
+# token delimiter, which marks where an earlier pass popped a field, so the
+# delimiter never ends up inside a remainder.
+REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"\((?:[^/()]|\([^/()]*\))*\)")
 # The remainders group as dict2comicfn writes it: in brackets, at the end, with
 # no space before it. It matches only that form, so a name with " [5 covers]"
 # keeps reading it as a paren group.

@@ -271,15 +271,17 @@ info when there is no other.
 
 ### Series and title
 
-The series is the first run of text left after the other passes. The title is
-the next run, when it comes after an issue, volume, year or month and before the
-original format and scan info. When only one run is left, a single dash followed
-by a space splits it into series and title. Two or more such dashes stay in the
-series. A lone parenthesized group in Title Case is a title, unless it's a known
-format or publisher. A lowercase one is a remainder. So a lone scan info group
-with no format before it, such as `(Empire)` in `Series #001 (2020) (Empire)`,
-reads as a title: nothing in the name tells a scanner from a subtitle such as
-the one in `Free Comic Book Day 2015 (Avengers)`.
+The series is the first run of text left after the other passes, even one
+character long. The title is the next run, when it comes after an issue, volume,
+year or month and before the original format and scan info. A run that is only
+grouping punctuation, such as a lone `-`, is dropped. When only one run is left,
+a single dash followed by a space splits it into series and title. Two or more
+such dashes stay in the series. A lone parenthesized group in Title Case is a
+title, unless it's a known format or publisher. A lowercase one is a remainder.
+So a lone scan info group with no format before it, such as `(Empire)` in
+`Series #001 (2020) (Empire)`, reads as a title: nothing in the name tells a
+scanner from a subtitle such as the one in
+`Free Comic Book Day 2015 (Avengers)`.
 
 `dict2comicfn()` writes one space between the series and the title, so a title
 reads back only when an issue, volume, year or month comes between them. A dict
@@ -301,6 +303,7 @@ trailing credit of three or more words after `by` is dropped from the series.
 | `Z.O.O. - Wandering Heroes #001 (2022).cbz`              | `series: Z O O`, `title: Wandering Heroes`              |
 | `Avengers By Brian Michael Bendis volume 03 (2013).cbz`  | `series: Avengers`                                      |
 | `Watchman By Moonlight #001 (2023).cbz`                  | `series: Watchman By Moonlight`                         |
+| `S: T #001.cbz`                                          | `series: S`, `title: T`                                 |
 
 ### Publisher
 
@@ -320,8 +323,9 @@ other runs, is taken out of the name. Otherwise it stays in the series as well.
 Runs of text that no pass took stay together as one remainder: a run that is out
 of place for a title, such as one after the scan info, and any runs left once
 the series and title are taken. Parenthesized groups that no pass took follow as
-another, joined with spaces. Neither holds the `/` that the parser uses inside
-to mark where it took a field.
+another, joined with spaces; they are taken one at a time, so the text between
+two of them is still the series or title. Neither holds the `/` that the parser
+uses inside to mark where it took a field.
 
 A bracketed group at the very end of the name, right after the last field with
 no space before it, is the remainders group that `dict2comicfn()` writes. It
@@ -330,14 +334,15 @@ reads as a parenthesized one, so ` [5 covers]` gives `(5 covers)`. Since
 `dict2comicfn()` writes several remainders as one group, they read back as one
 string.
 
-| Filename                                                              | Reads                                           |
-| --------------------------------------------------------------------- | ----------------------------------------------- |
-| `Jeremy John 003 (2007) (4 covers) (digital) (Minutemen-Faessla).cbz` | `remainders: ("(4 covers)",)`                   |
-| `Quagmire (or how to fix everything) #001 (2023).cbz`                 | `remainders: ("(or how to fix everything)",)`   |
-| `Long Series Name 001 (2000) (TPB-Releaser) Title.cbz`                | `remainders: ("Title",)`                        |
-| `Long Series Name 001 (2000) Title (TPB) (Releaser) Extra.cbz`        | `title: Title`, `remainders: ("Extra",)`        |
-| `Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz`        | `remainders: ("Out Of Place",)`                 |
-| `Series (4 covers) #001 (2020) (repaired).cbz`                        | `remainders: ("(4 covers) (repaired)",)`        |
-| `Series #001 (2020) [(5 covers)].cbz`                                 | `remainders: ("(5 covers)",)`                   |
-| `Brick Walker's Beanbag Book One: Extra.cbz`                          | `title: Book One`, `remainders: ("Extra",)`     |
-| `Series Name #001 (2020) Title (TPB) (Releaser)[Out Of Place].cbz`    | `title: Title`, `remainders: ("Out Of Place",)` |
+| Filename                                                              | Reads                                                           |
+| --------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `Jeremy John 003 (2007) (4 covers) (digital) (Minutemen-Faessla).cbz` | `remainders: ("(4 covers)",)`                                   |
+| `Quagmire (or how to fix everything) #001 (2023).cbz`                 | `remainders: ("(or how to fix everything)",)`                   |
+| `(4 covers) Series Name (repaired) #001 (2020).cbz`                   | `series: Series Name`, `remainders: ("(4 covers) (repaired)",)` |
+| `Long Series Name 001 (2000) (TPB-Releaser) Title.cbz`                | `remainders: ("Title",)`                                        |
+| `Long Series Name 001 (2000) Title (TPB) (Releaser) Extra.cbz`        | `title: Title`, `remainders: ("Extra",)`                        |
+| `Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz`        | `remainders: ("Out Of Place",)`                                 |
+| `Series (4 covers) #001 (2020) (repaired).cbz`                        | `remainders: ("(4 covers) (repaired)",)`                        |
+| `Series #001 (2020) [(5 covers)].cbz`                                 | `remainders: ("(5 covers)",)`                                   |
+| `Brick Walker's Beanbag Book One: Extra.cbz`                          | `title: Book One`, `remainders: ("Extra",)`                     |
+| `Series Name #001 (2020) Title (TPB) (Releaser)[Out Of Place].cbz`    | `title: Title`, `remainders: ("Out Of Place",)`                 |
