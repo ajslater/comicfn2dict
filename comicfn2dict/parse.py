@@ -24,12 +24,16 @@ from comicfn2dict.regex import (
     ISSUE_WITH_COUNT_RE,
     LETTER_DOT_RE,
     MONTH_FIRST_DATE_RE,
+    MONTH_ONLY_DATE_RE,
     ORIGINAL_FORMAT_NAKED_RE,
+    ORIGINAL_FORMAT_RE,
     ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+    PUBLISHER_AMBIGUOUS_PAREN_RE,
     PUBLISHER_AMBIGUOUS_RE,
     PUBLISHER_AMBIGUOUS_TOKEN_RE,
+    PUBLISHER_UNAMBIGUOUS_PAREN_RE,
     PUBLISHER_UNAMBIGUOUS_RE,
     PUBLISHER_UNAMBIGUOUS_TOKEN_RE,
     REGEX_SUBS,
@@ -41,6 +45,7 @@ from comicfn2dict.regex import (
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
     WORD_NUMBER_TO_DIGIT,
+    WRITTEN_REMAINDERS_RE,
     YEAR_END_RE,
     YEAR_FIRST_DATE_RE,
     YEAR_TOKEN_RE,
@@ -122,10 +127,25 @@ class ComicFilenameParser:
         if not suffix:
             return
 
-        data = path.name.removesuffix(suffix)
         ext = suffix.lstrip(".")
+        if not ext:
+            # Python 3.14+ gives "Name." the suffix ".", which is no extension.
+            return
+        data = path.name.removesuffix(suffix)
         self.metadata["ext"] = ext
         self._unparsed_path = data
+
+    def _parse_written_remainders(self) -> None:
+        """
+        Pop the remainders group that dict2comicfn writes and keep it whole.
+
+        This runs before _clean_dividers turns brackets into parens, so the
+        group reads back exactly as it was written instead of as a title.
+        """
+        if match := WRITTEN_REMAINDERS_RE.search(self._unparsed_path):
+            self._written_remainders = (match.group("remainders"),)
+            self._unparsed_path = self._unparsed_path[: match.start()]
+        self._log("After written remainders")
 
     def _clean_dividers(self) -> None:
         """Replace non space dividers and clean extra spaces out of string."""
@@ -196,6 +216,11 @@ class ComicFilenameParser:
         """Parse Issue."""
         self._parse_items(ISSUE_NUMBER_RE)
         if "issue" not in self.metadata:
+            # "v1 (of 3)" is a volume with a count, not issue "v1".
+            if (match := VOLUME_RE.search(self._unparsed_path)) and match.group(
+                "volume_count"
+            ):
+                self._parse_items(VOLUME_RE)
             self._parse_items(ISSUE_WITH_COUNT_RE)
         if "issue" not in self.metadata:
             # Letter-only issues like "#Omega" or "#Alpha" — only fires when
@@ -213,7 +238,9 @@ class ComicFilenameParser:
 
     def _parse_volume(self) -> None:
         """Parse Volume."""
-        self._parse_items(VOLUME_RE)
+        if "volume" not in self.metadata:
+            # _parse_issue may already have taken a volume with a count.
+            self._parse_items(VOLUME_RE)
         if "volume" not in self.metadata:
             self._parse_items(VOLUME_WITH_COUNT_RE)
         self._log("After Volume")
@@ -241,6 +268,11 @@ class ComicFilenameParser:
         # Year first date
         if _DATE_KEYS - self.metadata.keys():
             self._parse_items(YEAR_FIRST_DATE_RE)
+            self._alpha_month_to_numeric()
+
+        # A month name alone in parens, as dict2comicfn writes a month with no year.
+        if "month" not in self.metadata:
+            self._parse_items(MONTH_ONLY_DATE_RE)
             self._alpha_month_to_numeric()
 
         if "year" not in self.metadata:
@@ -273,12 +305,23 @@ class ComicFilenameParser:
             self._parse_items(
                 ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
             )
+        if "original_format" not in self.metadata:
+            # A known format alone in its parens, with no scan info.
+            self._parse_items(ORIGINAL_FORMAT_RE)
+        # "c2c", and the scan info in a paren group right after it, if any.
         self._parse_items(SCAN_INFO_SECONDARY_RE)
         if (
             scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
         ) and "scan_info" not in self.metadata:
             self.metadata["scan_info"] = scan_info_secondary
         self._log("After original_format & scan_info")
+
+    def _parse_paren_publisher(self) -> None:
+        """Parse a known publisher alone in parens, before it can read as a title."""
+        self._parse_items(PUBLISHER_UNAMBIGUOUS_PAREN_RE, first_only=True)
+        if "publisher" not in self.metadata:
+            self._parse_items(PUBLISHER_AMBIGUOUS_PAREN_RE, first_only=True)
+        self._log("After paren publisher")
 
     def _parse_paren_subtitle(self) -> None:
         """
@@ -296,11 +339,12 @@ class ComicFilenameParser:
         self._log("After paren subtitle")
 
     def _parse_remainder_paren_groups(self) -> None:
-        """Remove extraneous paren groups."""
-        self._parse_items(REMAINDER_PAREN_GROUPS_RE)
-        remainders: str = self.metadata.get("remainders", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
-        if remainders:
-            self.metadata["remainders"] = (_collapse_wrapping_parens(remainders),)
+        """Pop the leftover paren groups and keep them as one remainder string."""
+        groups = REMAINDER_PAREN_GROUPS_RE.findall(self._unparsed_path)
+        if groups:
+            self._parse_items_pop_tokens(REMAINDER_PAREN_GROUPS_RE, first_only=False)
+            remainders = " ".join(_collapse_wrapping_parens(group) for group in groups)
+            self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
 
     def _parse_ends_of_remaining_tokens(self) -> None:
@@ -457,20 +501,24 @@ class ComicFilenameParser:
             if remainder:
                 remainders.append(remainder)
 
+        # Leftover text, then paren groups, then the written remainders group:
+        # the order dict2comicfn writes them in.
+        remainders += list(self.metadata.get("remainders", []))
+        remainders += list(self._written_remainders)
         if remainders:
-            self.metadata["remainders"] = tuple(
-                remainders + list(self.metadata.get("remainders", []))
-            )
+            self.metadata["remainders"] = tuple(remainders)
 
     def parse(self) -> dict[str, str | tuple[str, ...]]:
         """Parse the filename with a hierarchy of regexes."""
         self._log("Init")
         self._parse_ext()
+        self._parse_written_remainders()
         self._clean_dividers()
         self._parse_issue()
         self._parse_volume()
         self._parse_dates()
         self._parse_format_and_scan_info()
+        self._parse_paren_publisher()
         self._parse_paren_subtitle()
         self._parse_remainder_paren_groups()
         self._parse_ends_of_remaining_tokens()
@@ -498,6 +546,7 @@ class ComicFilenameParser:
         self.metadata: dict[str, str | tuple[str, ...]] = {}
         self._unparsed_path = copy(self.path)
         self._path_indexes: dict[str, int] = {}
+        self._written_remainders: tuple[str, ...] = ()
 
 
 def comicfn2dict(
