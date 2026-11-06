@@ -990,6 +990,19 @@ FNS.update(
             "month": "3",
             "ext": "cbz",
         },
+        # Out of parens, a year and a number are a series with a year in its
+        # name and an issue, not a year and a month.
+        "Justice League 2011 1 (2011).cbz": {
+            "series": "Justice League 2011",
+            "issue": "1",
+            "year": "2011",
+            "ext": "cbz",
+        },
+        "Batman 2016 12.cbz": {
+            "series": "Batman 2016",
+            "issue": "12",
+            "ext": "cbz",
+        },
         # A year-first date after another field takes its "(" with it.
         "Test Numeric Year #002 (2001-02-24).cbz": {
             "series": "Test Numeric Year",

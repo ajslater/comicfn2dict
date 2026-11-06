@@ -48,6 +48,7 @@ from comicfn2dict.regex import (
     WRITTEN_REMAINDERS_RE,
     YEAR_END_RE,
     YEAR_FIRST_DATE_RE,
+    YEAR_MONTH_DATE_RE,
     YEAR_TOKEN_RE,
 )
 
@@ -270,7 +271,11 @@ class ComicFilenameParser:
             self._parse_items(YEAR_FIRST_DATE_RE)
             self._alpha_month_to_numeric()
 
-        # A month name alone in parens, as dict2comicfn writes a month with no year.
+        # "(2020-12)" and "(Dec)", as dict2comicfn writes a date with no day or
+        # no year.
+        if "month" not in self.metadata:
+            self._parse_items(YEAR_MONTH_DATE_RE)
+            self._alpha_month_to_numeric()
         if "month" not in self.metadata:
             self._parse_items(MONTH_ONLY_DATE_RE)
             self._alpha_month_to_numeric()

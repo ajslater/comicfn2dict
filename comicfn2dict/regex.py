@@ -155,18 +155,20 @@ _MONTH_FIRST_DATE_RE_EXP = (
     + r"\b\)?)"
 )
 # The optional paren comes before the boundary so "(2020-12-31)" after a space
-# takes its "(" with it. The day is optional: "(2020-12)".
+# takes its "(" with it.
 _YEAR_FIRST_DATE_RE_EXP = (
     r"(\(?\b"
     + _YEAR_RE_EXP
     + _DATE_DELIM
     + _MONTH_RE_EXP
-    + r"("
     + _DATE_DELIM
     + _DAY_RE_EXP
-    + r")?"
     + r"\b\)?)"
 )
+# A year and month with no day reads only alone in parens, as dict2comicfn
+# writes it: "(2020-12)". Out of parens, "Justice League 2011 1" is a series
+# with a year in its name and an issue, not a date.
+_YEAR_MONTH_DATE_RE_EXP = _YEAR_RE_EXP + _DATE_DELIM + _MONTH_RE_EXP
 # A month name, with an optional day, alone in parens: "(Dec)" or "(Dec-31)".
 # That's what dict2comicfn writes for a month with no year.
 _MONTH_ONLY_DATE_RE_EXP = _MONTH_ALPHA_RE_EXP + r"(" + _DATE_DELIM + _DAY_RE_EXP + r")?"
@@ -174,6 +176,7 @@ MONTH_ONLY_DATE_RE: Pattern = re_compile(_MONTH_ONLY_DATE_RE_EXP, parenthify=Tru
 
 MONTH_FIRST_DATE_RE: Pattern = re_compile(_MONTH_FIRST_DATE_RE_EXP)
 YEAR_FIRST_DATE_RE: Pattern = re_compile(_YEAR_FIRST_DATE_RE_EXP)
+YEAR_MONTH_DATE_RE: Pattern = re_compile(_YEAR_MONTH_DATE_RE_EXP, parenthify=True)
 YEAR_TOKEN_RE: Pattern = re_compile(_YEAR_RE_EXP, parenthify=True)
 # The "|$" alternative applies to the whole pattern, not just the delimiter, so
 # a year is only taken from the end of a run that another run follows. A
