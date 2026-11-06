@@ -3,7 +3,7 @@ site_name = "comicfn2dict"
 site_url = "https://comicfn2dict.readthedocs.io/"
 site_author = "AJ"
 site_description = "Parse common comic filenames and return a dict of metadata attributes."
-nav = ["NEWS.md"]
+nav = ["NEWS.md", "FILENAMES.md", "schema/comicfn2dict.schema.md"]
 docs_dir = "docs"
 
 [project.theme]

@@ -42,6 +42,15 @@ comicfn2dict "Series Name #01 - Title (2023).cbz"
 'year': '2023'}
 ```
 
+## 📐 Filename Format
+
+The [filename format](https://comicfn2dict.readthedocs.io/FILENAMES/) page
+defines the filenames that `dict2comicfn()` writes as an EBNF grammar, and lists
+the conventions that `comicfn2dict()` reads. The
+[metadata schema](https://comicfn2dict.readthedocs.io/schema/comicfn2dict.schema/)
+defines the dict that both functions use. The package ships it as a JSON Schema
+at `comicfn2dict/schemas/comicfn2dict.schema.json`.
+
 ## 🛠 Development
 
 comicfn2dict code is hosted at
