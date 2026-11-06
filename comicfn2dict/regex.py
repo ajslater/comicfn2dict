@@ -307,9 +307,10 @@ PUBLISHER_AMBIGUOUS_PAREN_RE: Pattern = re_compile(
 PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
-# A run of text, less a leading "(" and a trailing ")". One character is a run:
-# "S #001" has the series "S".
-REMAINING_GROUP_RE: Pattern = re_compile(r"^[^\(](?:.*[^\)])?")
+# A run of text, less a leading "(" and a trailing ")". A run of one character
+# is a letter or digit: "S #001" has the series "S", but the "&" in
+# "#001 (2020) &" is a remainder.
+REMAINING_GROUP_RE: Pattern = re_compile(r"^(?:[^\(].*[^\)]|\w)")
 # Replace dots between letters with spaces ("Avengers.Hulk" -> "Avengers Hulk",
 # "A.X.E." -> "A X E.") without disturbing dots adjacent to spaces or digits
 # ("vs. Marvel" stays put, "0.0.1" stays put). Applied iteratively because

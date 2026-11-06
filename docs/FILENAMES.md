@@ -271,16 +271,16 @@ info when there is no other.
 
 ### Series and title
 
-The series is the first run of text left after the other passes, even one
-character long. The title is the next run, when it comes after an issue, volume,
-year or month and before the original format and scan info. A run that is only
-grouping punctuation, such as a lone `-`, is dropped. When only one run is left,
-a single dash followed by a space splits it into series and title. Two or more
-such dashes stay in the series. A lone parenthesized group in Title Case is a
-title, unless it's a known format or publisher. A lowercase one is a remainder.
-So a lone scan info group with no format before it, such as `(Empire)` in
-`Series #001 (2020) (Empire)`, reads as a title: nothing in the name tells a
-scanner from a subtitle such as the one in
+The series is the first run of text left after the other passes, even one letter
+or digit long. The title is the next run, when it comes after an issue, volume,
+year or month and before the original format and scan info. A run of one
+character that is not a letter or digit is a remainder. When only one run is
+left, a single dash followed by a space splits it into series and title. Two or
+more such dashes stay in the series. A lone parenthesized group in Title Case is
+a title, unless it's a known format or publisher. A lowercase one is a
+remainder. So a lone scan info group with no format before it, such as
+`(Empire)` in `Series #001 (2020) (Empire)`, reads as a title: nothing in the
+name tells a scanner from a subtitle such as the one in
 `Free Comic Book Day 2015 (Avengers)`.
 
 `dict2comicfn()` writes one space between the series and the title, so a title
