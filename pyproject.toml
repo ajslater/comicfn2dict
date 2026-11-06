@@ -55,7 +55,7 @@ test = [
   "pytest-asyncio~=1.0",
   "pytest-cov~=7.1",
 ]
-docs = ["mkapi~=4.4", "zensical~=0.1"]
+docs = ["mkdocstrings-python~=2.0", "zensical~=0.1"]
 ci = ["requests~=2.32"]
 
 [build-system]

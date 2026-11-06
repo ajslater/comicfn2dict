@@ -1,4 +1,9 @@
 [project]
+site_name = "comicfn2dict"
+site_url = "https://comicfn2dict.readthedocs.io/"
+site_author = "AJ"
+site_description = "Parse common comic filenames and return a dict of metadata attributes."
+nav = ["NEWS.md"]
 docs_dir = "docs"
 
 [project.theme]
@@ -16,3 +21,9 @@ toc.permalink = true
 minify_html = true
 minify_inline_js = true
 minify_inline_css = true
+
+[project.plugins.mkdocstrings]
+default_handler = "python"
+
+[project.plugins.api-autonav]
+modules = ["comicfn2dict"]
