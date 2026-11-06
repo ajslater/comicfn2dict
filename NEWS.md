@@ -4,11 +4,13 @@
 
 ### 💥 Breaking Changes
 
-- `dict2comicfn()` leaves out a month that isn't a number from 1 to 12, with its
-  day, with or without a year. Such months never read back. With no year, a
-  month from 1 to 12 is written as its name: `(Jan)`, `(Dec-31)`.
-- `unparse.issue_formatter()` takes a str or int issue and returns the written
-  token, `#001`, instead of a format string.
+> [!WARNING]
+>
+> - `dict2comicfn()` leaves out a month that isn't a number from 1 to 12, with
+>   its day, with or without a year. Such months never read back. With no year,
+>   a month from 1 to 12 is written as its name: `(Jan)`, `(Dec-31)`.
+> - `unparse.issue_formatter()` takes a str or int issue and returns the written
+>   token, `#001`, instead of a format string.
 
 ### ✨ Added
 
@@ -73,7 +75,9 @@
 
 ### 💥 Breaking Changes
 
-- Require Python 3.11.
+> [!WARNING]
+>
+> - Require Python 3.11.
 
 ### 🐛 Fixed
 
@@ -173,7 +177,9 @@
 
 ### 💥 Breaking Changes
 
-- Require Python 3.10
+> [!WARNING]
+>
+> - Require Python 3.10
 
 ## v0.1.3
 
