@@ -90,7 +90,9 @@ def re_compile(exp: str, *, parenthify: bool = False) -> Pattern:
 
 
 # CLEAN
-_TOKEN_DIVIDERS_RE = re_compile(r":")
+# The first ":" splits runs, unless it's inside a paren or bracket group, as in
+# "(Digital: Empire)", which would leave the delimiter inside the group.
+_TOKEN_DIVIDERS_RE = re_compile(r":(?![^(\[]*[)\]])")
 _SPACE_EQUIVALENT_RE = re_compile(r"_")
 _EXTRA_SPACES_RE = re_compile(r"\s\s+")
 _LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
@@ -99,7 +101,7 @@ _DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
 # Open-ended series-year notation "(2022-)" and ranged "(2022-2024)" both
 # get normalised to "(2022)" so the dual-year logic in _parse_dates assigns
 # the start year as the volume.
-_VOLUME_YEAR_RANGE_RE = re_compile(r"\(([12]\d{3})-(?:[12]\d{3})?\)")
+_VOLUME_YEAR_RANGE_RE = re_compile(r"\(([12][0-9]{3})-(?:[12][0-9]{3})?\)")
 REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
     {
         _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
@@ -113,9 +115,13 @@ REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
 )
 
 ### DATES
-_YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
+# Numbers the schema gives a pattern for (year, month, day, volume and the
+# counts) use [0-9], not \d, which matches any Unicode digit, such as "٣".
+_YEAR_RE_EXP = r"(?P<year>[12][0-9]{3})"
 _MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?)"
-_MONTH_NUMERIC_RE_EXP = r"(?P<month>0?\d|1[0-2]?)"
+# Months 1 to 12 and days 1 to 31 only, so "(13-31-2000)" doesn't read a month
+# from the middle of "13".
+_MONTH_NUMERIC_RE_EXP = r"(?P<month>0?[1-9]|1[0-2])"
 _MONTH_RE_EXP = r"(" + _MONTH_ALPHA_RE_EXP + r"|" + _MONTH_NUMERIC_RE_EXP + r")"
 _ALPHA_MONTH_RANGE = (
     r"\b"  # noqa: ISC003
@@ -131,10 +137,10 @@ _ALPHA_MONTH_RANGE = (
 )
 ALPHA_MONTH_RANGE_RE: Pattern = re_compile(_ALPHA_MONTH_RANGE)
 
-_DAY_RE_EXP = r"(?P<day>([0-2]?\d|(3)[0-1]))"
+_DAY_RE_EXP = r"(?P<day>(0?[1-9]|[12][0-9]|3[01]))"
 _DATE_DELIM = r"[-\s]+"
 _MONTH_FIRST_DATE_RE_EXP = (
-    r"((\b|\(?)"
+    r"(\(?\b"
     # Month
     + _MONTH_RE_EXP
     # Day
@@ -146,10 +152,12 @@ _MONTH_FIRST_DATE_RE_EXP = (
     + r"[,]?"
     + _DATE_DELIM
     + _YEAR_RE_EXP
-    + r"(\)?|\b))"
+    + r"\b\)?)"
 )
+# The optional paren comes before the boundary so "(2020-12-31)" after a space
+# takes its "(" with it.
 _YEAR_FIRST_DATE_RE_EXP = (
-    r"(\b\(?"
+    r"(\(?\b"
     + _YEAR_RE_EXP
     + _DATE_DELIM
     + _MONTH_RE_EXP
@@ -157,18 +165,32 @@ _YEAR_FIRST_DATE_RE_EXP = (
     + _DAY_RE_EXP
     + r"\b\)?)"
 )
+# A year and month with no day reads only alone in parens, as dict2comicfn
+# writes it: "(2020-12)". Out of parens, "Justice League 2011 1" is a series
+# with a year in its name and an issue, not a date.
+_YEAR_MONTH_DATE_RE_EXP = _YEAR_RE_EXP + _DATE_DELIM + _MONTH_RE_EXP
+# A month name, with an optional day, alone in parens: "(Dec)" or "(Dec-31)".
+# That's what dict2comicfn writes for a month with no year.
+_MONTH_ONLY_DATE_RE_EXP = _MONTH_ALPHA_RE_EXP + r"(" + _DATE_DELIM + _DAY_RE_EXP + r")?"
+MONTH_ONLY_DATE_RE: Pattern = re_compile(_MONTH_ONLY_DATE_RE_EXP, parenthify=True)
 
 MONTH_FIRST_DATE_RE: Pattern = re_compile(_MONTH_FIRST_DATE_RE_EXP)
 YEAR_FIRST_DATE_RE: Pattern = re_compile(_YEAR_FIRST_DATE_RE_EXP)
+YEAR_MONTH_DATE_RE: Pattern = re_compile(_YEAR_MONTH_DATE_RE_EXP, parenthify=True)
 YEAR_TOKEN_RE: Pattern = re_compile(_YEAR_RE_EXP, parenthify=True)
+# The "|$" alternative applies to the whole pattern, not just the delimiter, so
+# a year is only taken from the end of a run that another run follows. A
+# trailing number on the last run stays an issue, as in "action comics 1024".
+# That is deliberate: "(?:\/|$)" would read every such issue as a year.
 YEAR_END_RE: Pattern = re_compile(_YEAR_RE_EXP + r"\/|$")
 
 # PAREN GROUPS
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)
 _ORIGINAL_FORMAT_RE_EXP = r"(?P<original_format>" + _OF_PATTERNS + r")"
-_SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()]*)"
+# No "/": that's a token delimiter left where an earlier pass popped a field.
+_SCAN_INFO_RE_EXP = r"(?P<scan_info>[^()/]*)"
 _ORIGINAL_FORMAT_SCAN_INFO_RE_EXP = (
-    _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]" + _SCAN_INFO_RE_EXP  # + r")?"
+    _ORIGINAL_FORMAT_RE_EXP + r"\s*[\(:-]\s*" + _SCAN_INFO_RE_EXP  # + r")?"
 )
 # Keep this even though comicfn2dict doesn't use it directly
 ORIGINAL_FORMAT_NAKED_RE: Pattern = re_compile(_ORIGINAL_FORMAT_RE_EXP)
@@ -187,7 +209,11 @@ ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE: Pattern = re_compile(
     r"\(" + _ORIGINAL_FORMAT_RE_EXP + r"\)\s+\(" + _SCAN_INFO_RE_EXP + r"\)"
 )
 
-SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b")
+# "c2c" takes its own parens with it, so the pop doesn't leave "(/)" behind. A
+# paren group right after it is the scan info: "(c2c) (Scanner-DCP)".
+SCAN_INFO_SECONDARY_RE: Pattern = re_compile(
+    r"\(?\b(?P<secondary_scan_info>c2c)\b\)?(\s*\((?P<scan_info>[^()/]+)\))?"
+)
 
 # ISSUE
 # The atomic group (?>...) stops the overlapping \w, \d and [.\d] quantifiers
@@ -197,7 +223,7 @@ SCAN_INFO_SECONDARY_RE: Pattern = re_compile(r"\b(?P<secondary_scan_info>c2c)\b"
 # follows an issue in each regex never matches after a shorter one unless it
 # also matches after the longest.
 _ISSUE_RE_EXP = r"(?P<issue>(?>-?\w*(½|\d+)[\.\d+]*\w*))"
-_ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
+_ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>[0-9]+)\)"
 ISSUE_NUMBER_RE: Pattern = re_compile(
     r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"
 )
@@ -215,16 +241,16 @@ ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")
 ISSUE_KEYWORD_RE: Pattern = re_compile(r"[-\s]issue[-\s]+(?P<issue>\d+(?:\.\d+)?)")
 
 # Volume
-_VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
+_VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>[0-9]+)\)"
 _VOLUME_RE_EXP = (
-    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)(\W*"
+    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>[0-9]+)(\W*"
     + _VOLUME_COUNT_RE_EXP
     + r")?"
     + r")"
 )
 VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
-    r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
+    r"(\(?" + r"(?P<volume>[0-9]+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )
 # Word-number volumes: "Book One" through "Book Twenty". The match for
 # the volume captures the word; ComicFilenameParser._normalize_volume
@@ -255,7 +281,7 @@ WORD_NUMBER_TO_DIGIT: MappingProxyType[str, str] = MappingProxyType(
     {word: str(index + 1) for index, word in enumerate(WORD_NUMBERS)}
 )
 BOOK_VOLUME_RE: Pattern = re_compile(
-    r"(?P<title>book\s*(?P<volume>\d+|" + r"|".join(WORD_NUMBERS) + r"))\b"
+    r"(?P<title>book\s*(?P<volume>[0-9]+|" + r"|".join(WORD_NUMBERS) + r"))\b"
 )
 
 # Publisher
@@ -272,6 +298,12 @@ PUBLISHER_AMBIGUOUS_TOKEN_RE: Pattern = re_compile(
     r"(^|\/)" + _PUBLISHER_AMBIGUOUS_RE_EXP + r"($|\/)"
 )
 PUBLISHER_UNAMBIGUOUS_RE: Pattern = re_compile(_PUBLISHER_UNAMBIGUOUS_RE_EXP)
+PUBLISHER_UNAMBIGUOUS_PAREN_RE: Pattern = re_compile(
+    _PUBLISHER_UNAMBIGUOUS_RE_EXP, parenthify=True
+)
+PUBLISHER_AMBIGUOUS_PAREN_RE: Pattern = re_compile(
+    _PUBLISHER_AMBIGUOUS_RE_EXP, parenthify=True
+)
 PUBLISHER_AMBIGUOUS_RE = re_compile(_PUBLISHER_AMBIGUOUS_RE_EXP)
 
 # LONG STRINGS
@@ -305,7 +337,16 @@ BY_AUTHOR_RE: Pattern = re_compile(r"\s+by\s+\S+\s+\S+\s+\S+(?:\s+\S+)*\s*$")
 # followed by whitespace.
 DASH_SEPARATOR_RE: Pattern = re_compile(r"(?:(?<=\w)-\s+|\s+-\s+)(?=\S)")
 
-REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"(?P<remainders>\(.*\))")
+# A run of leftover paren groups. It can't cross a token delimiter, which marks
+# where an earlier pass popped a field, so the delimiter never ends up inside a
+# remainder and "(4 covers) #001 (2020) (repaired)" gives two runs, not one.
+REMAINDER_PAREN_GROUPS_RE: Pattern = re_compile(r"\([^/]*\)")
+# The remainders group as dict2comicfn writes it: in brackets, at the end, with
+# no space before it. It matches only that form, so a name with " [5 covers]"
+# keeps reading it as a paren group.
+WRITTEN_REMAINDERS_RE: Pattern = re_compile(
+    r"(?:^|(?<=\S))\[(?P<remainders>[^\[\]]+)\]$"
+)
 # A leftover paren group whose content is Title Case, alphabetic-only (no
 # digits, no commas), used to promote FCBD-style subtitles like
 # "Free Comic Book Day 2015 (Avengers)" -> title="Avengers". Only fires when

@@ -31,3 +31,11 @@ def test_parse_long_digit_run_is_fast():
     elapsed = perf_counter() - start
     assert md == {"ext": "cbz", "issue": digits, "series": "Batman"}
     assert elapsed < 1
+
+
+def test_parse_remainders_order():
+    """Remainders are leftover text, then paren groups, then the written group."""
+    md = ComicFilenameParser(
+        "Long Series Name 001 (2000) Title (TPB) (Releaser) Extra (4 covers)[Written].cbz"
+    ).parse()
+    assert md["remainders"] == ("Extra", "(4 covers)", "Written")
