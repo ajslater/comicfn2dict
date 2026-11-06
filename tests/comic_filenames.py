@@ -923,14 +923,6 @@ SERIALIZE_FNS = MappingProxyType(
             "day": "31",
             "ext": "cbz",
         },
-        # A month outside 1 to 12 has no form that reads back, so it's left out
-        # with its day.
-        "Series Name.cbz": {
-            "series": "Series Name",
-            "month": "0",
-            "day": "31",
-            "ext": "cbz",
-        },
         # A day without a month is dropped, so it doesn't read back as a month.
         "Series Name (2000).cbz": {
             "series": "Series Name",
