@@ -23,12 +23,14 @@ def issue_formatter(issue: str) -> str:
 
 
 _PAREN_FMT: str = "({})"
+# Pad on the left: a bare "{:03}" pads a str on the right.
+_COUNT_FMT: str = "(of {:0>3})"
 _FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
     ("series", "{}"),
     ("volume", "v{}"),
-    ("volume_count", "(of {:03})"),
+    ("volume_count", _COUNT_FMT),
     ("issue", issue_formatter),
-    ("issue_count", "(of {:03})"),
+    ("issue_count", _COUNT_FMT),
     ("date", _PAREN_FMT),
     ("title", "{}"),
     ("publisher", _PAREN_FMT),
@@ -56,15 +58,16 @@ class ComicFilenameSerializer:
             return
         parts = []
         for key in _DATE_KEYS:
-            if part := self.metadata.get(key):
-                if key == "month" and not parts:
-                    with suppress(TypeError):
-                        part = month_abbr[int(part)]
-
-                parts.append(part)
+            part = self.metadata.get(key)
+            if not part:
+                if key == "month":
+                    # Drop a day without a month, which would read as a month.
+                    break
+                continue
             if key == "month" and not parts:
-                # noop if only day.
-                break
+                with suppress(TypeError):
+                    part = month_abbr[int(part)]
+            parts.append(part)
         if parts:
             parts = (str(part) for part in parts)
             date = "-".join(parts)
@@ -82,11 +85,14 @@ class ComicFilenameSerializer:
     def _add_remainder(self) -> str:
         """Add the remainders specially."""
         if remainders := self.metadata.get("remainders"):
-            if isinstance(remainders, Sequence):
-                remainders = (str(remainder) for remainder in remainders)
-                remainder = " ".join(remainders)
-            else:
-                remainder = str(remainders)
+            match remainders:
+                # A str is a Sequence too, but of characters.
+                case str():
+                    remainder = remainders
+                case Sequence():
+                    remainder = " ".join(str(remainder) for remainder in remainders)
+                case _:
+                    remainder = str(remainders)
             return f"[{remainder}]"
         return ""
 
