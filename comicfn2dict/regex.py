@@ -101,7 +101,7 @@ _DOUBLE_UNDERSCORE_RE = re_compile(r"__(.*)__")
 # Open-ended series-year notation "(2022-)" and ranged "(2022-2024)" both
 # get normalised to "(2022)" so the dual-year logic in _parse_dates assigns
 # the start year as the volume.
-_VOLUME_YEAR_RANGE_RE = re_compile(r"\(([12]\d{3})-(?:[12]\d{3})?\)")
+_VOLUME_YEAR_RANGE_RE = re_compile(r"\(([12][0-9]{3})-(?:[12][0-9]{3})?\)")
 REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
     {
         _DOUBLE_UNDERSCORE_RE: (r"(\1)", 0),
@@ -115,7 +115,9 @@ REGEX_SUBS: MappingProxyType[Pattern, tuple[str, int]] = MappingProxyType(
 )
 
 ### DATES
-_YEAR_RE_EXP = r"(?P<year>[12]\d{3})"
+# Numbers the schema gives a pattern for (year, month, day, volume and the
+# counts) use [0-9], not \d, which matches any Unicode digit, such as "٣".
+_YEAR_RE_EXP = r"(?P<year>[12][0-9]{3})"
 _MONTH_ALPHA_RE_EXP = r"(" + "(?P<alpha_month>" + r"|".join(MONTHS) + r")\.?)"
 # Months 1 to 12 and days 1 to 31 only, so "(13-31-2000)" doesn't read a month
 # from the middle of "13".
@@ -135,7 +137,7 @@ _ALPHA_MONTH_RANGE = (
 )
 ALPHA_MONTH_RANGE_RE: Pattern = re_compile(_ALPHA_MONTH_RANGE)
 
-_DAY_RE_EXP = r"(?P<day>(0?[1-9]|[12]\d|3[01]))"
+_DAY_RE_EXP = r"(?P<day>(0?[1-9]|[12][0-9]|3[01]))"
 _DATE_DELIM = r"[-\s]+"
 _MONTH_FIRST_DATE_RE_EXP = (
     r"(\(?\b"
@@ -217,7 +219,7 @@ SCAN_INFO_SECONDARY_RE: Pattern = re_compile(
 # follows an issue in each regex never matches after a shorter one unless it
 # also matches after the longest.
 _ISSUE_RE_EXP = r"(?P<issue>(?>-?\w*(½|\d+)[\.\d+]*\w*))"
-_ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>\d+)\)"
+_ISSUE_COUNT_RE_EXP = r"\(of\s*(?P<issue_count>[0-9]+)\)"
 ISSUE_NUMBER_RE: Pattern = re_compile(
     r"(\(?#" + _ISSUE_RE_EXP + r"\)?)" + r"(\W*" + _ISSUE_COUNT_RE_EXP + r")?"
 )
@@ -235,16 +237,16 @@ ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")
 ISSUE_KEYWORD_RE: Pattern = re_compile(r"[-\s]issue[-\s]+(?P<issue>\d+(?:\.\d+)?)")
 
 # Volume
-_VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>\d+)\)"
+_VOLUME_COUNT_RE_EXP = r"\(of\s*(?P<volume_count>[0-9]+)\)"
 _VOLUME_RE_EXP = (
-    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>\d+)(\W*"
+    r"((?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>[0-9]+)(\W*"
     + _VOLUME_COUNT_RE_EXP
     + r")?"
     + r")"
 )
 VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
-    r"(\(?" + r"(?P<volume>\d+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
+    r"(\(?" + r"(?P<volume>[0-9]+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )
 # Word-number volumes: "Book One" through "Book Twenty". The match for
 # the volume captures the word; ComicFilenameParser._normalize_volume
@@ -275,7 +277,7 @@ WORD_NUMBER_TO_DIGIT: MappingProxyType[str, str] = MappingProxyType(
     {word: str(index + 1) for index, word in enumerate(WORD_NUMBERS)}
 )
 BOOK_VOLUME_RE: Pattern = re_compile(
-    r"(?P<title>book\s*(?P<volume>\d+|" + r"|".join(WORD_NUMBERS) + r"))\b"
+    r"(?P<title>book\s*(?P<volume>[0-9]+|" + r"|".join(WORD_NUMBERS) + r"))\b"
 )
 
 # Publisher

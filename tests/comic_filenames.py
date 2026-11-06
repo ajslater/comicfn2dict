@@ -893,6 +893,25 @@ FNS.update(
     }
 )
 
+# Tests for 1.1.0 - names dict2comicfn writes, and the review fixes.
+FNS.update(
+    {
+        # Only ASCII digits are numbers where the schema has a [0-9] pattern.
+        "Series #1 v٣.cbz": {
+            "series": "Series",
+            "issue": "1",
+            "title": "v٣",
+            "ext": "cbz",
+        },
+        "Series 1 (of ٣).cbz": {
+            "series": "Series",
+            "issue": "1",
+            "remainders": ("(of ٣)",),
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)
