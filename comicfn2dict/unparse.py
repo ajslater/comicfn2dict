@@ -22,6 +22,14 @@ def issue_formatter(issue: str) -> str:
     return "#{:0>" + str(pad) + "}"
 
 
+def _month_name(month: str | int) -> str | int:
+    """Name a month from 1 to 12. Leave any other month as it is."""
+    with suppress(TypeError, ValueError):
+        if 0 < (index := int(month)) < len(month_abbr):
+            return month_abbr[index]
+    return month
+
+
 _PAREN_FMT: str = "({})"
 # Pad on the left: a bare "{:03}" pads a str on the right.
 _COUNT_FMT: str = "(of {:0>3})"
@@ -65,8 +73,7 @@ class ComicFilenameSerializer:
                     break
                 continue
             if key == "month" and not parts:
-                with suppress(TypeError):
-                    part = month_abbr[int(part)]
+                part = _month_name(part)
             parts.append(part)
         if parts:
             parts = (str(part) for part in parts)

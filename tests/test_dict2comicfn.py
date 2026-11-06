@@ -14,6 +14,14 @@ def test_serialize_dict(item):
     assert test_fn == fn
 
 
+@pytest.mark.parametrize(("month", "date"), [("Dec", "Dec"), ("13", "13"), (12, "Dec")])
+def test_serialize_month_without_year(month, date):
+    """Months the schema doesn't allow are written, not crashed on."""
+    md = {"series": "Series Name", "month": month, "day": "31"}
+    fn = ComicFilenameSerializer(md).serialize()
+    assert fn == f"Series Name ({date}-31).cbz"
+
+
 def test_serialize_int_counts():
     """Int counts are padded on the left, like str counts."""
     md = {
