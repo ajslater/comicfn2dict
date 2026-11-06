@@ -2,7 +2,7 @@
 
 import pytest
 
-from comicfn2dict import ComicFilenameSerializer
+from comicfn2dict import ComicFilenameSerializer, comicfn2dict
 from tests.comic_filenames import SERIALIZE_FNS
 
 
@@ -45,3 +45,51 @@ def test_serialize_int_counts():
     }
     fn = ComicFilenameSerializer(md).serialize()
     assert fn == "Series Name v1 (of 006) #001 (of 012).cbz"
+
+
+@pytest.mark.parametrize(
+    ("issue", "token"),
+    [
+        ("1", "#001"),
+        ("1.5", "#001.5"),
+        ("27AU", "#027AU"),
+        ("½", "#000½"),
+        ("1½", "#001½"),
+        ("1024", "#1024"),
+        ("0", "#000"),
+        ("0.0.1", "#000.0.1"),
+        ("-1", "#-001"),
+        ("Omega", "#Omega"),
+        pytest.param(1, "#001", id="int-1"),
+    ],
+)
+def test_serialize_issue(issue, token):
+    """Issues are padded after any sign, letter issues aren't, and both read back."""
+    fn = ComicFilenameSerializer({"series": "Series Name", "issue": issue}).serialize()
+    assert fn == f"Series Name {token}.cbz"
+    assert comicfn2dict(fn)["issue"] == token.removeprefix("#")
+
+
+@pytest.mark.parametrize(
+    ("md", "date"),
+    [
+        ({"year": "2000", "month": "13", "day": "31"}, " (2000)"),
+        ({"year": "2000", "month": "", "day": "31"}, " (2000)"),
+        ({"year": "2000", "day": "3"}, " (2000)"),
+        ({"day": "31"}, ""),
+        ({"year": "2000", "date": ""}, " (2000)"),
+        ({"year": "2000", "date": None}, " (2000)"),
+        ({"year": "2000", "date": "Spring 2000"}, " (Spring 2000)"),
+    ],
+)
+def test_serialize_date_edges(md, date):
+    """A date is built from year, month and day unless a date is set."""
+    fn = ComicFilenameSerializer({"series": "Series Name", **md}).serialize()
+    assert fn == f"Series Name{date}.cbz"
+
+
+@pytest.mark.parametrize("ext", ["", None])
+def test_serialize_empty_ext(ext):
+    """An empty ext writes the default extension."""
+    fn = ComicFilenameSerializer({"series": "Series Name", "ext": ext}).serialize()
+    assert fn == "Series Name.cbz"

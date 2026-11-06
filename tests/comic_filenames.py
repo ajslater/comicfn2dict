@@ -896,6 +896,143 @@ FNS.update(
 # Tests for 1.1.0 - names dict2comicfn writes, and the review fixes.
 FNS.update(
     {
+        # "c2c" takes its parens with it, so no "(/)" is left as a remainder,
+        # and a group right after it is the scan info.
+        "X-Men 001 (1991) (c2c).cbz": {
+            "series": "X-Men",
+            "issue": "001",
+            "year": "1991",
+            "scan_info": "c2c",
+            "ext": "cbz",
+        },
+        "Amazing Spider-Man 001 (1963) (c2c) (Scanner-DCP).cbr": {
+            "series": "Amazing Spider-Man",
+            "issue": "001",
+            "year": "1963",
+            "scan_info": "Scanner-DCP",
+            "ext": "cbr",
+        },
+        # A ":" inside a group doesn't split runs, and scan info may have a
+        # space after its separator.
+        "Series 001 (2020) (Digital: Empire).cbz": {
+            "series": "Series",
+            "issue": "001",
+            "year": "2020",
+            "original_format": "Digital",
+            "scan_info": "Empire",
+            "ext": "cbz",
+        },
+        "Series #001 (2020) (Digital - Empire).cbz": {
+            "series": "Series",
+            "issue": "001",
+            "year": "2020",
+            "original_format": "Digital",
+            "scan_info": "Empire",
+            "ext": "cbz",
+        },
+        # Leftover paren groups on both sides of popped fields are joined.
+        "Series (4 covers) #001 (2020) (repaired).cbz": {
+            "series": "Series",
+            "issue": "001",
+            "year": "2020",
+            "remainders": ("(4 covers) (repaired)",),
+            "ext": "cbz",
+        },
+        # A known format or publisher alone in parens isn't a title.
+        "Batman 001 (2020) (Digital).cbz": {
+            "series": "Batman",
+            "issue": "001",
+            "year": "2020",
+            "original_format": "Digital",
+            "ext": "cbz",
+        },
+        "Batman 001 (2020) (digital).cbz": {
+            "series": "Batman",
+            "issue": "001",
+            "year": "2020",
+            "original_format": "digital",
+            "ext": "cbz",
+        },
+        "Batman 001 (2020) (DC).cbz": {
+            "series": "Batman",
+            "issue": "001",
+            "year": "2020",
+            "publisher": "DC",
+            "ext": "cbz",
+        },
+        # The subtitle pass still promotes a Title Case group that isn't one.
+        "Free Comic Book Day 2015 (Avengers).cbz": {
+            "series": "Free Comic Book Day",
+            "issue": "2015",
+            "title": "Avengers",
+            "ext": "cbz",
+        },
+        # Months are 1 to 12 and days 1 to 31; anything else isn't a date.
+        "Series (13-31-2000).cbz": {
+            "series": "Series",
+            "remainders": ("(13-31-2000)",),
+            "ext": "cbz",
+        },
+        "Series (0-31-2000).cbz": {
+            "series": "Series",
+            "remainders": ("(0-31-2000)",),
+            "ext": "cbz",
+        },
+        "Series (2000-13-31).cbz": {
+            "series": "Series",
+            "remainders": ("(2000-13-31)",),
+            "ext": "cbz",
+        },
+        # A year-first date needs no day.
+        "Series Name (2000-3).cbz": {
+            "series": "Series Name",
+            "year": "2000",
+            "month": "3",
+            "ext": "cbz",
+        },
+        # A year-first date after another field takes its "(" with it.
+        "Test Numeric Year #002 (2001-02-24).cbz": {
+            "series": "Test Numeric Year",
+            "issue": "002",
+            "year": "2001",
+            "month": "02",
+            "day": "24",
+            "ext": "cbz",
+        },
+        # A volume with a count is a volume, not issue "v1".
+        "Series v1 (of 003).cbz": {
+            "series": "Series",
+            "volume": "1",
+            "volume_count": "003",
+            "issue": "1",
+            "ext": "cbz",
+        },
+        # A trailing dot is no extension, on every Python version.
+        "Series Name.": {"series": "Series Name."},
+        # A trailing four-digit number with no run after it is an issue.
+        "Series Name 2013.cbz": {
+            "series": "Series Name",
+            "issue": "2013",
+            "ext": "cbz",
+        },
+        # A bracket group after a space is a paren group, not the written
+        # remainders group.
+        "Series #001 (2020) [(5 covers)].cbz": {
+            "series": "Series",
+            "issue": "001",
+            "year": "2020",
+            "remainders": ("(5 covers)",),
+            "ext": "cbz",
+        },
+        # A run left after a preset title is a remainder.
+        "Brick Walker's Beanbag Book One: Extra.cbz": {
+            "series": "Brick Walker's Beanbag",
+            "volume": "1",
+            "issue": "1",
+            "title": "Book One",
+            "remainders": ("Extra",),
+            "ext": "cbz",
+        },
         # Only ASCII digits are numbers where the schema has a [0-9] pattern.
         "Series #1 v٣.cbz": {
             "series": "Series",
@@ -981,4 +1118,105 @@ SERIALIZE_FNS = MappingProxyType(
             "ext": "cbz",
         },
     }
+)
+
+# Names as dict2comicfn writes them, which read back to a dict that writes the
+# same name again.
+ROUND_TRIP_FNS: tuple[str, ...] = (
+    "Long Series Name #001 (2000) Title (TPB) (Releaser).cbz",
+    "Series Name (2000-12-31).cbz",
+    "Series Name (2000-12).cbz",
+    "Series Name (Dec-31).cbz",
+    "Series Name (2000).cbz",
+    "King of Skittles #001 (of 005) (2020) (digital) (Son of Ultron-Empire).cbr",
+    "Series Name[foo bar].cbz",
+    (
+        "Conan the Barbarian #001 (2025) Scourge of the Serpent "
+        "(Digital) (Mephisto-Empire)[(5 covers)].cbz"
+    ),
+    "Series Name #001 (2020-12).cbz",
+    "Series Name #001 (Dec-31).cbz",
+    "Series Name #001 (Dec).cbz",
+    "Series Name #001 (2020-6-1).cbz",
+    "Series Name #002 (2001-02-24).cbz",
+    "Series Name #001 (2020-12-31) Title.cbz",
+    "Series Name #001 (2020) (Digital).cbz",
+    "Series Name #001 (2020) (DC).cbz",
+    "Series Name #001 (2020) (DC) (Digital) (Empire).cbz",
+    "Series Name #001 (2020) (c2c).cbz",
+    "X-Men #001 (1991) (c2c).cbz",
+    "Series Name #001[Extra].cbz",
+    "Series Name #001 (2020) Title (TPB) (Releaser)[Out Of Place].cbz",
+    "Series Name v1 (of 003) #001.cbz",
+    "Series Name #-001.cbz",
+    "Series Name #Omega.cbz",
+    "Series Name #000½.cbz",
+    "[a].cbz",
+)
+
+# Dicts in the form comicfn2dict returns them (padded issues, tuple
+# remainders), which dict2comicfn writes to a name that reads back the same.
+ROUND_TRIP_MDS: tuple[dict, ...] = (
+    TEST_COMIC_FIELDS,
+    TEST_COMIC_FIELDS_VOL,
+    {
+        "series": "Series Name",
+        "issue": "001",
+        "year": "2020",
+        "month": "12",
+        "ext": "cbz",
+    },
+    {
+        "series": "Series Name",
+        "issue": "001",
+        "year": "2020",
+        "month": "12",
+        "day": "31",
+        "title": "Title",
+        "ext": "cbz",
+    },
+    {"series": "Series Name", "month": "12", "day": "31", "ext": "cbz"},
+    {"series": "Series Name", "month": "01", "ext": "cbz"},
+    {
+        "series": "Series Name",
+        "issue": "001",
+        "year": "2020",
+        "publisher": "DC",
+        "original_format": "Digital",
+        "scan_info": "Empire",
+        "ext": "cbz",
+    },
+    {
+        "series": "Series Name",
+        "issue": "001",
+        "year": "2020",
+        "original_format": "Digital",
+        "ext": "cbz",
+    },
+    {"series": "Series Name", "issue": "001", "publisher": "Marvel", "ext": "cbz"},
+    {
+        "series": "Amazing Spider-Man",
+        "issue": "001",
+        "year": "1963",
+        "scan_info": "c2c",
+        "ext": "cbr",
+    },
+    {
+        "series": "Series Name",
+        "volume": "1",
+        "volume_count": "003",
+        "issue": "001",
+        "issue_count": "012",
+        "ext": "cbz",
+    },
+    {"series": "Series Name", "issue": "-001", "ext": "cbz"},
+    {"series": "Series Name", "issue": "Omega", "ext": "cbz"},
+    {"series": "Series Name", "issue": "001", "remainders": ("Extra",), "ext": "cbz"},
+    {**TEST_COMIC_FIELDS, "remainders": ("Out Of Place",)},
+    SERIALIZE_FNS[
+        (
+            "Conan the Barbarian #001 (2025) Scourge of the Serpent "
+            "(Digital) (Mephisto-Empire)[(5 covers)].cbz"
+        )
+    ],
 )
