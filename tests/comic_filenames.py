@@ -281,13 +281,12 @@ FNS.update(
             "scan_info": "c2c",
             "remainders": ("(repaired)",),
         },
-        # Extra - in the series
+        # A lone - left between fields is dropped.
         " X-Men-V1-#067.cbr": {
             "ext": "cbr",
             "issue": "067",
             "series": "X-Men",
             "volume": "1",
-            "remainders": ("-",),
         },
         "Aquaman - Green Arrow - Deep Target #01 (of 07) (2021).cbr": {
             "ext": "cbr",
@@ -719,10 +718,21 @@ FNS.update(
             "year": "2020",
             "series": "The Lady Who F#&%ed Up Space",
         },
-        # Single-character filename — falls into remainders, no series detected.
+        # A one-character series or title.
         "a.cbz": {
             "ext": "cbz",
-            "remainders": ("a",),
+            "series": "a",
+        },
+        "S #001.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "series": "S",
+        },
+        "S: T #001.cbz": {
+            "ext": "cbz",
+            "issue": "001",
+            "series": "S",
+            "title": "T",
         },
         # Pure-numeric stem.
         "97.cbz": {
@@ -936,6 +946,31 @@ FNS.update(
             "issue": "001",
             "year": "2020",
             "remainders": ("(4 covers) (repaired)",),
+            "ext": "cbz",
+        },
+        # Leftover paren groups are taken one at a time, so the text between
+        # them is still the series and title.
+        "(4 covers) Series Name (repaired) #001 (2020).cbz": {
+            "series": "Series Name",
+            "issue": "001",
+            "year": "2020",
+            "remainders": ("(4 covers) (repaired)",),
+            "ext": "cbz",
+        },
+        "Series Name #001 (4 covers) Title (repaired) (2020).cbz": {
+            "series": "Series Name",
+            "issue": "001",
+            "year": "2020",
+            "title": "Title",
+            "remainders": ("(4 covers) (repaired)",),
+            "ext": "cbz",
+        },
+        # A nested paren group is one remainder.
+        "Series Name #001 (2020) (extras (covers only)).cbz": {
+            "series": "Series Name",
+            "issue": "001",
+            "year": "2020",
+            "remainders": ("(extras (covers only))",),
             "ext": "cbz",
         },
         # A known format or publisher alone in parens isn't a title.
@@ -1165,6 +1200,7 @@ ROUND_TRIP_FNS: tuple[str, ...] = (
     "Series Name #Omega.cbz",
     "Series Name #000½.cbz",
     "[a].cbz",
+    "S #001.cbz",
 )
 
 # Dicts in the form comicfn2dict returns them (padded issues, tuple
