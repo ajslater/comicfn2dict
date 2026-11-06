@@ -52,6 +52,7 @@ lint = [
 test = [
   "coverage~=7.0",
   "deepdiff~=9.0",
+  "jsonschema~=4.26",
   "pytest-asyncio~=1.0",
   "pytest-cov~=7.1",
 ]

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ajslater/comicfn2dict/blob/main/comicfn2dict/schemas/comicfn2dict.schema.json",
+  "title": "comicfn2dict",
+  "description": "The metadata dict that `comicfn2dict()` parses from a comic filename and `dict2comicfn()` writes a filename from. Every key is optional: `comicfn2dict()` leaves a key out rather than return it empty, and `dict2comicfn()` skips a key that is missing or empty.",
+  "type": "object",
+  "properties": {
+    "series": {
+      "description": "The series name: the first run of free text. Underscores become spaces, dots between letters become spaces (`Z.O.O.` becomes `Z O O`), and a trailing credit of three or more words after `by` is dropped.",
+      "type": "string",
+      "minLength": 1
+    },
+    "volume": {
+      "description": "The volume number, from `v1`, `Vol. 1`, `Volume 1`, `1 (of 3)` or `Book One`, which becomes `1`. When a filename holds two parenthesized years, the first is the volume.",
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "volume_count": {
+      "description": "The number of volumes, from `(of N)` after the volume.",
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "issue": {
+      "description": "The issue number as written, with any leading zeros and suffix: `001`, `1.1`, `½`, `27AU`, `54.LR`. It is read from `#N`, `N (of M)`, the word `issue`, or a number that starts or ends a run of text. A `#` before letters gives a letter issue such as `Omega`. With no issue but a volume, the volume is copied here.",
+      "type": "string",
+      "minLength": 1
+    },
+    "issue_count": {
+      "description": "The number of issues, from `(of N)` after the issue.",
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "year": {
+      "description": "The year, from a parenthesized year such as `(2020)`, a date, or a year that ends a run of text.",
+      "type": "string",
+      "pattern": "^[12][0-9]{3}$"
+    },
+    "month": {
+      "description": "The month number. A numeric month is kept as written. A month name, full or abbreviated, becomes its two-digit number: `Dec` becomes `12`. Of a range such as `Jan-Feb`, only the first month is kept.",
+      "type": "string",
+      "pattern": "^(0?[0-9]|1[0-2])$"
+    },
+    "day": {
+      "description": "The day of the month as written, from a date such as `2020-12-31` or `Dec 31, 2020`.",
+      "type": "string",
+      "pattern": "^([0-2]?[0-9]|3[01])$"
+    },
+    "title": {
+      "description": "The issue title: free text after the series and an issue, volume, year or month, and before the original format and scan info. It is also read from the text after a lone spaced dash, as in `Series - Title`, from a single Title Case parenthesized group, or from `Book N`.",
+      "type": "string",
+      "minLength": 1
+    },
+    "publisher": {
+      "description": "A publisher that comicfn2dict knows by name, as written in the filename: `DC`, `Marvel`, `Image`.",
+      "type": "string",
+      "minLength": 1
+    },
+    "original_format": {
+      "description": "A publication format that comicfn2dict knows by name, as written in the filename: `TPB`, `Digital`, `HC`.",
+      "type": "string",
+      "minLength": 1
+    },
+    "scan_info": {
+      "description": "The scanner or release group: the parenthesized group after the original format, as in `(Digital) (Empire)`, or the text after a `-` or `:` inside the format's group, as in `(Digital-Empire)`. A bare `c2c` fills it when nothing else does.",
+      "type": "string",
+      "minLength": 1
+    },
+    "remainders": {
+      "description": "Text that fits no other key, as a tuple of strings. Leftover parenthesized and bracketed groups are kept together as one string in parentheses: `[5 covers]` becomes `(5 covers)`. `dict2comicfn()` also takes a single string; `comicfn2dict()` always returns a tuple.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "writeOnly": true
+        }
+      ]
+    },
+    "ext": {
+      "description": "The file extension, without its dot: `cbz`, `cbr`, `pdf`. `dict2comicfn()` writes `cbz` when the key is missing.",
+      "type": "string"
+    },
+    "date": {
+      "description": "Read by `dict2comicfn()` only; `comicfn2dict()` never returns it. Text written as the date in place of the one built from year, month and day.",
+      "type": "string",
+      "minLength": 1,
+      "writeOnly": true
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "series": "Conan the Barbarian",
+      "issue": "001",
+      "year": "2025",
+      "title": "Scourge of the Serpent",
+      "original_format": "Digital",
+      "scan_info": "Mephisto-Empire",
+      "remainders": ["(5 covers)"],
+      "ext": "cbz"
+    }
+  ]
+}
