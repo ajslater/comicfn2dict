@@ -21,6 +21,11 @@
   page.
 - Leftover text is kept in `remainders` instead of dropped.
 
+### ♻️ Changed
+
+- Change docs to use Zensical instead of MkDocs. The API reference moved to
+  [/reference/comicfn2dict/](https://comicfn2dict.readthedocs.io/reference/comicfn2dict/).
+
 ### 🐛 Fixed
 
 - What `dict2comicfn()` writes now reads back: `(2020-12)`, `(Dec)` and
