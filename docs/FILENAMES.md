@@ -37,7 +37,9 @@ The grammar uses the EBNF notation of the
 [9]  Date           ::= "(" DateValue ")"
 [10] DateValue      ::= Year ("-" Month ("-" Day)?)?  /* year, month, day */
                       | MonthName ("-" Day)?          /* month, day */
+                      | Month ("-" Day)?              /* month, day */
                       | Text                          /* date */
+                        [ wfc: Month Name ]
 [11] Year           ::= [12] Digit Digit Digit
 [12] Month          ::= Digit Digit?
 [13] Day            ::= Digit Digit?
@@ -70,9 +72,8 @@ The grammar says how `dict2comicfn()` writes;
 - **Fields** come in a fixed order: series, volume, volume count, issue, issue
   count, date, title, publisher, original format, scan info.
 - **Date** is the `date` key when it is set. Otherwise it's built from `year`,
-  `month` and `day`, joined with `-`. With no year, the month is written as its
-  name. A day without a month is left out, because it would read back as a
-  month.
+  `month` and `day`, joined with `-`. A day without a month is left out, because
+  it would read back as a month.
 - **Remainders** joins the `remainders` strings with spaces, inside one pair of
   square brackets. A single string is written as it is.
 - **Extension** is the `ext` key, or `cbz` when the key is missing. It's left
@@ -89,6 +90,10 @@ follow the last field with no space.
 with three digits. An issue that already does is written as it is: `1` becomes
 `#001`, `1.5` becomes `#001.5`, `27AU` becomes `#027AU`, `½` becomes `#000½` and
 `1024` stays `#1024`.
+
+**Month Name:** with no year, a month from 1 to 12 is written as its name, so
+`12` becomes `Dec`. Any other month is written as it is, so `0` stays `0`. A
+month that follows a year is always written as it is.
 
 **Count Padding:** a count shorter than three digits is padded on the left with
 zeros to three, whether it's a string or an int: `"5"`, `"05"` and `5` are all
