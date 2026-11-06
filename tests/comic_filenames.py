@@ -876,6 +876,20 @@ FNS.update(
             "issue": "1",
             "series": "criminal",
         },
+        # Runs of text left after the series and title are remainders.
+        "Long Series Name 001 (2000) Title (TPB) (Releaser) Extra.cbz": {
+            **TEST_COMIC_FIELDS,
+            "remainders": ("Extra",),
+        },
+        "Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz": {
+            "series": "Long Series Name",
+            "issue": "001",
+            "year": "2000",
+            "original_format": "TPB",
+            "scan_info": "Releaser",
+            "remainders": ("Out Of Place",),
+            "ext": "cbz",
+        },
     }
 )
 
@@ -907,6 +921,29 @@ SERIALIZE_FNS = MappingProxyType(
             "series": "Series Name",
             "month": "12",
             "day": "31",
+            "ext": "cbz",
+        },
+        # A day without a month is dropped, so it doesn't read back as a month.
+        "Series Name (2000).cbz": {
+            "series": "Series Name",
+            "year": "2000",
+            "day": "3",
+            "ext": "cbz",
+        },
+        # Counts are padded on the left, as parsed strings.
+        "King of Skittles #001 (of 005) (2020) (digital) (Son of Ultron-Empire).cbr": {
+            "series": "King of Skittles",
+            "issue": "01",
+            "issue_count": "05",
+            "year": "2020",
+            "ext": "cbr",
+            "original_format": "digital",
+            "scan_info": "Son of Ultron-Empire",
+        },
+        # A single str remainder is written whole, not as its characters.
+        "Series Name[foo bar].cbz": {
+            "series": "Series Name",
+            "remainders": "foo bar",
             "ext": "cbz",
         },
         # A parenthesized remainder serializes inside brackets without doubling

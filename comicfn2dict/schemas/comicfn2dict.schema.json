@@ -66,13 +66,22 @@
       "minLength": 1
     },
     "remainders": {
-      "description": "Text that fits no other key, as a tuple of strings. Leftover parenthesized and bracketed groups are kept together as one string in parentheses: `[5 covers]` becomes `(5 covers)`.",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "minLength": 1
-      },
-      "minItems": 1
+      "description": "Text that fits no other key, as a tuple of strings. Leftover parenthesized and bracketed groups are kept together as one string in parentheses: `[5 covers]` becomes `(5 covers)`. `dict2comicfn()` also takes a single string; `comicfn2dict()` always returns a tuple.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "writeOnly": true
+        }
+      ]
     },
     "ext": {
       "description": "The file extension, without its dot: `cbz`, `cbr`, `pdf`. `dict2comicfn()` writes `cbz` when the key is missing.",

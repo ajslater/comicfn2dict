@@ -443,6 +443,8 @@ class ComicFilenameParser:
             if unused_token:
                 unused_tokens.append(unused_token)
             remaining_key_index += 1
+        # Tokens past the series and title are remainders.
+        unused_tokens.extend(tokens)
 
         self._unparsed_path = " ".join(unused_tokens) if unused_tokens else ""
         self._log("After Series & Title")
