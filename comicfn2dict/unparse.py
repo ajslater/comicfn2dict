@@ -10,25 +10,48 @@ from types import MappingProxyType
 from comicfn2dict.log import print_log_header
 
 
-def issue_formatter(issue: str) -> str:
-    """Formatter to zero pad issues."""
-    i = 0
-    issue = issue.lstrip("0")
-    for c in issue:
+def issue_formatter(issue: str | int) -> str:
+    """
+    Return the issue token: "#" and the issue, zero padded to three digits.
+
+    Padding goes on the left of the leading digits and after a "-" sign, so
+    "-1" is "#-001". A letter issue such as "Omega" has no digits to pad.
+    """
+    issue = str(issue)
+    sign = "-" if issue.startswith("-") else ""
+    issue = issue.removeprefix(sign)
+    if issue and not any(c.isdigit() for c in issue) and "½" not in issue:
+        return f"#{sign}{issue}"
+    stripped = issue.lstrip("0")
+    digits = 0
+    for c in stripped:
         if not c.isdigit():
             break
-        i += 1
-    pad = 3 + len(issue) - i
-    return "#{:0>" + str(pad) + "}"
+        digits += 1
+    pad = 3 + len(stripped) - digits
+    return f"#{sign}{issue:0>{pad}}"
+
+
+_MONTH_NUMBERS: range = range(1, len(month_abbr))
+
+
+def _month_index(month: str | int | None) -> int | None:
+    """Return the month as an int from 1 to 12, or None for anything else."""
+    with suppress(TypeError, ValueError):
+        if month is not None and (index := int(month)) in _MONTH_NUMBERS:
+            return index
+    return None
 
 
 _PAREN_FMT: str = "({})"
+# Pad on the left: a bare "{:03}" pads a str on the right.
+_COUNT_FMT: str = "(of {:0>3})"
 _FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
     ("series", "{}"),
     ("volume", "v{}"),
-    ("volume_count", "(of {:03})"),
+    ("volume_count", _COUNT_FMT),
     ("issue", issue_formatter),
-    ("issue_count", "(of {:03})"),
+    ("issue_count", _COUNT_FMT),
     ("date", _PAREN_FMT),
     ("title", "{}"),
     ("publisher", _PAREN_FMT),
@@ -37,7 +60,6 @@ _FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
 )
 _EMPTY_VALUES: tuple[None, str] = (None, "")
 _DEFAULT_EXT = "cbz"
-_DATE_KEYS = ("year", "month", "day")
 
 
 class ComicFilenameSerializer:
@@ -52,19 +74,19 @@ class ComicFilenameSerializer:
 
     def _add_date(self) -> None:
         """Construct date from Y-m-D if they exist."""
-        if "date" in self.metadata:
+        if self.metadata.get("date"):
             return
         parts = []
-        for key in _DATE_KEYS:
-            if part := self.metadata.get(key):
-                if key == "month" and not parts:
-                    with suppress(TypeError):
-                        part = month_abbr[int(part)]
-
-                parts.append(part)
-            if key == "month" and not parts:
-                # noop if only day.
-                break
+        if year := self.metadata.get("year"):
+            parts.append(year)
+        month = self.metadata.get("month")
+        if (index := _month_index(month)) is not None:
+            # After a year, a month is written as given. Alone, it's named.
+            parts.append(month if year else month_abbr[index])
+            if day := self.metadata.get("day"):
+                parts.append(day)
+        # Any other month, and a day without one, has no form that reads back,
+        # so it's left out. The year is still written.
         if parts:
             parts = (str(part) for part in parts)
             date = "-".join(parts)
@@ -76,17 +98,20 @@ class ComicFilenameSerializer:
         val = self.metadata.get(tag)
         if val in _EMPTY_VALUES:
             return ""
-        final_fmt = fmt if isinstance(fmt, str) else fmt(val)
-        return final_fmt.format(val).strip()
+        token = fmt.format(val) if isinstance(fmt, str) else fmt(val)
+        return token.strip()
 
     def _add_remainder(self) -> str:
         """Add the remainders specially."""
         if remainders := self.metadata.get("remainders"):
-            if isinstance(remainders, Sequence):
-                remainders = (str(remainder) for remainder in remainders)
-                remainder = " ".join(remainders)
-            else:
-                remainder = str(remainders)
+            match remainders:
+                # A str is a Sequence too, but of characters.
+                case str():
+                    remainder = remainders
+                case Sequence():
+                    remainder = " ".join(str(remainder) for remainder in remainders)
+                case _:
+                    remainder = str(remainders)
             return f"[{remainder}]"
         return ""
 
@@ -105,7 +130,7 @@ class ComicFilenameSerializer:
         self._log("After remainder", fn)
 
         if self._ext:
-            ext = self.metadata.get("ext", _DEFAULT_EXT)
+            ext = self.metadata.get("ext") or _DEFAULT_EXT
             fn += f".{ext}"
             self._log("After ext", fn)
 
