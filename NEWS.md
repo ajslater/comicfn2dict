@@ -1,5 +1,12 @@
 # 📰 comicfn2dict News
 
+## v1.1.1
+
+### 🐛 Fixed
+
+- A volume or issue count with no volume or issue is left out instead of written
+  as `(of 3)`, which read back as leftover text.
+
 ## v1.1.0
 
 ### 💥 Breaking Changes
