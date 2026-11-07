@@ -24,9 +24,9 @@ The grammar uses the EBNF notation of the
 ```text
 [1]  Filename       ::= Basename Extension?
 [2]  Basename       ::= Fields? Remainders?
-[3]  Fields         ::= Series? (S? Volume)? (S? VolumeCount)? (S? Issue)?
-                        (S? IssueCount)? (S? Date)? (S? Title)? (S? Publisher)?
-                        (S? OriginalFormat)? (S? ScanInfo)?
+[3]  Fields         ::= Series? (S? Volume (S? VolumeCount)?)?
+                        (S? Issue (S? IssueCount)?)? (S? Date)? (S? Title)?
+                        (S? Publisher)? (S? OriginalFormat)? (S? ScanInfo)?
                         [ wfc: Field Separation ]
 [4]  Series         ::= Text                          /* series */
 [5]  Volume         ::= "v" Digit+                    /* volume */
@@ -77,6 +77,8 @@ The grammar says how `dict2comicfn()` writes;
 
 - **Fields** come in a fixed order: series, volume, volume count, issue, issue
   count, date, title, publisher, original format, scan info.
+- **VolumeCount** and **IssueCount** are written only after their volume or
+  issue. Alone, `(of 3)` would read back as a remainder.
 - **Date** is the `date` key when it is set and not empty. Otherwise it's built
   from `year`, `month` and `day`, joined with `-`. A day without a month is left
   out, because it would read back as a month.

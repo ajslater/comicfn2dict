@@ -93,3 +93,22 @@ def test_serialize_empty_ext(ext):
     """An empty ext writes the default extension."""
     fn = ComicFilenameSerializer({"series": "Series Name", "ext": ext}).serialize()
     assert fn == "Series Name.cbz"
+
+
+@pytest.mark.parametrize(
+    ("md", "fn"),
+    [
+        ({"volume_count": "3"}, "Series Name.cbz"),
+        ({"volume": "", "volume_count": "3"}, "Series Name.cbz"),
+        ({"issue_count": "12"}, "Series Name.cbz"),
+        (
+            {"volume_count": "3", "issue": "1", "issue_count": "12"},
+            "Series Name #001 (of 012).cbz",
+        ),
+    ],
+)
+def test_serialize_count_without_number(md, fn):
+    """A count is written only after the number it counts, so the name reads back."""
+    md = {"series": "Series Name", **md}
+    assert ComicFilenameSerializer(md).serialize() == fn
+    assert "remainders" not in comicfn2dict(fn)
