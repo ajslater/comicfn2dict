@@ -59,6 +59,11 @@ _FILENAME_FORMAT_TAGS: tuple[tuple[str, str | Callable], ...] = (
     ("scan_info", _PAREN_FMT),
 )
 _EMPTY_VALUES: tuple[None, str] = (None, "")
+# A count is written only after the number it counts. Alone, "(of 3)" reads
+# back as leftover text.
+_COUNT_OF: Mapping[str, str] = MappingProxyType(
+    {"volume_count": "volume", "issue_count": "issue"}
+)
 _DEFAULT_EXT = "cbz"
 
 
@@ -97,6 +102,9 @@ class ComicFilenameSerializer:
         """Add tags to the string."""
         val = self.metadata.get(tag)
         if val in _EMPTY_VALUES:
+            return ""
+        number = _COUNT_OF.get(tag)
+        if number and self.metadata.get(number) in _EMPTY_VALUES:
             return ""
         token = fmt.format(val) if isinstance(fmt, str) else fmt(val)
         return token.strip()

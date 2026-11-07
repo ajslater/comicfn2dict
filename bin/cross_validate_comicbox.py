@@ -33,7 +33,7 @@ from typing import Any
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 sys.path[:0] = [_PROJECT_ROOT]
 
-from comicbox.box import (  # noqa: E402  # pyright: ignore[reportMissingImports], #ty: ignore[unresolved-import]
+from comicbox.box import (  # noqa: E402  # pyright: ignore[reportMissingImports], #ty: ignore[import-not-found]
     Comicbox,
 )
 
