@@ -182,11 +182,11 @@ text, so `(Digital: Empire)` stays one group.
 The issue is a number after `#`, which may carry a decimal, a fraction, a sign
 or a suffix. A `#` before letters gives a letter issue. Without a `#`, the issue
 is the first of these to match: a number before `(of N)`, a number after the
-word `issue`, a number that ends a run of text, a number right before a `-` that
-starts the title, and a number that starts a run of text. A number before a `-`
-is passed over when it could be a year. When the name ends in `Part N` or
-`Pt. N`, that number belongs to the title, and the number before the `-` is the
-issue.
+word `issue`, a number that ends a run of text, a number right before a dash
+that starts the title, and a number that starts a run of text. That dash has a
+space on each side. A number before it is passed over when it could be a year.
+When the name ends in `Part N` or `Pt. N`, that number belongs to the title, and
+the number before the dash is the issue.
 
 | Filename                                                                  | Reads                                         |
 | ------------------------------------------------------------------------- | --------------------------------------------- |
@@ -285,7 +285,7 @@ or digit long. The title is the next run, when it comes after an issue, volume,
 year or month and before the original format and scan info. A run of one
 character that is not a letter or digit is a remainder. When only one run is
 left, a single dash followed by a space splits it into series and title. Two or
-more such dashes stay in the series. When the issue is read from before a `-`,
+more such dashes stay in the series. When the issue is read from before a dash,
 that dash is the split: the text before the issue is the series, earlier dashes
 included, and the text after it is the title. A lone parenthesized group in
 Title Case is a title, unless it's a known format or publisher. A lowercase one
