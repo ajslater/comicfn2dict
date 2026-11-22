@@ -21,9 +21,10 @@ that is missing or empty._
   ([Test](https://regexr.com/?expression=%5E%5B0-9%5D%2B%24)).
 - <a id="properties/issue"></a>**`issue`** _(string)_: The issue number as
   written, with any leading zeros and suffix: `001`, `1.1`, `½`, `27AU`,
-  `54.LR`. It is read from `#N`, `N (of M)`, the word `issue`, or a number that
-  starts or ends a run of text. A `#` before letters gives a letter issue such
-  as `Omega`. With no issue but a volume, the volume is copied here.
+  `54.LR`. It is read from `#N`, `N (of M)`, the word `issue`, a number that
+  starts or ends a run of text, or a number right before a dash, with a space on
+  each side, that starts the title. A `#` before letters gives a letter issue
+  such as `Omega`. With no issue but a volume, the volume is copied here.
   `dict2comicfn()` pads the leading digits to three, after any `-` sign, so `-1`
   is written `#-001`, and writes a letter issue unpadded, as `#Omega`. Length
   must be at least 1.

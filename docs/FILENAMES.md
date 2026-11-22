@@ -181,21 +181,26 @@ text, so `(Digital: Empire)` stays one group.
 
 The issue is a number after `#`, which may carry a decimal, a fraction, a sign
 or a suffix. A `#` before letters gives a letter issue. Without a `#`, the issue
-is a number before `(of N)`, a number after the word `issue`, or a number that
-ends or starts a run of text. Failing those, it is a number right before a ` - `
-that starts the title, unless it could be a year.
+is the first of these to match: a number before `(of N)`, a number after the
+word `issue`, a number that ends a run of text, a number right before a dash
+that starts the title, and a number that starts a run of text. That dash has a
+space on each side. A number before it is passed over when it could be a year.
+When the name ends in `Part N` or `Pt. N`, that number belongs to the title, and
+the number before the dash is the issue.
 
-| Filename                                                                  | Reads                               |
-| ------------------------------------------------------------------------- | ----------------------------------- |
-| `The Walking Dead #002 (2003).cbz`                                        | `issue: 002`                        |
-| `Earth X #½.cbz`                                                          | `issue: ½`                          |
-| `The Sensational Spider-Man v1 #-1 (1997).cbz`                            | `issue: -1`                         |
-| `The Amazing Spider-Man #54.LR.cbz`                                       | `issue: 54.LR`                      |
-| `Crimson Saga #Omega (2022).cbz`                                          | `issue: Omega`                      |
-| `King of Skittles 01 (of 05) (2020) (digital) (Son of Ultron-Empire).cbr` | `issue: 01`, `issue_count: 05`      |
-| `radiant-black-issue-1.pdf`                                               | `series: radiant black`, `issue: 1` |
-| `A Fractional Comic 8.54.cbz`                                             | `issue: 8.54`                       |
-| `Starling Tales 054 - The Long Night (2018).cbz`                          | `issue: 054`                        |
+| Filename                                                                  | Reads                                         |
+| ------------------------------------------------------------------------- | --------------------------------------------- |
+| `The Walking Dead #002 (2003).cbz`                                        | `issue: 002`                                  |
+| `Earth X #½.cbz`                                                          | `issue: ½`                                    |
+| `The Sensational Spider-Man v1 #-1 (1997).cbz`                            | `issue: -1`                                   |
+| `The Amazing Spider-Man #54.LR.cbz`                                       | `issue: 54.LR`                                |
+| `Crimson Saga #Omega (2022).cbz`                                          | `issue: Omega`                                |
+| `King of Skittles 01 (of 05) (2020) (digital) (Son of Ultron-Empire).cbr` | `issue: 01`, `issue_count: 05`                |
+| `radiant-black-issue-1.pdf`                                               | `series: radiant black`, `issue: 1`           |
+| `A Fractional Comic 8.54.cbz`                                             | `issue: 8.54`                                 |
+| `Starling Tales 054 - The Long Night (2018).cbz`                          | `issue: 054`                                  |
+| `100 Starlings 045 - The Long Night (2003).cbz`                           | `series: 100 Starlings`, `issue: 045`         |
+| `Starling 404 - The Long Night, Part 1 (1987).cbz`                        | `issue: 404`, `title: The Long Night, Part 1` |
 
 ### Volume
 
@@ -280,9 +285,11 @@ or digit long. The title is the next run, when it comes after an issue, volume,
 year or month and before the original format and scan info. A run of one
 character that is not a letter or digit is a remainder. When only one run is
 left, a single dash followed by a space splits it into series and title. Two or
-more such dashes stay in the series. A lone parenthesized group in Title Case is
-a title, unless it's a known format or publisher. A lowercase one is a
-remainder. So a lone scan info group with no format before it, such as
+more such dashes stay in the series. When the issue is read from before a dash,
+that dash is the split: the text before the issue is the series, earlier dashes
+included, and the text after it is the title. A lone parenthesized group in
+Title Case is a title, unless it's a known format or publisher. A lowercase one
+is a remainder. So a lone scan info group with no format before it, such as
 `(Empire)` in `Series #001 (2020) (Empire)`, reads as a title: nothing in the
 name tells a scanner from a subtitle such as the one in
 `Free Comic Book Day 2015 (Avengers)`.
@@ -301,6 +308,7 @@ trailing credit of three or more words after `by` is dropped from the series.
 | `Bardude - The Last Thing I Remember.cbz`                | `series: Bardude`, `title: The Last Thing I Remember`   |
 | `Knight Hour- Repealed #001 (2009).cbz`                  | `series: Knight Hour`, `title: Repealed`                |
 | `Sea King - Bow Hunter - Deep Object #001 (2021).cbr`    | `series: Sea King - Bow Hunter - Deep Object`           |
+| `Sky Pirates - Captain Vale 001 - Part One (2017).cbz`   | `series: Sky Pirates - Captain Vale`, `title: Part One` |
 | `Festival Showcase 2001 (Hidden Realm) #001 (2001).cbz`  | `series: Festival Showcase 2001`, `title: Hidden Realm` |
 | `Free Comic Book Day - Avengers.Hulk (2021).cbz`         | `series: Free Comic Book Day`, `title: Avengers Hulk`   |
 | `Free Comic Book Day 2015 (Avengers).cbz`                | `series: Free Comic Book Day`, `title: Avengers`        |

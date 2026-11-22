@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "GPL-3.0-only" }
 name = "comicfn2dict"
-version = "1.1.1"
+version = "1.1.2"
 
 [[project.authors]]
 name = "AJ Slater"
@@ -40,7 +40,7 @@ build = []
 lint = [
   "basedpyright~=1.38",
   "codespell~=2.4",
-  "complexipy~=8.2",
+  "complexipy~=9.0",
   "djlint~=1.3.dev0",
   "icecream~=2.1",
   "pathspec~=1.1.0",
@@ -62,11 +62,6 @@ ci = ["requests~=2.32"]
 [build-system]
 requires = ["uv_build~=0.13"]
 build-backend = "uv_build"
-
-[tool.uv]
-# TODO: Remove once deepdiff releases with cachebox>=6 (its <6 pin has no
-# cp315 wheels).
-override-dependencies = ["cachebox~=6.0"]
 
 [tool.uv.build-backend]
 module-root = ""
@@ -103,6 +98,7 @@ exclude = [
   "test-results",
   "typings",
   "vulture_ignorelist.py",
+  "tasks",
 ]
 pythonVersion = "3.11"
 failOnWarnings = false
@@ -169,7 +165,7 @@ pythonpath = ["."]
 asyncio_mode = "strict"
 
 [tool.radon]
-exclude = "*~,config/*,dist/*,frontend/*,node_modules/*,site/*,test-results/*,typings/*,vulture_ignorelist.py"
+exclude = "*~,config/*,dist/*,frontend/*,node_modules/*,site/*,test-results/*,typings/*,vulture_ignorelist.py,tasks/*"
 
 [tool.ruff]
 builtins = ["ic"]
@@ -180,6 +176,7 @@ extend-exclude = [
   "test-results",
   "typings",
   "vulture_ignorelist.py",
+  "tasks",
 ]
 show-fixes = true
 target-version = "py311"
@@ -295,6 +292,7 @@ exclude = [
   "test-results",
   "typings",
   "vulture_ignorelist.py",
+  "tasks",
 ]
 
 [tool.vulture]
@@ -306,6 +304,7 @@ exclude = [
   "*/site/*",
   "*/test-results/*",
   "*/typings/*",
+  "*/tasks/*",
 ]
 min_confidence = 61
 sort_by_size = true
