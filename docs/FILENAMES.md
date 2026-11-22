@@ -182,7 +182,8 @@ text, so `(Digital: Empire)` stays one group.
 The issue is a number after `#`, which may carry a decimal, a fraction, a sign
 or a suffix. A `#` before letters gives a letter issue. Without a `#`, the issue
 is a number before `(of N)`, a number after the word `issue`, or a number that
-ends or starts a run of text.
+ends or starts a run of text. Failing those, it is a number right before a ` - `
+that starts the title, unless it could be a year.
 
 | Filename                                                                  | Reads                               |
 | ------------------------------------------------------------------------- | ----------------------------------- |
@@ -194,6 +195,7 @@ ends or starts a run of text.
 | `King of Skittles 01 (of 05) (2020) (digital) (Son of Ultron-Empire).cbr` | `issue: 01`, `issue_count: 05`      |
 | `radiant-black-issue-1.pdf`                                               | `series: radiant black`, `issue: 1` |
 | `A Fractional Comic 8.54.cbz`                                             | `issue: 8.54`                       |
+| `Starling Tales 054 - The Long Night (2018).cbz`                          | `issue: 054`                        |
 
 ### Volume
 

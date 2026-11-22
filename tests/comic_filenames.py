@@ -1111,6 +1111,57 @@ FNS.update(
     }
 )
 
+# A bare issue between the series and a " - " title. Fictional names.
+FNS.update(
+    {
+        "Starling Tales 054 - The Long Night (2018).cbz": {
+            "series": "Starling Tales",
+            "issue": "054",
+            "title": "The Long Night",
+            "year": "2018",
+            "ext": "cbz",
+        },
+        "Starling Tales 54 - The Long Night.cbz": {
+            "series": "Starling Tales",
+            "issue": "54",
+            "title": "The Long Night",
+            "ext": "cbz",
+        },
+        "Starling Tales 054 - The Long Night (2018) (Digital) (Zone-Empire).cbr": {
+            "series": "Starling Tales",
+            "issue": "054",
+            "title": "The Long Night",
+            "year": "2018",
+            "original_format": "Digital",
+            "scan_info": "Zone-Empire",
+            "ext": "cbr",
+        },
+        # The first dash that follows an issue splits; an earlier one stays in
+        # the series.
+        "Sky Pirates - Captain Vale 001 - Part One (2017).cbz": {
+            "series": "Sky Pirates - Captain Vale",
+            "issue": "001",
+            "title": "Part One",
+            "year": "2017",
+            "ext": "cbz",
+        },
+        # An issue that ends the name still wins over one before the dash.
+        "Starling 92 - House of Tides 001 (2022).cbz": {
+            "series": "Starling 92",
+            "issue": "001",
+            "title": "House of Tides",
+            "year": "2022",
+            "ext": "cbz",
+        },
+        # A year-like number before the dash stays in the series.
+        "Free Comic Day 2019 - Starling Tales.cbz": {
+            "series": "Free Comic Day 2019",
+            "title": "Starling Tales",
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)

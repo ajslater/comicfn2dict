@@ -16,6 +16,7 @@ from comicfn2dict.regex import (
     BOOK_VOLUME_RE,
     BY_AUTHOR_RE,
     DASH_SEPARATOR_RE,
+    ISSUE_BEFORE_DASH_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
     ISSUE_KEYWORD_RE,
@@ -48,6 +49,7 @@ from comicfn2dict.regex import (
     WRITTEN_REMAINDERS_RE,
     YEAR_END_RE,
     YEAR_FIRST_DATE_RE,
+    YEAR_LIKE_RE,
     YEAR_MONTH_DATE_RE,
     YEAR_TOKEN_RE,
 )
@@ -352,6 +354,14 @@ class ComicFilenameParser:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
 
+    def _parse_issue_before_dash(self) -> None:
+        """Parse a bare issue that ends the series before a " - " title."""
+        match = ISSUE_BEFORE_DASH_RE.search(self._unparsed_path)
+        if not match or YEAR_LIKE_RE.fullmatch(match["issue"]):
+            return
+        self._parse_items(ISSUE_BEFORE_DASH_RE, first_only=True)
+        self._log("After Issue before dash")
+
     def _parse_ends_of_remaining_tokens(self) -> None:
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
@@ -379,6 +389,11 @@ class ComicFilenameParser:
         if "issue" not in self.metadata:
             self._parse_items(ISSUE_BEGIN_RE)
         self._log("After Issue on ends of tokens")
+
+        # Last, an issue between the series and a dashed title. Any issue
+        # found above wins, so "Starling 92 - House of Tides 001" keeps 001.
+        if "issue" not in self.metadata:
+            self._parse_issue_before_dash()
 
     def _parse_publisher(self) -> None:
         """Parse Publisher."""
