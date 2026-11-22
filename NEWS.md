@@ -1,5 +1,24 @@
 # 📰 comicfn2dict News
 
+## v1.1.2
+
+### ♻️ Changed
+
+- A number that ends the series before a dashed title, with no other issue, now
+  reads as the issue, as it already did with no title:
+  `Starling 2 - The Long Night.cbz` reads as series `Starling`, issue `2`, like
+  `Starling 2.cbz`.
+
+### 🐛 Fixed
+
+- A bare issue before a dashed title reads as the issue instead of staying in
+  the series, as in `Starling Tales 054 - The Long Night (2018).cbz`. Thanks to
+  @hanming5.
+- A series that starts with a number keeps it when the issue comes before a
+  dashed title, as in `100 Starlings 045 - The Long Night (2003).cbz`.
+- A number after `Part` or `Pt.` at the end of the name stays in the title, as
+  in `Starling 404 - The Long Night, Part 1 (1987).cbz`.
+
 ## v1.1.1
 
 ### 🐛 Fixed
