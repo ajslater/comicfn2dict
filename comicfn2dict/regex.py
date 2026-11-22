@@ -232,6 +232,19 @@ ISSUE_WITH_COUNT_RE: Pattern = re_compile(
 )
 ISSUE_END_RE: Pattern = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
+# A bare issue right before a " - " title separator, as in
+# "Starling Tales 054 - The Long Night". The separator goes with the match, so the
+# series and the title become their own tokens.
+# A four digit number that could be a year is passed over, so it stays in the
+# series in "Free Comic Day 2019 - Starling Tales".
+ISSUE_BEFORE_DASH_RE: Pattern = re_compile(
+    r"(\s\(?(?![12][0-9]{3}\)?\s)" + _ISSUE_RE_EXP + r"\)?\s+-\s+)"
+)
+# A number that ends the name after a part word belongs to the title, as in
+# "Starling 404 - The Long Night, Part 1".
+PART_NUMBER_END_RE: Pattern = re_compile(
+    r"\b(?:part|pt\.?)\s*[0-9]+(?:\s+of\s+[0-9]+)?(?=\/|$)"
+)
 # Letter-only issue tokens explicitly marked with '#' (e.g. "#Omega",
 # "#Alpha"). The '#' prefix is required so we don't grab series words.
 ISSUE_LETTER_RE: Pattern = re_compile(r"\(?#(?P<issue>[A-Za-z]+)\)?")

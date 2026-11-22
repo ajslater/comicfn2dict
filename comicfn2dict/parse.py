@@ -16,6 +16,7 @@ from comicfn2dict.regex import (
     BOOK_VOLUME_RE,
     BY_AUTHOR_RE,
     DASH_SEPARATOR_RE,
+    ISSUE_BEFORE_DASH_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
     ISSUE_KEYWORD_RE,
@@ -30,6 +31,7 @@ from comicfn2dict.regex import (
     ORIGINAL_FORMAT_SCAN_INFO_ADJACENT_RE,
     ORIGINAL_FORMAT_SCAN_INFO_RE,
     ORIGINAL_FORMAT_SCAN_INFO_SEPARATE_RE,
+    PART_NUMBER_END_RE,
     PUBLISHER_AMBIGUOUS_PAREN_RE,
     PUBLISHER_AMBIGUOUS_RE,
     PUBLISHER_AMBIGUOUS_TOKEN_RE,
@@ -352,6 +354,24 @@ class ComicFilenameParser:
             self.metadata["remainders"] = (remainders,)
         self._log("After parsing remainder paren and bracket groups")
 
+    def _parse_bare_issue(self, *, year_end_matched: bool) -> None:
+        """Parse an issue with no "#". The first pass to find one wins."""
+        # A number after a part word at the end is the title's, so one before
+        # a dashed title is the issue: "Starling 404 - The Long Night, Part 1".
+        if PART_NUMBER_END_RE.search(self._unparsed_path):
+            self._parse_items(ISSUE_BEFORE_DASH_RE, first_only=True)
+        # A number that ends a run of text.
+        if "issue" not in self.metadata and not year_end_matched:
+            exclude: str = self.metadata.get("year", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
+            self._parse_items(ISSUE_END_RE, exclude=exclude)
+        # A number between the series and a dashed title. An issue that ends
+        # the name wins, so "Starling 92 - House of Tides 001" keeps 001.
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_BEFORE_DASH_RE, first_only=True)
+        # A number that starts a run of text.
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_BEGIN_RE)
+
     def _parse_ends_of_remaining_tokens(self) -> None:
         # Volume left on the end of string tokens
         if "volume" not in self.metadata:
@@ -372,12 +392,9 @@ class ComicFilenameParser:
             year_end_matched = "year" in self.metadata
             self._log("After Year on end of token")
 
-        # Issue left on the end of string tokens
-        if "issue" not in self.metadata and not year_end_matched:
-            exclude: str = self.metadata.get("year", "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
-            self._parse_items(ISSUE_END_RE, exclude=exclude)
+        # Issue left on the ends of string tokens
         if "issue" not in self.metadata:
-            self._parse_items(ISSUE_BEGIN_RE)
+            self._parse_bare_issue(year_end_matched=year_end_matched)
         self._log("After Issue on ends of tokens")
 
     def _parse_publisher(self) -> None:
