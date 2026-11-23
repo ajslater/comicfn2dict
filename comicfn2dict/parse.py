@@ -21,7 +21,9 @@ from comicfn2dict.regex import (
     ISSUE_END_RE,
     ISSUE_KEYWORD_RE,
     ISSUE_LETTER_RE,
+    ISSUE_NUMBER_BARE_COUNT_RE,
     ISSUE_NUMBER_RE,
+    ISSUE_WITH_BARE_COUNT_RE,
     ISSUE_WITH_COUNT_RE,
     LETTER_DOT_RE,
     MONTH_FIRST_DATE_RE,
@@ -44,6 +46,7 @@ from comicfn2dict.regex import (
     SCAN_INFO_SECONDARY_RE,
     TITLE_PAREN_RE,
     TOKEN_DELIMITER,
+    VOLUME_BARE_COUNT_RE,
     VOLUME_RE,
     VOLUME_WITH_COUNT_RE,
     WORD_NUMBER_TO_DIGIT,
@@ -215,16 +218,28 @@ class ComicFilenameParser:
         if pop:
             self._parse_items_pop_tokens(regex, first_only=first_only)
 
+    def _parse_issue_with_count(self) -> None:
+        """Parse an issue with no "#" that has a count."""
+        # "v1 (of 3)" and "v1 of 3" are volumes with a count, not issue "v1".
+        if (match := VOLUME_RE.search(self._unparsed_path)) and match.group(
+            "volume_count"
+        ):
+            self._parse_items(VOLUME_RE)
+        elif VOLUME_BARE_COUNT_RE.search(self._unparsed_path):
+            self._parse_items(VOLUME_BARE_COUNT_RE)
+        self._parse_items(ISSUE_WITH_COUNT_RE)
+        if "issue" not in self.metadata:
+            self._parse_items(ISSUE_WITH_BARE_COUNT_RE)
+
     def _parse_issue(self) -> None:
         """Parse Issue."""
-        self._parse_items(ISSUE_NUMBER_RE)
+        # "#1 of 12" first: ISSUE_NUMBER_RE takes only a parenthesized count
+        # and would leave "of 12" behind.
+        self._parse_items(ISSUE_NUMBER_BARE_COUNT_RE)
         if "issue" not in self.metadata:
-            # "v1 (of 3)" is a volume with a count, not issue "v1".
-            if (match := VOLUME_RE.search(self._unparsed_path)) and match.group(
-                "volume_count"
-            ):
-                self._parse_items(VOLUME_RE)
-            self._parse_items(ISSUE_WITH_COUNT_RE)
+            self._parse_items(ISSUE_NUMBER_RE)
+        if "issue" not in self.metadata:
+            self._parse_issue_with_count()
         if "issue" not in self.metadata:
             # Letter-only issues like "#Omega" or "#Alpha" — only fires when
             # no digit-bearing issue regex matched.

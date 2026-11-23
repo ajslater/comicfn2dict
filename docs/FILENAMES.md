@@ -186,7 +186,9 @@ word `issue`, a number that ends a run of text, a number right before a dash
 that starts the title, and a number that starts a run of text. That dash has a
 space on each side. A number before it is passed over when it could be a year.
 When the name ends in `Part N` or `Pt. N`, that number belongs to the title, and
-the number before the dash is the issue.
+the number before the dash is the issue. A count may also go without
+parentheses, as in `#1 of 12` or `01 of 12`, when it has one to three digits and
+doesn't follow `Part`, `Pt.` or `Book`.
 
 | Filename                                                                  | Reads                                         |
 | ------------------------------------------------------------------------- | --------------------------------------------- |
@@ -196,6 +198,7 @@ the number before the dash is the issue.
 | `The Amazing Spider-Man #54.LR.cbz`                                       | `issue: 54.LR`                                |
 | `Crimson Saga #Omega (2022).cbz`                                          | `issue: Omega`                                |
 | `King of Skittles 01 (of 05) (2020) (digital) (Son of Ultron-Empire).cbr` | `issue: 01`, `issue_count: 05`                |
+| `Starling 01 of 12 (1986).cbz`                                            | `issue: 01`, `issue_count: 12`                |
 | `radiant-black-issue-1.pdf`                                               | `series: radiant black`, `issue: 1`           |
 | `A Fractional Comic 8.54.cbz`                                             | `issue: 8.54`                                 |
 | `Starling Tales 054 - The Long Night (2018).cbz`                          | `issue: 054`                                  |
@@ -204,13 +207,13 @@ the number before the dash is the issue.
 
 ### Volume
 
-The volume follows `v`, `Vol.` or `Volume`, and an `(of N)` right after it is
-the volume count, so `v1 (of 3)` is a volume even with no issue. Without a `v`,
-the volume comes before `(of N)` once the name has an issue, or is the number in
-`Book N`, where `N` may be a word from `One` to `Twenty`. When a name holds two
-parenthesized years, the first is the volume. A year range such as `(2022-)` or
-`(2020-2024)` reads as its first year. With no issue, the volume is also the
-issue.
+The volume follows `v`, `Vol.` or `Volume`, and an `(of N)` or `of N` right
+after it is the volume count, so `v1 (of 3)` is a volume even with no issue.
+Without a `v`, the volume comes before `(of N)` once the name has an issue, or
+is the number in `Book N`, where `N` may be a word from `One` to `Twenty`. When
+a name holds two parenthesized years, the first is the volume. A year range such
+as `(2022-)` or `(2020-2024)` reads as its first year. With no issue, the volume
+is also the issue.
 
 | Filename                                                                  | Reads                                          |
 | ------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -218,6 +221,7 @@ issue.
 | `Kartalk Library Edition v01 (1992) (digital) (Son of Ultron-Empire).cbr` | `volume: 01`, `issue: 01`                      |
 | `Elephantmen 2259 #008 - Simple Truth 03 (of 06) (2021).cbr`              | `volume: 03`, `volume_count: 06`, `issue: 008` |
 | `Series v1 (of 003).cbz`                                                  | `volume: 1`, `volume_count: 003`, `issue: 1`   |
+| `Starling v1 of 3 (1986).cbz`                                             | `volume: 1`, `volume_count: 3`, `issue: 1`     |
 | `Brick Walker's Beanbag Book One.cbz`                                     | `volume: 1`, `title: Book One`                 |
 | `Super Strange Yarns (1957) #92 (1969).cbz`                               | `volume: 1957`, `year: 1969`                   |
 | `Cosmic Battles - Hermit (2022-) #001 (2023).cbz`                         | `volume: 2022`, `year: 2023`                   |

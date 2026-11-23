@@ -1216,6 +1216,82 @@ FNS.update(
     }
 )
 
+# A count with no parentheses. Fictional names.
+FNS.update(
+    {
+        "Starling 01 of 12 (1986).cbz": {
+            "series": "Starling",
+            "issue": "01",
+            "issue_count": "12",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        "Starling #1 of 12 (1986).cbz": {
+            "series": "Starling",
+            "issue": "1",
+            "issue_count": "12",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        "Starling 1 of 12.cbz": {
+            "series": "Starling",
+            "issue": "1",
+            "issue_count": "12",
+            "ext": "cbz",
+        },
+        # "of" in the series stays there.
+        "Hall of Starlings 01 of 08 (2005) (Digital) (Zone-Empire).cbz": {
+            "series": "Hall of Starlings",
+            "issue": "01",
+            "issue_count": "08",
+            "year": "2005",
+            "original_format": "Digital",
+            "scan_info": "Zone-Empire",
+            "ext": "cbz",
+        },
+        "Starling 01 of 12 - The Long Night (1986).cbz": {
+            "series": "Starling",
+            "issue": "01",
+            "issue_count": "12",
+            "title": "The Long Night",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        "Starling v1 01 of 12 (1986).cbz": {
+            "series": "Starling",
+            "volume": "1",
+            "issue": "01",
+            "issue_count": "12",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        "Starling v1 of 3 (1986).cbz": {
+            "series": "Starling",
+            "volume": "1",
+            "volume_count": "3",
+            "issue": "1",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        "Starling Vol. 1 of 3 (1986).cbz": {
+            "series": "Starling",
+            "volume": "1",
+            "volume_count": "3",
+            "issue": "1",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        # A part number stays in the title.
+        "Starling 404 - The Long Night, Part 1 of 3 (1987).cbz": {
+            "series": "Starling",
+            "issue": "404",
+            "title": "The Long Night, Part 1 of 3",
+            "year": "1987",
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)

@@ -230,6 +230,23 @@ ISSUE_NUMBER_RE: Pattern = re_compile(
 ISSUE_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + _ISSUE_RE_EXP + r"\)?" + r"\W*" + _ISSUE_COUNT_RE_EXP + r")"
 )
+# A count with no parentheses, as in "Starling 01 of 12". These patterns run
+# only when the parenthesized "(of 12)" forms don't match. A count of four
+# digits would be a year, and a number after a part or book word stays where
+# the other passes put it.
+_BARE_COUNT_RE_EXP = r"\s+of\s+(?P<{}>[0-9]{{1,3}})\b"
+_NOT_PART_OR_BOOK = r"(?<!part )(?<!pt )(?<!pt\. )(?<!book )"
+ISSUE_NUMBER_BARE_COUNT_RE: Pattern = re_compile(
+    r"(\(?#" + _ISSUE_RE_EXP + r"\)?" + _BARE_COUNT_RE_EXP.format("issue_count") + r")"
+)
+ISSUE_WITH_BARE_COUNT_RE: Pattern = re_compile(
+    r"("
+    + _NOT_PART_OR_BOOK
+    + r"(?<![\w.])"
+    + _ISSUE_RE_EXP
+    + _BARE_COUNT_RE_EXP.format("issue_count")
+    + r")"
+)
 ISSUE_END_RE: Pattern = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
 # A bare issue right before a " - " title separator, as in
@@ -262,6 +279,11 @@ _VOLUME_RE_EXP = (
     + r")"
 )
 VOLUME_RE: Pattern = re_compile(_VOLUME_RE_EXP)
+VOLUME_BARE_COUNT_RE: Pattern = re_compile(
+    r"(\b(?:v(?:ol(?:ume)?)?\.?)\s*(?P<volume>[0-9]+)"
+    + _BARE_COUNT_RE_EXP.format("volume_count")
+    + r")"
+)
 VOLUME_WITH_COUNT_RE: Pattern = re_compile(
     r"(\(?" + r"(?P<volume>[0-9]+)" + r"\)?" + r"\W*" + _VOLUME_COUNT_RE_EXP + r")"
 )
