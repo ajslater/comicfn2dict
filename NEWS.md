@@ -1,5 +1,16 @@
 # 📰 comicfn2dict News
 
+## v1.1.3
+
+### 🐛 Fixed
+
+- A count written without parentheses is read as the count instead of the issue,
+  as in `Starling 01 of 12 (1986).cbz`, which reads as issue `01` of `12`. It
+  may follow `#` or `v`, as in `Starling #1 of 12.cbz` and
+  `Starling v1 of 3.cbz`, or be wrapped in parentheses, as in
+  `Starling (1 of 3).cbz`. A count of four digits stays a year. Thanks to
+  @hanming5.
+
 ## v1.1.2
 
 ### ♻️ Changed

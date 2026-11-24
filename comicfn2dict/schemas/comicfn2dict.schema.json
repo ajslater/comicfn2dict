@@ -16,17 +16,17 @@
       "pattern": "^[0-9]+$"
     },
     "volume_count": {
-      "description": "The number of volumes, from `(of N)` after the volume.",
+      "description": "The number of volumes, from `(of N)` or `of N` after the volume.",
       "type": "string",
       "pattern": "^[0-9]+$"
     },
     "issue": {
-      "description": "The issue number as written, with any leading zeros and suffix: `001`, `1.1`, `½`, `27AU`, `54.LR`. It is read from `#N`, `N (of M)`, the word `issue`, a number that starts or ends a run of text, or a number right before a dash, with a space on each side, that starts the title. A `#` before letters gives a letter issue such as `Omega`. With no issue but a volume, the volume is copied here. `dict2comicfn()` pads the leading digits to three, after any `-` sign, so `-1` is written `#-001`, and writes a letter issue unpadded, as `#Omega`.",
+      "description": "The issue number as written, with any leading zeros and suffix: `001`, `1.1`, `½`, `27AU`, `54.LR`. It is read from `#N`, `N (of M)`, `N of M`, the word `issue`, a number that starts or ends a run of text, or a number right before a dash, with a space on each side, that starts the title. A `#` before letters gives a letter issue such as `Omega`. With no issue but a volume, the volume is copied here. `dict2comicfn()` pads the leading digits to three, after any `-` sign, so `-1` is written `#-001`, and writes a letter issue unpadded, as `#Omega`.",
       "type": "string",
       "minLength": 1
     },
     "issue_count": {
-      "description": "The number of issues, from `(of N)` after the issue.",
+      "description": "The number of issues, from `(of N)` or `of N` after the issue. `of N` needs one to three digits, so a year is not read as a count.",
       "type": "string",
       "pattern": "^[0-9]+$"
     },
