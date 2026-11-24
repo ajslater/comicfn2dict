@@ -233,19 +233,24 @@ ISSUE_WITH_COUNT_RE: Pattern = re_compile(
 # A count with no parentheses, as in "Starling 01 of 12". These patterns run
 # only when the parenthesized "(of 12)" forms don't match. A count of four
 # digits would be a year, and a number after a part or book word stays where
-# the other passes put it.
+# the other passes put it. Parens around the whole count, as in "(1 of 3)", and
+# the word "issue" before it go with the match, so neither is left behind.
 _BARE_COUNT_RE_EXP = r"\s+of\s+(?P<{}>[0-9]{{1,3}})\b"
-_NOT_PART_OR_BOOK = r"(?<!part )(?<!pt )(?<!pt\. )(?<!book )"
+_NOT_PART_OR_BOOK = r"(?<!\bpart )(?<!\bpt )(?<!\bpt\. )(?<!\bbook )"
 ISSUE_NUMBER_BARE_COUNT_RE: Pattern = re_compile(
-    r"(\(?#" + _ISSUE_RE_EXP + r"\)?" + _BARE_COUNT_RE_EXP.format("issue_count") + r")"
+    r"(\(?#"
+    + _ISSUE_RE_EXP
+    + r"\)?"
+    + _BARE_COUNT_RE_EXP.format("issue_count")
+    + r"\)?)"
 )
 ISSUE_WITH_BARE_COUNT_RE: Pattern = re_compile(
-    r"("
+    r"(\(?(?:\bissue\s+)?"
     + _NOT_PART_OR_BOOK
     + r"(?<![\w.])"
     + _ISSUE_RE_EXP
     + _BARE_COUNT_RE_EXP.format("issue_count")
-    + r")"
+    + r"\)?)"
 )
 ISSUE_END_RE: Pattern = re_compile(r"([\/\s]\(?" + _ISSUE_RE_EXP + r"\)?(\/|$))")
 ISSUE_BEGIN_RE: Pattern = re_compile(r"((^|\/)\(?" + _ISSUE_RE_EXP + r"\)?[\/|\s])")
