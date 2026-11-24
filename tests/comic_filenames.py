@@ -1289,6 +1289,45 @@ FNS.update(
             "year": "1987",
             "ext": "cbz",
         },
+        # Parens around the whole count go with it.
+        "Starling (1 of 3) (2020).cbz": {
+            "series": "Starling",
+            "issue": "1",
+            "issue_count": "3",
+            "year": "2020",
+            "ext": "cbz",
+        },
+        "Starling (#1 of 3) (2020).cbz": {
+            "series": "Starling",
+            "issue": "1",
+            "issue_count": "3",
+            "year": "2020",
+            "ext": "cbz",
+        },
+        # A volume count when there's also a "#" issue.
+        "Starling v1 of 3 #2 (1986).cbz": {
+            "series": "Starling",
+            "volume": "1",
+            "volume_count": "3",
+            "issue": "2",
+            "year": "1986",
+            "ext": "cbz",
+        },
+        # The word "issue" goes with the issue, not the series.
+        "Starling Issue 1 of 3.cbz": {
+            "series": "Starling",
+            "issue": "1",
+            "issue_count": "3",
+            "ext": "cbz",
+        },
+        # "book" inside a word isn't the word "Book".
+        "Starling Sketchbook 1 of 2 (2020).cbz": {
+            "series": "Starling Sketchbook",
+            "issue": "1",
+            "issue_count": "2",
+            "year": "2020",
+            "ext": "cbz",
+        },
     }
 )
 

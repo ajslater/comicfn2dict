@@ -257,7 +257,10 @@ class ComicFilenameParser:
     def _parse_volume(self) -> None:
         """Parse Volume."""
         if "volume" not in self.metadata:
-            # _parse_issue may already have taken a volume with a count.
+            # _parse_issue may already have taken a volume with a count. "v1 of
+            # 3" goes first: VOLUME_RE would take "v1" and leave "of 3" behind.
+            self._parse_items(VOLUME_BARE_COUNT_RE)
+        if "volume" not in self.metadata:
             self._parse_items(VOLUME_RE)
         if "volume" not in self.metadata:
             self._parse_items(VOLUME_WITH_COUNT_RE)
