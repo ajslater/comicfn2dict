@@ -360,6 +360,17 @@ class ComicFilenameParser:
             return
         if self._unparsed_path.count("(") != 1:
             return
+        match = TITLE_PAREN_RE.search(self._unparsed_path)
+        if not match:
+            return
+        # A group after the format or scan info isn't a title, as in
+        # "(Digital) (Empire) (HD)". The group ends the name, so look from
+        # the end in case its text also appears earlier.
+        title_index = self.path.rfind(match.group("title"))
+        if title_index > self.path_index(
+            "original_format", maxsize
+        ) or title_index > self.path_index("scan_info", maxsize):
+            return
         self._parse_items(TITLE_PAREN_RE, first_only=True)
         self._log("After paren subtitle")
 

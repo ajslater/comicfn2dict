@@ -1331,6 +1331,49 @@ FNS.update(
     }
 )
 
+# A paren group after the format or scan info isn't a title. Fictional names.
+FNS.update(
+    {
+        "Starling 054 (2018) (digital) (Son of Ultron-Empire) (HD).cbz": {
+            "series": "Starling",
+            "issue": "054",
+            "year": "2018",
+            "original_format": "digital",
+            "scan_info": "Son of Ultron-Empire",
+            "remainders": ("(HD)",),
+            "ext": "cbz",
+        },
+        "Starling 054 (2018) (Webrip) (Kryptonian-DCP) (Variant).cbz": {
+            "series": "Starling",
+            "issue": "054",
+            "year": "2018",
+            "original_format": "Webrip",
+            "scan_info": "Kryptonian-DCP",
+            "remainders": ("(Variant)",),
+            "ext": "cbz",
+        },
+        # The group's text also appears in the series.
+        "Empire Starling 001 (2020) (Digital) (Zone-Empire) (Empire).cbz": {
+            "series": "Empire Starling",
+            "issue": "001",
+            "year": "2020",
+            "original_format": "Digital",
+            "scan_info": "Zone-Empire",
+            "remainders": ("(Empire)",),
+            "ext": "cbz",
+        },
+        # A group before the format is still a title.
+        "Starling 001 (2020) (Long Night) (Digital).cbz": {
+            "series": "Starling",
+            "issue": "001",
+            "year": "2020",
+            "title": "Long Night",
+            "original_format": "Digital",
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)
