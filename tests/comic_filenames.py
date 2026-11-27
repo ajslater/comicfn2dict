@@ -1374,6 +1374,112 @@ FNS.update(
     }
 )
 
+# Field positions when a field's text repeats or isn't in the name as written.
+# Fictional names.
+_REPEAT_FIELDS = {
+    "issue": "001",
+    "year": "2020",
+    "original_format": "Digital",
+    "ext": "cbz",
+}
+FNS.update(
+    {
+        # The series and the scan info are the same text.
+        "Empire #001 Long Night (2020) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Empire",
+            "title": "Long Night",
+            "scan_info": "Empire",
+        },
+        # The format is also a word in the series.
+        "Digital Starling #001 Long Night (2020) (Digital).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Digital Starling",
+            "title": "Long Night",
+        },
+        # The scan info is inside a word of the series.
+        "Empires #001 Long Night (2020) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Empires",
+            "title": "Long Night",
+            "scan_info": "Empire",
+        },
+        # The title is written with underscores, so its text isn't in the name.
+        "Starling_#001_Long_Night_(2020)_(Digital)_(Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Starling",
+            "title": "Long Night",
+            "scan_info": "Empire",
+        },
+        # The series, title and scan info are all the same text.
+        "Empire #001 Empire (2020) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Empire",
+            "title": "Empire",
+            "scan_info": "Empire",
+        },
+        # The title starts with the format.
+        "Starling #001 Digital Dawn (2020) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Starling",
+            "title": "Digital Dawn",
+            "scan_info": "Empire",
+        },
+        # A run after the scan info is still a remainder.
+        "Starling #001 (2020) (Digital) (Empire) Long Night.cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Starling",
+            "scan_info": "Empire",
+            "remainders": ("Long Night",),
+        },
+        # A paren title whose text repeats in the series or scan info.
+        "Empire 001 (2020) (Long Night) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Empire",
+            "title": "Long Night",
+            "scan_info": "Empire",
+        },
+        "Digital Starling 001 (2020) (Long Night) (Digital).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Digital Starling",
+            "title": "Long Night",
+        },
+        "Empires Fall 001 (2020) (Long Night) (Digital) (Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Empires Fall",
+            "title": "Long Night",
+            "scan_info": "Empire",
+        },
+        "Starling 001 (2020) (Zone) (Digital) (Zone-Empire).cbz": {
+            **_REPEAT_FIELDS,
+            "series": "Starling",
+            "title": "Zone",
+            "scan_info": "Zone-Empire",
+        },
+        # A title before the volume, issue and date, however the month is
+        # written.
+        "Starling - Zone v2 #003 (2020-12-31).cbz": {
+            "series": "Starling",
+            "title": "Zone",
+            "volume": "2",
+            "issue": "003",
+            "year": "2020",
+            "month": "12",
+            "day": "31",
+            "ext": "cbz",
+        },
+        "Starling - Zone v2 #003 (Dec 2020).cbz": {
+            "series": "Starling",
+            "title": "Zone",
+            "volume": "2",
+            "issue": "003",
+            "year": "2020",
+            "month": "12",
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)

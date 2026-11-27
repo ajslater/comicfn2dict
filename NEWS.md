@@ -1,5 +1,24 @@
 # 📰 comicfn2dict News
 
+## v1.1.4
+
+### ♻️ Changed
+
+- `ComicFilenameParser.path_index()` returns where a field matched in the name,
+  also for converted values such as the month in `(Dec 2020)`.
+
+### 🐛 Fixed
+
+- A title is no longer lost when the series, original format or scan info
+  repeats a word, as in `Empire #001 Long Night (2020) (Digital) (Empire).cbz`,
+  or when the name uses underscores.
+- A title before the volume, issue and a numeric date reads as a title, as in
+  `Starling - Zone v2 #003 (2020-12-31).cbz`.
+- A parenthesized group after the original format or scan info is a remainder
+  instead of a title, as in
+  `Starling 054 (2018) (digital) (Son of Ultron-Empire) (HD).cbz`. Thanks to
+  @hanming5.
+
 ## v1.1.3
 
 ### 🐛 Fixed
