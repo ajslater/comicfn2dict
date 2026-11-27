@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from re import Pattern
+    from collections.abc import Callable, Iterable
+    from re import Match, Pattern
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +55,9 @@ class TrackedText:
         start = len(self.text) - len(self.text.lstrip())
         return self[start : len(self.text.rstrip())]
 
-    def sub(self, regex: Pattern, replacement: str, count: int = 0) -> TrackedText:
+    def sub(
+        self, regex: Pattern, replacement: str | Callable[[Match], str], count: int = 0
+    ) -> TrackedText:
         """Do regex.sub(). A replacement takes the origin of its match's start."""
         texts: list[str] = []
         origins: list[int] = []
@@ -63,10 +65,18 @@ class TrackedText:
         for number, match in enumerate(regex.finditer(self.text)):
             if count and number >= count:
                 break
-            new = match.expand(replacement)
+            new = (
+                match.expand(replacement)
+                if isinstance(replacement, str)
+                else replacement(match)
+            )
             texts += (self.text[position : match.start()], new)
             origins += self.origins[position : match.start()]
-            origins += (self.origin(match.start()),) * len(new)
+            if new == match.group():
+                # Text that a replacement leaves as it was keeps its origins.
+                origins += self.origins[match.start() : match.end()]
+            else:
+                origins += (self.origin(match.start()),) * len(new)
             position = match.end()
         texts.append(self.text[position:])
         origins += self.origins[position:]

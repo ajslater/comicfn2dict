@@ -170,12 +170,22 @@ the remainders group that `dict2comicfn()` writes (see
 outside a parenthesized or bracketed group splits the name into separate runs of
 text, so `(Digital: Empire)` stays one group.
 
+A name with no space and no `_` uses `.` as its separator, so each `.` reads as
+a space. A decimal number stays whole: one dot between two numbers, the second
+of one or two digits, as in `500.1`. The dots in `404.1987` and `2020.12.31` are
+separators. A suffix issue such as `019.HU` can't be told from two words, so in
+such a name it isn't read as an issue. A name that has a space or `_` keeps its
+dots.
+
 | Filename                                                                            | Reads                                                                                |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `Batman_-_Superman_#020_(2021).cbr`                                                 | `series: Batman`, `title: Superman`, `ext: cbr`                                      |
 | `Monster_Island_v1_#2__repaired__c2c.cbz`                                           | `series: Monster Island`, `remainders: ("(repaired)",)`                              |
 | `Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz` | `series: Cory Doctorow's Futuristic Tales of the Here and Now`, `title: Anda's Game` |
 | `Series Name.`                                                                      | `series: Series Name.`                                                               |
+| `Starling.Tales.054.-.The.Long.Night.(2018).(Digital).(Zone-Empire).cbz`            | `series: Starling Tales`, `issue: 054`, `title: The Long Night`                      |
+| `Starling.500.1.(2018).cbz`                                                         | `series: Starling`, `issue: 500.1`                                                   |
+| `Starling.Tales.054 (2018).cbz`                                                     | `series: Starling Tales.054`                                                         |
 
 ### Issue
 
@@ -230,7 +240,9 @@ is also the issue.
 
 The year is four digits starting with `1` or `2`: in parentheses, in a date, or
 ending a run of text when another run follows it. A number that ends the last
-run is an issue, not a year, as in `action comics 1024`.
+run is an issue, not a year, as in `action comics 1024`. When no other year is
+found, such a number right after another bare number is the year, and the number
+before it is the issue, as in `Starling 404 1987`.
 
 A date reads in these forms, with or without parentheses unless noted:
 
@@ -259,6 +271,7 @@ other number, such as `(13-31-2000)`, isn't a date. Of a month range such as
 | `Series (13-31-2000).cbz`                                                                                                | `remainders: ("(13-31-2000)",)`                         |
 | `Justice League 2011 1 (2011).cbz`                                                                                       | `series: Justice League 2011`, `issue: 1`, `year: 2011` |
 | `Series Name 2013.cbz`                                                                                                   | `series: Series Name`, `issue: 2013`                    |
+| `Starling 404 1987.cbz`                                                                                                  | `series: Starling`, `issue: 404`, `year: 1987`          |
 | `Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz` | `year: 1951`, `month: 09`                               |
 
 ### Original format and scan info

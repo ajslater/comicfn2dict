@@ -65,6 +65,15 @@ def test_sub_replacement_takes_origin_of_match():
     assert tracked.origins == (0, 1, 2, 2, 2, 2, 8, 9)
 
 
+def test_sub_with_function():
+    """A function replacement works, and text it leaves alone keeps its origins."""
+    regex = re.compile(r"[0-9]+\.[0-9]|(?P<dot>\.)")
+    tracked = TrackedText.from_source("a.50.1.b").sub(
+        regex, lambda match: " " if match.group("dot") else match.group()
+    )
+    assert tracked == TrackedText("a 50.1 b", tuple(range(8)))
+
+
 def test_strip_split_join():
     """strip(), split() and join() keep each character's origin."""
     tracked = TrackedText.from_source("  ab / cd  ")
