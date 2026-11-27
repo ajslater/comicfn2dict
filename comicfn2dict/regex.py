@@ -94,6 +94,14 @@ def re_compile(exp: str, *, parenthify: bool = False) -> Pattern:
 # "(Digital: Empire)", which would leave the delimiter inside the group.
 _TOKEN_DIVIDERS_RE = re_compile(r":(?![^(\[]*[)\]])")
 _SPACE_EQUIVALENT_RE = re_compile(r"_")
+# A name with no space or underscore uses "." as its separator, as scene
+# releases do: "Starling.Tales.054.(2018).cbz". There, every dot reads as a
+# space but a decimal point: one dot between two numbers, the second of one or
+# two digits, as in "500.1". So "404.1987" and "2020.12.31" are split.
+HAS_SEPARATOR_RE: Pattern = re_compile(r"[\s_]")
+DOT_SEPARATOR_RE: Pattern = re_compile(
+    r"(?<!\w)(?<![0-9]\.)[0-9]+\.[0-9]{1,2}(?![0-9]|\.[0-9])|(?P<dot>\.)"
+)
 _EXTRA_SPACES_RE = re_compile(r"\s\s+")
 _LEFT_PAREN_EQUIVALENT_RE = re_compile(r"\[")
 _RIGHT_PAREN_EQUIVALENT_RE = re_compile(r"\]")
@@ -183,6 +191,11 @@ YEAR_TOKEN_RE: Pattern = re_compile(_YEAR_RE_EXP, parenthify=True)
 # trailing number on the last run stays an issue, as in "action comics 1024".
 # That is deliberate: "(?:\/|$)" would read every such issue as a year.
 YEAR_END_RE: Pattern = re_compile(_YEAR_RE_EXP + r"\/|$")
+# A bare year right after another bare number, as in "Starling 404 1987": the
+# first number is the issue, so the second is the year.
+YEAR_AFTER_NUMBER_RE: Pattern = re_compile(
+    r"(?<=[0-9]\s)" + _YEAR_RE_EXP + r"(?=[\s/]|$)"
+)
 
 # PAREN GROUPS
 _OF_PATTERNS = r"|".join(ORIGINAL_FORMAT_PATTERNS)

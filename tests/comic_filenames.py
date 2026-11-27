@@ -1480,6 +1480,126 @@ FNS.update(
     }
 )
 
+# Names that use dots as separators. Fictional names.
+FNS.update(
+    {
+        "Starling.054.cbz": {
+            "series": "Starling",
+            "issue": "054",
+            "ext": "cbz",
+        },
+        "Starling.054.(2018).cbz": {
+            "series": "Starling",
+            "issue": "054",
+            "year": "2018",
+            "ext": "cbz",
+        },
+        "The.Long.Night.100.2012.Digital.cbz": {
+            "series": "The Long Night",
+            "issue": "100",
+            "year": "2012",
+            "original_format": "Digital",
+            "ext": "cbz",
+        },
+        "Starling.Tales.054.-.The.Long.Night.(2018).(Digital).(Zone-Empire).cbz": {
+            "series": "Starling Tales",
+            "issue": "054",
+            "title": "The Long Night",
+            "year": "2018",
+            "original_format": "Digital",
+            "scan_info": "Zone-Empire",
+            "ext": "cbz",
+        },
+        "Z.O.O.Wandering.Heroes.001.(2022).cbz": {
+            "series": "Z O O Wandering Heroes",
+            "issue": "001",
+            "year": "2022",
+            "ext": "cbz",
+        },
+        # A decimal issue stays whole.
+        "Starling.500.1.(2018).cbz": {
+            "series": "Starling",
+            "issue": "500.1",
+            "year": "2018",
+            "ext": "cbz",
+        },
+        # A dot after a volume, and the dots in a date, are separators.
+        "Starling.v2.5.cbz": {
+            "series": "Starling",
+            "volume": "2",
+            "issue": "5",
+            "ext": "cbz",
+        },
+        "Starling.2020.12.31.cbz": {
+            "series": "Starling",
+            "year": "2020",
+            "month": "12",
+            "day": "31",
+            "ext": "cbz",
+        },
+        # A name with no dot to split reads as before.
+        "Starling#500.1.cbz": {
+            "series": "Starling",
+            "issue": "500.1",
+            "ext": "cbz",
+        },
+        # A suffix issue can't be told from a word, so it isn't an issue here.
+        "Starling.019.HU.(2019).cbz": {
+            "series": "Starling 019 HU",
+            "year": "2019",
+            "ext": "cbz",
+        },
+        # A name with a space or an underscore keeps its dots.
+        "Starling.Tales.054 (2018).cbz": {
+            "series": "Starling Tales.054",
+            "year": "2018",
+            "ext": "cbz",
+        },
+        "Starling_Tales.054.cbz": {
+            "series": "Starling Tales.054",
+            "ext": "cbz",
+        },
+    }
+)
+
+# A bare year right after a bare number. Fictional names.
+FNS.update(
+    {
+        "Starling 404 1987.cbz": {
+            "series": "Starling",
+            "issue": "404",
+            "year": "1987",
+            "ext": "cbz",
+        },
+        "Starling.404.1987.cbz": {
+            "series": "Starling",
+            "issue": "404",
+            "year": "1987",
+            "ext": "cbz",
+        },
+        "Starling 404 1987 (Digital).cbz": {
+            "series": "Starling",
+            "issue": "404",
+            "year": "1987",
+            "original_format": "Digital",
+            "ext": "cbz",
+        },
+        # A year-like number alone is still the issue.
+        "Starling 1987.cbz": {
+            "series": "Starling",
+            "issue": "1987",
+            "ext": "cbz",
+        },
+        # A parenthesized year wins, so the bare numbers stay as they were.
+        "Starling 2099 404 (1987).cbz": {
+            "series": "Starling 2099",
+            "issue": "404",
+            "year": "1987",
+            "ext": "cbz",
+        },
+    }
+)
+
 # first_key, first_val = NEW.popitem() for testing
 # FNS[first_key] = first_val for testing
 PARSE_FNS = MappingProxyType(FNS)

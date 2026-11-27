@@ -16,6 +16,8 @@ from comicfn2dict.regex import (
     BOOK_VOLUME_RE,
     BY_AUTHOR_RE,
     DASH_SEPARATOR_RE,
+    DOT_SEPARATOR_RE,
+    HAS_SEPARATOR_RE,
     ISSUE_BEFORE_DASH_RE,
     ISSUE_BEGIN_RE,
     ISSUE_END_RE,
@@ -51,6 +53,7 @@ from comicfn2dict.regex import (
     VOLUME_WITH_COUNT_RE,
     WORD_NUMBER_TO_DIGIT,
     WRITTEN_REMAINDERS_RE,
+    YEAR_AFTER_NUMBER_RE,
     YEAR_END_RE,
     YEAR_FIRST_DATE_RE,
     YEAR_MONTH_DATE_RE,
@@ -97,6 +100,11 @@ def _collapse_wrapping_parens(value: str) -> str:
             break
         value = inner
     return value
+
+
+def _dot_separator_to_space(match: Match) -> str:
+    """Turn a separator dot into a space and keep a decimal number whole."""
+    return " " if match.group("dot") else match.group()
 
 
 class ComicFilenameParser:
@@ -156,6 +164,8 @@ class ComicFilenameParser:
     def _clean_dividers(self) -> None:
         """Replace non space dividers and clean extra spaces out of string."""
         data = self._unparsed
+        if not HAS_SEPARATOR_RE.search(data.text):
+            data = data.sub(DOT_SEPARATOR_RE, _dot_separator_to_space)
 
         # Simple substitutions
         for regex, pair in REGEX_SUBS.items():
@@ -417,6 +427,8 @@ class ComicFilenameParser:
 
         # Years left on the end of string tokens
         year_end_matched = False
+        if "year" not in self.metadata:
+            self._parse_items(YEAR_AFTER_NUMBER_RE, first_only=True)
         if "year" not in self.metadata:
             self._parse_items(YEAR_END_RE, pop=False)
             year_end_matched = "year" in self.metadata
