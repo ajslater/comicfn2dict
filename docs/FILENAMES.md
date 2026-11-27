@@ -170,12 +170,22 @@ the remainders group that `dict2comicfn()` writes (see
 outside a parenthesized or bracketed group splits the name into separate runs of
 text, so `(Digital: Empire)` stays one group.
 
+A name with no space and no `_` uses `.` as its separator, so each `.` reads as
+a space. A decimal number stays whole: one dot between two numbers, the second
+of one or two digits, as in `500.1`. The dots in `404.1987` and `2020.12.31` are
+separators. A suffix issue such as `019.HU` can't be told from two words, so in
+such a name it isn't read as an issue. A name that has a space or `_` keeps its
+dots.
+
 | Filename                                                                            | Reads                                                                                |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `Batman_-_Superman_#020_(2021).cbr`                                                 | `series: Batman`, `title: Superman`, `ext: cbr`                                      |
 | `Monster_Island_v1_#2__repaired__c2c.cbz`                                           | `series: Monster Island`, `remainders: ("(repaired)",)`                              |
 | `Cory Doctorow's Futuristic Tales of the Here and Now: Anda's Game #001 (2007).cbz` | `series: Cory Doctorow's Futuristic Tales of the Here and Now`, `title: Anda's Game` |
 | `Series Name.`                                                                      | `series: Series Name.`                                                               |
+| `Starling.Tales.054.-.The.Long.Night.(2018).(Digital).(Zone-Empire).cbz`            | `series: Starling Tales`, `issue: 054`, `title: The Long Night`                      |
+| `Starling.500.1.(2018).cbz`                                                         | `series: Starling`, `issue: 500.1`                                                   |
+| `Starling.Tales.054 (2018).cbz`                                                     | `series: Starling Tales.054`                                                         |
 
 ### Issue
 
@@ -230,7 +240,9 @@ is also the issue.
 
 The year is four digits starting with `1` or `2`: in parentheses, in a date, or
 ending a run of text when another run follows it. A number that ends the last
-run is an issue, not a year, as in `action comics 1024`.
+run is an issue, not a year, as in `action comics 1024`. When no other year is
+found, such a number right after another bare number is the year, and the number
+before it is the issue, as in `Starling 404 1987`.
 
 A date reads in these forms, with or without parentheses unless noted:
 
@@ -259,6 +271,7 @@ other number, such as `(13-31-2000)`, isn't a date. Of a month range such as
 | `Series (13-31-2000).cbz`                                                                                                | `remainders: ("(13-31-2000)",)`                         |
 | `Justice League 2011 1 (2011).cbz`                                                                                       | `series: Justice League 2011`, `issue: 1`, `year: 2011` |
 | `Series Name 2013.cbz`                                                                                                   | `series: Series Name`, `issue: 2013`                    |
+| `Starling 404 1987.cbz`                                                                                                  | `series: Starling`, `issue: 404`, `year: 1987`          |
 | `Wonder Woman #49 DC Sep-Oct 1951 digital [downsized, lightened, 4 missing story pages restored] (Shadowcat-Empire).cbz` | `year: 1951`, `month: 09`                               |
 
 ### Original format and scan info
@@ -285,17 +298,17 @@ info when there is no other.
 ### Series and title
 
 The series is the first run of text left after the other passes, even one letter
-or digit long. The title is the next run, when it comes after an issue, volume,
-year or month and before the original format and scan info. A run of one
-character that is not a letter or digit is a remainder. When only one run is
-left, a single dash followed by a space splits it into series and title. Two or
-more such dashes stay in the series. When the issue is read from before a dash,
-that dash is the split: the text before the issue is the series, earlier dashes
-included, and the text after it is the title. A lone parenthesized group in
-Title Case is a title, unless it's a known format or publisher. A lowercase one
-is a remainder. So a lone scan info group with no format before it, such as
-`(Empire)` in `Series #001 (2020) (Empire)`, reads as a title: nothing in the
-name tells a scanner from a subtitle such as the one in
+or digit long. The title is the next run, when it comes before the original
+format and scan info. A run of one character that is not a letter or digit is a
+remainder. When only one run is left, a single dash followed by a space splits
+it into series and title. Two or more such dashes stay in the series. When the
+issue is read from before a dash, that dash is the split: the text before the
+issue is the series, earlier dashes included, and the text after it is the
+title. A lone parenthesized group in Title Case is a title, unless it's a known
+format or publisher or it comes after the original format or scan info. A
+lowercase one is a remainder. So a lone scan info group with no format before
+it, such as `(Empire)` in `Series #001 (2020) (Empire)`, reads as a title:
+nothing in the name tells a scanner from a subtitle such as the one in
 `Free Comic Book Day 2015 (Avengers)`.
 
 `dict2comicfn()` writes one space between the series and the title, so a title
@@ -309,6 +322,8 @@ trailing credit of three or more words after `by` is dropped from the series.
 | Filename                                                 | Reads                                                   |
 | -------------------------------------------------------- | ------------------------------------------------------- |
 | `Long Series Name 001 (2000) Title (TPB) (Releaser).cbz` | `series: Long Series Name`, `title: Title`              |
+| `Empire #001 Long Night (2020) (Digital) (Empire).cbz`   | `series: Empire`, `title: Long Night`                   |
+| `Starling - Zone v2 #003 (2020-12-31).cbz`               | `series: Starling`, `title: Zone`                       |
 | `Bardude - The Last Thing I Remember.cbz`                | `series: Bardude`, `title: The Last Thing I Remember`   |
 | `Knight Hour- Repealed #001 (2009).cbz`                  | `series: Knight Hour`, `title: Repealed`                |
 | `Sea King - Bow Hunter - Deep Object #001 (2021).cbr`    | `series: Sea King - Bow Hunter - Deep Object`           |
@@ -360,5 +375,6 @@ string.
 | `Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz`        | `remainders: ("Out Of Place",)`                                 |
 | `Series (4 covers) #001 (2020) (repaired).cbz`                        | `remainders: ("(4 covers) (repaired)",)`                        |
 | `Series #001 (2020) [(5 covers)].cbz`                                 | `remainders: ("(5 covers)",)`                                   |
+| `Series #001 (2020) (Digital) (Empire) (HD).cbz`                      | `remainders: ("(HD)",)`                                         |
 | `Brick Walker's Beanbag Book One: Extra.cbz`                          | `title: Book One`, `remainders: ("Extra",)`                     |
 | `Series Name #001 (2020) Title (TPB) (Releaser)[Out Of Place].cbz`    | `title: Title`, `remainders: ("Out Of Place",)`                 |

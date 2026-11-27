@@ -1,5 +1,32 @@
 # 📰 comicfn2dict News
 
+## v1.1.4
+
+### ✨ Added
+
+- Names that use `.` as the separator, with no spaces or underscores, read like
+  their spaced form, as in `Starling.054.(2018).cbz`. A decimal issue such as
+  `500.1` stays whole. Thanks to @hanming5.
+
+### ♻️ Changed
+
+- A bare year right after a bare number is the year, and the number before it is
+  the issue: `Starling 404 1987.cbz` reads issue `404`, year `1987`.
+- `ComicFilenameParser.path_index()` returns where a field matched in the name,
+  also for converted values such as the month in `(Dec 2020)`.
+
+### 🐛 Fixed
+
+- A title is no longer lost when the series, original format or scan info
+  repeats a word, as in `Empire #001 Long Night (2020) (Digital) (Empire).cbz`,
+  or when the name uses underscores.
+- A title before the volume, issue and a numeric date reads as a title, as in
+  `Starling - Zone v2 #003 (2020-12-31).cbz`.
+- A parenthesized group after the original format or scan info is a remainder
+  instead of a title, as in
+  `Starling 054 (2018) (digital) (Son of Ultron-Empire) (HD).cbz`. Thanks to
+  @hanming5.
+
 ## v1.1.3
 
 ### 🐛 Fixed
