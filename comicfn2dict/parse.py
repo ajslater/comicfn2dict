@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import re
 from calendar import month_abbr
-from copy import copy
 from pathlib import Path
 from pprint import pformat
 from sys import maxsize
@@ -56,14 +56,14 @@ from comicfn2dict.regex import (
     YEAR_MONTH_DATE_RE,
     YEAR_TOKEN_RE,
 )
+from comicfn2dict.tracked import TrackedText
 
 if TYPE_CHECKING:
     from re import Match, Pattern
 
 _DATE_KEYS: frozenset[str] = frozenset({"year", "month", "day"})
 _REMAINING_GROUP_KEYS = ("series", "title")
-# Ordered by commonness.
-_TITLE_PRECEDING_KEYS = ("issue", "year", "volume", "month")
+_HYPHEN_RE = re.compile("-")
 
 
 def _outer_parens_enclose_all(value: str) -> bool:
@@ -103,18 +103,18 @@ class ComicFilenameParser:
     """Parse a filename metadata into a dict."""
 
     def path_index(self, key: str, default: int = -1) -> int:
-        """Lazily retrieve and memoize the key's location in the path."""
-        if key == "remainders":
-            return default
-        value: str = self.metadata.get(key, "")  # pyright: ignore[reportAssignmentType], # ty: ignore[invalid-assignment]
-        if not value:
-            return default
-        if value not in self._path_indexes:
-            # This is fragile, but it's difficult to calculate the original
-            #     position at match time from the ever changing _unparsed_path.
-            index = self.path.rfind(value) if key == "ext" else self.path.find(value)
-            self._path_indexes[value] = index
-        return self._path_indexes[value]
+        """Where the key's value starts in the path, recorded when it matched."""
+        return self._path_indexes.get(key, default)
+
+    @property
+    def _unparsed_path(self) -> str:
+        """The text no pass has taken yet. Rewrite it through self._unparsed."""
+        return self._unparsed.text
+
+    def _move_path_index(self, old_key: str, new_key: str) -> None:
+        """Follow a value that moves from one key to another."""
+        if (index := self._path_indexes.pop(old_key, None)) is not None:
+            self._path_indexes[new_key] = index
 
     def _log(self, label: str) -> None:
         if not self._debug:
@@ -137,9 +137,9 @@ class ComicFilenameParser:
         if not ext:
             # Python 3.14+ gives "Name." the suffix ".", which is no extension.
             return
-        data = path.name.removesuffix(suffix)
         self.metadata["ext"] = ext
-        self._unparsed_path = data
+        self._unparsed = self._unparsed[: -len(suffix)]
+        self._path_indexes["ext"] = self._unparsed.origin(len(self._unparsed.text)) + 1
 
     def _parse_written_remainders(self) -> None:
         """
@@ -150,18 +150,18 @@ class ComicFilenameParser:
         """
         if match := WRITTEN_REMAINDERS_RE.search(self._unparsed_path):
             self._written_remainders = (match.group("remainders"),)
-            self._unparsed_path = self._unparsed_path[: match.start()]
+            self._unparsed = self._unparsed[: match.start()]
         self._log("After written remainders")
 
     def _clean_dividers(self) -> None:
         """Replace non space dividers and clean extra spaces out of string."""
-        data = self._unparsed_path
+        data = self._unparsed
 
         # Simple substitutions
         for regex, pair in REGEX_SUBS.items():
             replacement, count = pair
-            data = regex.sub(replacement, data, count=count).strip()
-        self._unparsed_path = data.strip()
+            data = data.sub(regex, replacement, count=count).strip()
+        self._unparsed = data
         self._log("After Clean Path")
 
     def _parse_items_update_metadata(
@@ -182,18 +182,18 @@ class ComicFilenameParser:
         if not matched_metadata:
             return False
         self.metadata.update(matched_metadata)
+        for key in matched_metadata:
+            self._path_indexes[key] = self._unparsed.origin(matches.start(key))
         return True
 
     def _parse_items_pop_tokens(self, regex: Pattern, *, first_only: bool) -> None:
         """Pop tokens from unparsed path."""
         count = 1 if first_only else 0
-        marked_str = regex.sub(TOKEN_DELIMITER, self._unparsed_path, count=count)
-        parts = []
-        for part in marked_str.split(TOKEN_DELIMITER):
-            token = part.strip()
-            if token:
-                parts.append(token)
-        self._unparsed_path = TOKEN_DELIMITER.join(parts)
+        marked = self._unparsed.sub(regex, TOKEN_DELIMITER, count=count)
+        tokens = (part.strip() for part in marked.split(TOKEN_DELIMITER))
+        self._unparsed = TrackedText.join(
+            TOKEN_DELIMITER, (token for token in tokens if token.text)
+        )
 
     def _parse_items(
         self,
@@ -251,7 +251,7 @@ class ComicFilenameParser:
             _all_hyphens = " " not in self._unparsed_path
             self._parse_items(ISSUE_KEYWORD_RE, first_only=True)
             if "issue" in self.metadata and _all_hyphens:
-                self._unparsed_path = self._unparsed_path.replace("-", " ").strip()
+                self._unparsed = self._unparsed.sub(_HYPHEN_RE, " ").strip()
         self._log("After Issue")
 
     def _parse_volume(self) -> None:
@@ -275,12 +275,13 @@ class ComicFilenameParser:
                 if abbr and alpha_month.startswith(abbr):
                     month = f"{index:02d}"
                     self.metadata["month"] = month
+                    self._move_path_index("alpha_month", "month")
                     break
 
     def _parse_dates(self) -> None:
         """Parse date schemes."""
         # Discard second month of alpha month ranges.
-        self._unparsed_path = ALPHA_MONTH_RANGE_RE.sub(r"\1", self._unparsed_path)
+        self._unparsed = self._unparsed.sub(ALPHA_MONTH_RANGE_RE, r"\1")
 
         # Month first date
         self._parse_items(MONTH_FIRST_DATE_RE)
@@ -307,9 +308,11 @@ class ComicFilenameParser:
             # A second year will be the real year.
             # Move the first year to volume
             if volume := self.metadata.get("year", ""):
+                volume_index = self.path_index("year")
                 self._parse_items(YEAR_TOKEN_RE)
                 if self.metadata.get("year", "") != volume:
                     self.metadata["volume"] = volume
+                    self._path_indexes["volume"] = volume_index
         self._log("After Date")
 
     def _parse_format_and_scan_info(self) -> None:
@@ -339,6 +342,7 @@ class ComicFilenameParser:
             scan_info_secondary := self.metadata.pop("secondary_scan_info", "")
         ) and "scan_info" not in self.metadata:
             self.metadata["scan_info"] = scan_info_secondary
+            self._move_path_index("secondary_scan_info", "scan_info")
         self._log("After original_format & scan_info")
 
     def _parse_paren_publisher(self) -> None:
@@ -359,6 +363,14 @@ class ComicFilenameParser:
         if "title" in self.metadata:
             return
         if self._unparsed_path.count("(") != 1:
+            return
+        match = TITLE_PAREN_RE.search(self._unparsed_path)
+        if not match:
+            return
+        # A group after the format or scan info isn't a title, as in
+        # "(Digital) (Empire) (HD)".
+        title_index = self._unparsed.origin(match.start("title"))
+        if not self._is_before_format_and_scan_info(title_index):
             return
         self._parse_items(TITLE_PAREN_RE, first_only=True)
         self._log("After paren subtitle")
@@ -430,27 +442,11 @@ class ComicFilenameParser:
             self._parse_items(PUBLISHER_AMBIGUOUS_RE, pop=False, first_only=True)
         self._log("After publisher")
 
-    def _is_at_title_position(self, value: str) -> bool:
-        """Title is in correct position."""
-        title_index = self.path.find(value)
-
-        # Titles must come after series but before format and scan_info
-        if (
-            title_index < self.path_index("series")
-            or title_index > self.path_index("original_format", maxsize)
-            or title_index > self.path_index("scan_info", maxsize)
-        ):
-            return False
-
-        # Titles must be after the series and one other token.
-        title_ok = False
-        other_tokens_exist = False
-        for preceding_key in _TITLE_PRECEDING_KEYS:
-            other_tokens_exist = True
-            if title_index > self.path_index(preceding_key):
-                title_ok = True
-                break
-        return title_ok or not other_tokens_exist
+    def _is_before_format_and_scan_info(self, index: int) -> bool:
+        """Whether a position in the path is before the format and scan info."""
+        return index < self.path_index("original_format", maxsize) and (
+            index < self.path_index("scan_info", maxsize)
+        )
 
     def _grouping_operators_strip(self, value: str) -> str:
         """Strip spaces and parens."""
@@ -462,26 +458,28 @@ class ComicFilenameParser:
         return value.strip('"').strip()
 
     def _parse_series_and_title_token(
-        self, remaining_key_index: int, tokens: list[str]
+        self, remaining_key_index: int, tokens: list[TrackedText]
     ) -> str:
         """Parse one series or title token."""
         key = _REMAINING_GROUP_KEYS[remaining_key_index]
         if key in self.metadata:
             return ""
         token = tokens.pop(0)
-        match = REMAINING_GROUP_RE.search(token)
+        match = REMAINING_GROUP_RE.search(token.text)
         if not match:
-            return token
+            return token.text
         value = match.group()
+        index = token.origin(match.start())
         if key == "title":
-            if not self._is_at_title_position(value):
-                return token
+            if not self._is_before_format_and_scan_info(index):
+                return token.text
 
             # Parse titles that are really formats as formats.
             if "original_format" not in self.metadata and (
                 match := ORIGINAL_FORMAT_NAKED_RE.fullmatch(value)
             ):
                 self.metadata["original_format"] = match.group()
+                self._path_indexes["original_format"] = index
                 return ""
 
         # Acronyms produce overlapping matches (A.X.E. needs two passes)
@@ -497,6 +495,7 @@ class ComicFilenameParser:
         value = self._grouping_operators_strip(value)
         if value:
             self.metadata[key] = value
+            self._path_indexes[key] = index
         return ""
 
     def _parse_series_and_title(self) -> None:
@@ -504,7 +503,7 @@ class ComicFilenameParser:
         if not self._unparsed_path:
             return
 
-        tokens = self._unparsed_path.split(TOKEN_DELIMITER)
+        tokens = self._unparsed.split(TOKEN_DELIMITER)
         # Promote a single dash separator in the only remaining token to a
         # series/title boundary. Catches the common convention where the
         # canonical ":" is replaced with " - " (or "word- ") because
@@ -513,10 +512,10 @@ class ComicFilenameParser:
         # stays in the series and so a later token already destined for the
         # title isn't displaced.
         if "title" not in self.metadata and len(tokens) == 1:
-            matches = DASH_SEPARATOR_RE.findall(tokens[0])
+            matches = list(DASH_SEPARATOR_RE.finditer(tokens[0].text))
             if len(matches) == 1:
-                head, tail = DASH_SEPARATOR_RE.split(tokens[0], maxsplit=1)
-                tokens = [head, tail]
+                dash = matches[0]
+                tokens = [tokens[0][: dash.start()], tokens[0][dash.end() :]]
 
         remaining_key_index = 0
         unused_tokens = []
@@ -528,9 +527,9 @@ class ComicFilenameParser:
                 unused_tokens.append(unused_token)
             remaining_key_index += 1
         # Tokens past the series and title are remainders.
-        unused_tokens.extend(tokens)
+        unused_tokens.extend(token.text for token in tokens)
 
-        self._unparsed_path = " ".join(unused_tokens) if unused_tokens else ""
+        self._unparsed = TrackedText.from_source(" ".join(unused_tokens))
         self._log("After Series & Title")
 
     def _add_remainders(self) -> None:
@@ -568,6 +567,7 @@ class ComicFilenameParser:
         # Copy volume into issue if it's all we have.
         if "issue" not in self.metadata and "volume" in self.metadata:
             self.metadata["issue"] = self.metadata["volume"]
+            self._path_indexes["issue"] = self.path_index("volume")
             self._log("Using volume for issue.")
         self._log("After issue can be volume")
 
@@ -584,7 +584,7 @@ class ComicFilenameParser:
         p_path = Path(path)
         self.path = str(p_path.name).strip()
         self.metadata: dict[str, str | tuple[str, ...]] = {}
-        self._unparsed_path = copy(self.path)
+        self._unparsed = TrackedText.from_source(self.path)
         self._path_indexes: dict[str, int] = {}
         self._written_remainders: tuple[str, ...] = ()
 

@@ -285,17 +285,17 @@ info when there is no other.
 ### Series and title
 
 The series is the first run of text left after the other passes, even one letter
-or digit long. The title is the next run, when it comes after an issue, volume,
-year or month and before the original format and scan info. A run of one
-character that is not a letter or digit is a remainder. When only one run is
-left, a single dash followed by a space splits it into series and title. Two or
-more such dashes stay in the series. When the issue is read from before a dash,
-that dash is the split: the text before the issue is the series, earlier dashes
-included, and the text after it is the title. A lone parenthesized group in
-Title Case is a title, unless it's a known format or publisher. A lowercase one
-is a remainder. So a lone scan info group with no format before it, such as
-`(Empire)` in `Series #001 (2020) (Empire)`, reads as a title: nothing in the
-name tells a scanner from a subtitle such as the one in
+or digit long. The title is the next run, when it comes before the original
+format and scan info. A run of one character that is not a letter or digit is a
+remainder. When only one run is left, a single dash followed by a space splits
+it into series and title. Two or more such dashes stay in the series. When the
+issue is read from before a dash, that dash is the split: the text before the
+issue is the series, earlier dashes included, and the text after it is the
+title. A lone parenthesized group in Title Case is a title, unless it's a known
+format or publisher or it comes after the original format or scan info. A
+lowercase one is a remainder. So a lone scan info group with no format before
+it, such as `(Empire)` in `Series #001 (2020) (Empire)`, reads as a title:
+nothing in the name tells a scanner from a subtitle such as the one in
 `Free Comic Book Day 2015 (Avengers)`.
 
 `dict2comicfn()` writes one space between the series and the title, so a title
@@ -309,6 +309,8 @@ trailing credit of three or more words after `by` is dropped from the series.
 | Filename                                                 | Reads                                                   |
 | -------------------------------------------------------- | ------------------------------------------------------- |
 | `Long Series Name 001 (2000) Title (TPB) (Releaser).cbz` | `series: Long Series Name`, `title: Title`              |
+| `Empire #001 Long Night (2020) (Digital) (Empire).cbz`   | `series: Empire`, `title: Long Night`                   |
+| `Starling - Zone v2 #003 (2020-12-31).cbz`               | `series: Starling`, `title: Zone`                       |
 | `Bardude - The Last Thing I Remember.cbz`                | `series: Bardude`, `title: The Last Thing I Remember`   |
 | `Knight Hour- Repealed #001 (2009).cbz`                  | `series: Knight Hour`, `title: Repealed`                |
 | `Sea King - Bow Hunter - Deep Object #001 (2021).cbr`    | `series: Sea King - Bow Hunter - Deep Object`           |
@@ -360,5 +362,6 @@ string.
 | `Long Series Name 001 (2000) (TPB-Releaser) Out: Of Place.cbz`        | `remainders: ("Out Of Place",)`                                 |
 | `Series (4 covers) #001 (2020) (repaired).cbz`                        | `remainders: ("(4 covers) (repaired)",)`                        |
 | `Series #001 (2020) [(5 covers)].cbz`                                 | `remainders: ("(5 covers)",)`                                   |
+| `Series #001 (2020) (Digital) (Empire) (HD).cbz`                      | `remainders: ("(HD)",)`                                         |
 | `Brick Walker's Beanbag Book One: Extra.cbz`                          | `title: Book One`, `remainders: ("Extra",)`                     |
 | `Series Name #001 (2020) Title (TPB) (Releaser)[Out Of Place].cbz`    | `title: Title`, `remainders: ("Out Of Place",)`                 |
